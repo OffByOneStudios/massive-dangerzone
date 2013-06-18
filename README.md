@@ -1,4 +1,4 @@
 massive-dangerzone
 ==================
 
-An attempt to build a framework for build large scale python applications.
+A multi-lingual plugin framework. massive-dangerzone, abreviated madz, uses c as an intermediate language to tie plugins togeather and is built on python.
