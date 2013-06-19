@@ -68,15 +68,14 @@ def convert(interface):
     Returns:
         String representing source and header file
     """
+    res=""
     head = "/*" + interface.name + ".h\nVersion:" + interface.version + "\n" + "*/\n"
     statements = map(lambda node: (node[1], as_c_statement(node[0], node[1])), interface.declarations.items())
-
-    print "Dyst@"
     statements = sorted(statements, key=ordering)
     for i in statements:
-        print i[1] + ";"
+        res+= i[1] + ";\n"
 
-    return ""
+    return head+res
 
 
 def main():
