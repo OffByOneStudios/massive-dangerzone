@@ -51,7 +51,6 @@ class PythonPluginDescription(object):
     """An object representing a python plugin description.
 
     Python plugin descriptions are represented as a '__plugin__.py' file in the plugin directory.
-
     """
     def __init__(self, directory):
         """Attempts to load a python description from the directory given."""

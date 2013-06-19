@@ -7,31 +7,31 @@ plugin = Plugin(name = "Barks.module",
     requires = [],
     declarations = {
         #Type Declarations
-        "month":ITTypedef(ITInt8()),
-        "Point2d":ITStructType({
-        "x":ITInt32(),
-        "y":ITInt32(),
+        "month":TypeTypedef(TypeInt8()),
+        "Point2d":TypeStructType({
+        "x":TypeInt32(),
+        "y":TypeInt32(),
         }),
         #Variable Declarations
-        "var1":ITInt8(), #A Byte, uninitialized
-        "var2":ITInt16(8), #A Short, initiailized
-        "var3":ITPtr(ITChar()),#A Char Pointer, Unintialized
-        "apoint":ITStructVar("Point2d"),
+        "var1":TypeInt8(), #A Byte, uninitialized
+        "var2":TypeInt16(8), #A Short, initiailized
+        "var3":TypePtr(TypeChar()),#A Char Pointer, Unintialized
+        "apoint":TypeStructVar("Point2d"),
         #Functions
-        "do_foo":ITFunction(
-            return_type = ITNone(),
-            args = {"i":ITInt32()}
+        "do_foo":TypeFunction(
+            return_type = TypeNone(),
+            args = {"i":TypeInt32()}
             ),
-        "do_obj_foo":ITFunction(
-            ITNone(),
+        "do_obj_foo":TypeFunction(
+            TypeNone(),
             
-            {"theFoo":ITPtr(ITStructVar("Point2d")),"j":ITInt32()}),
+            {"theFoo":TypePtr(TypeStructVar("Point2d")),"j":TypeInt32()}),
         
-        "set_foo":ITFunction(
-            ITInt32(),
+        "set_foo":TypeFunction(
+            TypeInt32(),
             {
-                "foo":ITPtr(ITVoid()),
-                "j":ITInt32()
+                "foo":TypePtr(TypeVoid()),
+                "j":TypeInt32()
                 }
             )
     }

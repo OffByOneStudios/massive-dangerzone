@@ -1,9 +1,3 @@
-"""interface.py
-@OffbyOne Studios
-Basic Classes for C interportability
-"""
-from abc import ABCMeta
-
 
 class Type(object):
     """Abstract Base Class for Types"""
@@ -108,7 +102,7 @@ class TypePtr(Type):
 
 class TypeFunction(Type):
 
-    def __init__(self, return_type = TypeNone(), args={}, attributes = []):
+    def __init__(self, return_type = ITNone(), args={}, attributes = []):
         self.return_type = return_type
         self.attributes = attributes
         self.args = args
