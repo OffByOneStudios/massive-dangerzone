@@ -68,12 +68,12 @@ class TypeChar(Type):
 
 class TypeTypedef(Type):
     """A Typedef"""
-    def __init(self, the_type):
+    def __init__(self, t):
         """Typedef Type constructor
         Args:
             type :The Type to alias
         """
-        self.type = the_type
+        self.type = t
 
 
 class TypeStructType(Type):
@@ -98,14 +98,7 @@ class TypeStructVar(Type):
 
 
 class TypePtr(Type):
-    def __init__(self, value):
-        """C Pointer Representation
-
-        Args:
-            value:
-                A Type, potentially initialized.
-        """
-
+    pass
 class TypeFunction(Type):
 
     def __init__(self, return_type = TypeNone(), args={}, attributes = []):
