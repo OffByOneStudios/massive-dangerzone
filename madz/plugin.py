@@ -1,33 +1,36 @@
 import os, sys
 import imp
 
-class PluginIndex(object):
+class PluginError(Exception): pass
+
+class PluginId(object):
     """A value type for uniquely identifying plugins."""
-    def __init__(self, namespace, version, implementation_name):
+    def __init__(self, namespace, version, implementation_name="default"):
         self.namespace = namespace
         self.version = version
         self.implementation_name = implementation_name
 
+    class NotAPluginIdString(PluginError): class
+
     @classmethod
     def parse(cls, relative):
-        """Parses a canoical string into a PluginIndex"""
-        # TODO(Mason): Exception types
+        """Parses a canoical plugin id string into a PluginIndex"""
         relativestring = relative
 
         version_string = None
         version_start = relativestring.find('[')
         version_end = relativestring.find(']')
         if (version_start == -1) ^ (version_start == -1):
-            raise Exception
+            raise NotAPluginIdString("Cannot contain ']' or '[' except as version delimiters.")
         elif version_start != -1:
             version_string = relativestring[version_start+1:version_end]
             relativestring = relativestring[:version_start] + relativestring[version_end+1:]
             
         implname_string = None
-        implname_start = relativestring.find('[')
-        implname_end = relativestring.find(']')
+        implname_start = relativestring.find('(')
+        implname_end = relativestring.find(')')
         if (implname_start == -1) ^ (implname_start == -1):
-            raise Exception
+            raise NotAPluginIdString("Cannot contain ')' or '(' except as version delimiters.")
         elif version_start != -1:
             implname_string = relativestring[implname_start+1:implname_end]
             relativestring = relativestring[:implname_start] + relativestring[implname_end+1:]
@@ -40,6 +43,15 @@ class PluginIndex(object):
 
     def __hash__(self):
         return hash(self.as_tuple())
+
+    def compatible(self, other):
+        return \
+            reduce(lambda a, i: a and i,
+                map(lambda a, b: a == b or ((a is None) != (b is None)),
+                    self.as_tuple(), other.as_tuple()))
+
+    def merge(self, other):
+        return map(lambda a, b: a or b, self.as_tuple(), other.as_tuple())
 
     def __eq__(self, other):
         return self.as_tuple() == other.as_tuple()
@@ -58,6 +70,7 @@ class PythonPluginDescription(object):
         self._py_module_filename = os.path.join(directory, "__plugin__.py")
 
         self._init_module()
+        self._init_required()
 
     @classmethod
     def contains_description(cls, directory):
@@ -70,13 +83,24 @@ class PythonPluginDescription(object):
             # TODO(Mason): Figure out name variable
             self.module = imp.load_module("test", module_file, self._py_module_filename, ('.py', 'r', imp.PY_SOURCE))
 
-    def _get(self, name):
+    PluginDescriptionError(PluginError): pass
+    PluginDescriptionKeyError(PluginDescriptionError): pass
+
+    def _init_required(self):
+        
+
+    def _excepting_get(self, name):
+        v = self.get(name)
+        if v is None:
+            raise PluginDescriptionKeyError()
+
+    def get(self, name):
         """Gets an arbitrary value from the loaded plugin file."""
         return (getattr(self.module, name) if hasattr(self.module, name) else None)
 
-    def get_index_tuple(self):
-        """Returns the PluginIndex described by the description file."""
-        return (self._get("namespace"), self._get("version"), self._get("implementation_name"))
+    def get_plugin_id(self):
+        """Returns the PluginId described by the description file."""
+        return PluginId(self.get("namespace"), self.get("version"), self.get("implementation_name"))
 
 class PluginStub(object):
     """A helper container for the index, description, and directory of a plugin."""
@@ -110,40 +134,12 @@ class PluginDirectory(object):
 
             if PythonPluginDescription.contains_description(root):
                 description = PythonPluginDescription(root)
-                file_pieces = PluginIndex.parse(".".join(splitrelroot)).as_tuple()
-                desc_pieces = description.get_index_tuple()
-                match = \
-                    reduce(lambda a, i: a and i,
-                        map(lambda a, b: a == b or ((a is None) != (b is None)),
-                            file_pieces, desc_pieces))
-                if not match:
+                file_pid = PluginIndex.parse(".".join(splitrelroot)).as_tuple()
+                desc_pid = description.get_index_tuple()
+                
+                if not file_pid.compatible(desc_pid):
                     raise Exception # TODO(Mason): better exception
-                merged = map(lambda a, b: a or b, file_pieces, desc_pieces)
-                index = PluginIndex(*merged)
+                index = file_pid.merge(desc_pid)
 
                 self._add_stub(PluginStub(index, description, root))
-
-class PluginSystem(object):
-    """ A plugin system object which manages a root namespace of objects.
-
-    Responsible for compiling togeather and then loading plugins across language boundries.
-
-    """
-    def __init__(self, rootname):
-        self.rootname = rootname
-        self.directories = []
-        self.plugin_stubs = {}
-
-    @staticmethod
-    def _join_namespaces(first, second):
-        splitfirst = first.split('.')
-        splitsecond = second.split('.')
-
-        return ".".join(splitfirst + splitsecond)
-
-    def _add_plugin_stub(self, plugin_stub):
-        self.plugin_stubs[plugin_stub.index] = plugin_stub
-
-    def load_plugin_directory(self, directory, sub_namespace=""):
-        self.directories.append(PluginDirectory(self, directory, sub_namespace))
 
