@@ -66,3 +66,8 @@ class ITPtr(Interface_Type):
 
 class ITNone(Interface_Type):
     pass
+
+
+class ITFunction(Interface_Type):
+    pass
+    
