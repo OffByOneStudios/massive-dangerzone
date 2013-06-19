@@ -2,6 +2,7 @@ import os, sys
 import imp
 
 class PluginIndex(object):
+    """A value type for uniquely identifying plugins."""
     def __init__(self, namespace, version, implementation_name):
         self.namespace = namespace
         self.version = version
@@ -9,6 +10,7 @@ class PluginIndex(object):
 
     @classmethod
     def parse(cls, relative):
+        """Parses a canoical string into a PluginIndex"""
         # TODO(Mason): Exception types
         relativestring = relative
 
@@ -30,9 +32,10 @@ class PluginIndex(object):
             implname_string = relativestring[implname_start+1:implname_end]
             relativestring = relativestring[:implname_start] + relativestring[implname_end+1:]
 
-        return (relativestring, version_string, implname_string)
+        return cls(relativestring, version_string, implname_string)
 
     def as_tuple(self):
+        """Returns a tuple for uniquely indentifying the PluginIndex"""
         return (self.namespace, self.version, self.implementation_name)
 
     def __hash__(self):
@@ -41,8 +44,17 @@ class PluginIndex(object):
     def __eq__(self, other):
         return self.as_tuple() == other.as_tuple()
 
+    def __repr__(self):
+        return "PluginIndex{!r}".format(self.as_tuple())
+
 class PythonPluginDescription(object):
+    """An object representing a python plugin description.
+
+    Python plugin descriptions are represented as a '__plugin__.py' file in the plugin directory.
+
+    """
     def __init__(self, directory):
+        """Attempts to load a python description from the directory given."""
         # TODO(Mason): Exception for plugin file not found
         self._py_module_filename = os.path.join(directory, "__plugin__.py")
 
@@ -50,6 +62,7 @@ class PythonPluginDescription(object):
 
     @classmethod
     def contains_description(cls, directory):
+        """Returns true if the directory contains a potential python plugin description."""
         return os.path.exists(os.path.join(directory, "__plugin__.py"))
 
     def _init_module(self):
@@ -59,12 +72,15 @@ class PythonPluginDescription(object):
             self.module = imp.load_module("test", module_file, self._py_module_filename, ('.py', 'r', imp.PY_SOURCE))
 
     def _get(self, name):
+        """Gets an arbitrary value from the loaded plugin file."""
         return (getattr(self.module, name) if hasattr(self.module, name) else None)
 
     def get_index_tuple(self):
+        """Returns the PluginIndex described by the description file."""
         return (self._get("namespace"), self._get("version"), self._get("implementation_name"))
 
 class PluginStub(object):
+    """A helper container for the index, description, and directory of a plugin."""
     def __init__(self, index, description, directory):
         self.index = index
         self.description = description
@@ -95,7 +111,7 @@ class PluginDirectory(object):
 
             if PythonPluginDescription.contains_description(root):
                 description = PythonPluginDescription(root)
-                file_pieces = PluginIndex.parse(".".join(splitrelroot))
+                file_pieces = PluginIndex.parse(".".join(splitrelroot)).as_tuple()
                 desc_pieces = description.get_index_tuple()
                 match = \
                     reduce(lambda a, i: a and i,
