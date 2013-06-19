@@ -7,58 +7,58 @@ import sys
 sys.path.append("../../../")
 from pyMDL import *
 
-def as_c_statement(key,val):
-    if isinstance(val, TypeNone):
-        return "void "
-    if isinstance(val, TypeVoid):
-        return "void " + key
-    if isinstance(val, TypeInt8):
-        return "char " + key
-    if isinstance(val, TypeInt16):
-        return "short " + key
-    if isinstance(val, TypeInt32):
-        return "int " + key
-    if isinstance(val, TypeInt64):
-        return "long long " + key
-    if isinstance(val, TypeUInt8):
-        return "unsigned char " + key
-    if isinstance(val, TypeUInt16):
-        return "unsigned short " + key 
-    if isinstance(val, TypeUInt32):
-        return "unsigned int " + key
-    if isinstance(val, TypeInt64):
-        return "unsigned long long" + key
-    if isinstance(val, TypeFloat32):
-        return "float "+ key
-    if isinstance(val, TypeFloat64):
-        return "double " + key
-    if isinstance(val, TypeChar):
-        return "char " + key
-    if isinstance(val, TypeTypedef):
-        return "typedef " +as_c_statement("",val.type) + key
-    if isinstance(val, TypeStructType):
-        s= "typedef struct{\n"
+def as_c_statement(key, val):
+    def table_struct(key):
+        s = "typedef struct{\n"
         for k,v in val.value.items():
-            s+="\t"+as_c_statement(k,v)+";\n"
-            #s+="\t"+as_c_statement(k,v)+";\n"
-        s+="}"+key
+            s += "\t" + as_c_statement(k,v) + ";\n"
+        s += "} " + key
         return s
-    if isinstance(val, TypeStructVar):
-        return "struct "+val.value+" "+key
-    if isinstance(val, TypePtr):
-        return as_c_statement("",val.value)+"*"+ key
-    if isinstance(val, TypeFunction):
+    def table_function(key):
         ret = as_c_statement("", val.return_type)
-        ret += key +"("
-        for k,v in val.args.items():
-            ret+=as_c_statement(k,v)+", "
-        ret = ret[0:len(ret)-2]+")"
+        ret += key + "("
+        for k, v in val.args.items():
+            ret += as_c_statement(k,v) + ", "
+        ret = ret[0:len(ret)-2] + ")"
         return ret
 
-    else:
-        print type(val)
-        raise NotImplementedError
+    table = {
+        TypeNone : lambda k: "void ",
+        TypeVoid : lambda k: "void " + k,
+        TypeInt8 : lambda k: "char " + k,
+        TypeInt16 : lambda k: "short " + k,
+        TypeInt32 : lambda k: "int " + k,
+        TypeInt64 : lambda k: "long long " + k,
+        TypeUInt8 : lambda k: "unsigned char " + k,
+        TypeUInt16 : lambda k: "unsigned short " + k,
+        TypeUInt32 : lambda k: "unsigned int " + k,
+        TypeInt64 : lambda k: "unsigned long long" + k,
+        TypeFloat32 : lambda k: "float "+ k,
+        TypeFloat64 : lambda k: "double " + k,
+        TypeChar : lambda k: "char " + k,
+        TypeTypedef : lambda k: "typedef " + as_c_statement("",val.type) + k,
+        TypeStructVar : lambda k: "struct " + val.value + " " + key,
+        TypePtr : lambda k: as_c_statement("",val.value) + "*" + key,
+        TypeStructType : table_struct,
+        TypeFunction : table_function
+    }
 
+    return table[val.__class__](key)
+
+def ordering(node):
+    node_type = node[0].__class__
+    # Typedefs
+    # Structs
+    # Variables
+    # Fucntions
+    if node_type == TypeTypedef:
+        return 1
+    elif node_type == TypeStructType:
+        return 2
+    elif node_type == TypeFunction:
+        return 4
+    else:
+        return 3
 
 def convert(interface):
     """Converts interface's contents to C header/body file
@@ -69,16 +69,14 @@ def convert(interface):
         String representing source and header file
     """
     head = "/*" + interface.name + ".h\nVersion:" + interface.version + "\n" + "*/\n"
-    statements=[]
-    for key,val in interface.declarations.items():
-        statements.append(as_c_statement(key,val))
+    statements = map(lambda node: (node[1], as_c_statement(node[0], node[1])), interface.declarations.items())
 
-    res=""
     print "Dyst@"
-    #print statements
+    statements = sorted(statements, key=ordering)
     for i in statements:
-        print i
-    return res
+        print i[1] + ";"
+
+    return ""
 
 
 def main():
