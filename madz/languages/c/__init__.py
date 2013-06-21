@@ -13,6 +13,18 @@ class WrapperGenerator(object):
         if not (os.path.exists(b_dir)):
             os.makedirs(b_dir)
 
+    hack = \
+"""
+#include<stdlib.h>
+struct ___madz_TYPE_a * ___madz_this_output;
+int ___madz_init(void * * dependencies, void * * requirements, void * * output) {
+    ___madz_this_output = (struct ___madz_TYPE_a *)malloc(sizeof(___madz_TYPE_a));
+    ___madz_this_output->distance = &___madz_output_distance;
+    (*output) = ___madz_this_output;
+}
+
+"""
+
     def generate(self):
         self.prep()
 
@@ -22,6 +34,7 @@ class WrapperGenerator(object):
         with open(os.path.join(b_dir, "madz.h"), "w") as f:
             f.write(gen.make_typedefs(self.plugin_stub))
             f.write(gen.make_structs(self.plugin_stub))
+            f.write(self.hack)
 
 import build
 
