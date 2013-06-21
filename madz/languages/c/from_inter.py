@@ -18,17 +18,17 @@ class From_Inter(object):
             if isinstance(val, TypeFunction):
                 functions.append((key,val))
             elif isinstance(val, TypeTypedef):
-                res+=self.as_c_statement(key,val)+";\n"
+                res+=self.as_c_statement(interface.name, key,val)+";\n"
             elif isinstance(val,TypeStructType):
-                res += self.as_c_statement(key,val) + ";\n"
+                res += self.as_c_statement(interface.name,key,val) + ";\n"
         for key,val in functions:
-            arglist = [self.as_c_statement("",v) for k,v in val.args.items()]
+            arglist = [self.as_c_statement(interface.name,"",v) for k,v in val.args.items()]
             args= "("
             for i in arglist:
                 args += i + ", "
 
             args=args[0:len(args)-3] + ")"
-            res += "typedef "+ self.as_c_statement("",val.return_type) + "(*" +function_prefix + namespace + "_"+ key +")" + args + ";\n"
+            res += "typedef "+ self.as_c_statement(interface.name,"",val.return_type) + "(*" +function_prefix + namespace + "_"+ key +")" + args + ";\n"
 
 
 
@@ -41,19 +41,20 @@ class From_Inter(object):
             if isinstance(val,TypeFunction):
                 res += "\t"+function_prefix +key+ " "+key +";\n";
             elif not isinstance(val,TypeStructType) and not isinstance(val,TypeTypedef):
-                res += "\t"+self.as_c_statement(key, val)+";\n"
+                res += "\t"+self.as_c_statement(interface.name, key, val)+";\n"
         res += '}' + function_prefix+namespace + ";"
         return res;
 
-    def as_c_statement(self, key, val):
+    def as_c_statement(self,name, key, val):
+        namespace = name.replace(".","__")
         def table_struct(key):
             s = "typedef struct{\n"
             for k,v in val.value.items():
-                s += "\t" + self.as_c_statement(k,v) + ";\n"
-            s += "} " + key
+                s += "\t" + self.as_c_statement(name,k,v) + ";\n"
+            s += "} " + function_prefix+namespace+"_" +key
             return s
         def table_function(key):
-            ret = self.as_c_statement("", val.return_type)
+            ret = self.as_c_statement(name, "", val.return_type)
             ret += key + "("
             for k, v in val.args.items():
                 ret += self.as_c_statement(k,v) + ", "
@@ -74,9 +75,9 @@ class From_Inter(object):
             TypeFloat32 : lambda k: "float "+ k,
             TypeFloat64 : lambda k: "double " + k,
             TypeChar : lambda k: "char " + k,
-            TypeTypedef : lambda k: "typedef " + self.as_c_statement("",val.type) + k,
-            TypeStructVar : lambda k: "struct " + val.value + " " + key,
-            TypePtr : lambda k: self.as_c_statement("",val.value) + "*" + key,
+            TypeTypedef : lambda k: "typedef " + self.as_c_statement(name, "",val.type) + function_prefix+namespace+"_"+key,
+            TypeStructVar : lambda k: "struct " + function_prefix+namespace + "_"+val.value + " " + key,
+            TypePtr : lambda k: self.as_c_statement(name, "",val.value) + "*" + key,
             TypeStructType : table_struct,
             TypeFunction : table_function
         }
