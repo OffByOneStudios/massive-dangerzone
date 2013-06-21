@@ -1,4 +1,6 @@
 import from_inter
+import os
+
 class WrapperGenerator(object):
     def __init__(self, plugin_stub):
         self.plugin_stub = plugin_stub
@@ -12,9 +14,14 @@ class WrapperGenerator(object):
             os.makedirs(b_dir)
 
     def generate(self):
-        p = From_Inter()
         self.prep()
+
+        gen = from_inter.From_Inter()
         b_dir = self.get_build_directory()
+
+        with open(os.path.join(b_dir, "madz.h"), "w") as f:
+            f.write(gen.make_typedefs(self.plugin_stub))
+            f.write(gen.make_structs(self.plugin_stub))
 
 import build
 

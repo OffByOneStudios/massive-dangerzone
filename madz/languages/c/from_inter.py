@@ -4,44 +4,43 @@ Converts from MDL to C headers
 """
 import sys
 
-sys.path.append("../../")
-from pyMDL import *
+from madz.pyMDL import *
 
 function_prefix ="___madz_TYPE_"
 
 class From_Inter(object):
-    def make_typedefs(self, interface):
-        namespace = interface.name.replace(".","__")
+    def make_typedefs(self, plugin):
+        namespace = plugin.id.namespace.replace(".","__")
         res = ""
         functions = []
-        for key,val in interface.declarations.items():
+        for key,val in plugin.get("declarations").items():
             if isinstance(val, TypeFunction):
                 functions.append((key,val))
             elif isinstance(val, TypeTypedef):
-                res+=self.as_c_statement(interface.name, key,val)+";\n"
+                res+=self.as_c_statement(plugin.id.namespace, key,val)+";\n"
             elif isinstance(val,TypeStructType):
-                res += self.as_c_statement(interface.name,key,val) + ";\n"
+                res += self.as_c_statement(plugin.id.namespace,key,val) + ";\n"
         for key,val in functions:
-            arglist = [self.as_c_statement(interface.name,"",v) for k,v in val.args.items()]
+            arglist = [self.as_c_statement(plugin.id.namespace,"",v) for k,v in val.args.items()]
             args= "("
             for i in arglist:
                 args += i + ", "
 
             args=args[0:len(args)-3] + ")"
-            res += "typedef "+ self.as_c_statement(interface.name,"",val.return_type) + "(*" +function_prefix + namespace + "_"+ key +")" + args + ";\n"
+            res += "typedef "+ self.as_c_statement(plugin.id.namespace,"",val.return_type) + "(*" +function_prefix + namespace + "_"+ key +")" + args + ";\n"
 
 
 
         return res
 
-    def make_structs(self, interface):
-        namespace = interface.name.replace(".","__")
+    def make_structs(self, plugin):
+        namespace = plugin.id.namespace.replace(".","__")
         res = "typedef struct{\n"
-        for key,val in interface.declarations.items():
+        for key,val in plugin.get("declarations").items():
             if isinstance(val,TypeFunction):
                 res += "\t"+function_prefix +key+ " "+key +";\n";
             elif not isinstance(val,TypeStructType) and not isinstance(val,TypeTypedef):
-                res += "\t"+self.as_c_statement(interface.name, key, val)+";\n"
+                res += "\t"+self.as_c_statement(plugin.id.namespace, key, val)+";\n"
         res += '}' + function_prefix+namespace + ";"
         return res;
 
@@ -98,21 +97,4 @@ class From_Inter(object):
             return 4
         else:
             return 3
-
-
-def main():
-    sys.path.append("../../../examples/simple_interface_example/Barks/module/interface")
-    sys.path.append("../../../")
-    import imodule
-    f = From_Inter()
-    p = imodule.plugin
-    #res = convert(p)
-
-    tdefs = f.make_typedefs(p)
-    print tdefs
-    structs= f.make_structs(p)
-    print structs
-if __name__ =='__main__':
-    main()
-
 

@@ -5,10 +5,11 @@ class LanguageDoesNotExistError(LanguageError): pass
 class LanguageFeatureMissingError(LanguageError): pass
 
 def get_wrapper_generator(language):
-    try:
-        language_module = importlib.import_module("." + language, __name__)
-    except ImportError:
-        raise LanguageDoesNotExistError("Language does not exist: '{}'".format(language))
+    #try:
+    language_module = importlib.import_module("." + language, __name__)
+    # TODO(Mason): Forward import errors.    
+    #except ImportError:
+    #    raise LanguageDoesNotExistError("Language does not exist: '{}'".format(language))
 
     try:
         gen_class = language_module.WrapperGenerator
@@ -30,3 +31,4 @@ def get_builder(language):
         raise LanguageFeatureMissingError("Language does not have a Builder class: '{}'".format(language))
 
     return build_class
+

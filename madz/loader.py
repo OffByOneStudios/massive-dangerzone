@@ -15,3 +15,4 @@ class LoaderSystem(object):
 
     def load_plugin(self, plugin_stub):
         self._operating.load(plugin_stub)
+

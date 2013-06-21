@@ -16,3 +16,4 @@ class WrapperSystem(object):
         wrapper_generator_class = languages.get_wrapper_generator(plugin_stub.language)
         gen = wrapper_generator_class(plugin_stub)
         gen.generate()
+

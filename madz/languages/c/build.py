@@ -38,3 +38,4 @@ class Builder(object):
         object_files = map(lambda c: os.path.basename(c)[:-2] + ".o", compile_files)
 
         subprocess.Popen(["gcc", "-shared", "-o", os.path.join(o_dir, self.plugin_stub.id.namespace + ".madz")] + object_files, cwd=b_dir)
+

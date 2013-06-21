@@ -13,6 +13,6 @@ plugin = Plugin(
         }),
         "distance": TypeFunction(
             TypeFloat32(),
-            {"a": "Point2d",
-             "b": "Point2d"})
+            {"a": TypeStructVar("Point2d"),
+             "b": TypeStructVar("Point2d")})
     })

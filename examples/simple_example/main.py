@@ -25,3 +25,4 @@ import madz.loader
 
 test_loader = madz.loader.LoaderSystem(test_plugin_system)
 test_loader.load_plugin(p_a)
+

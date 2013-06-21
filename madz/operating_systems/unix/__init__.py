@@ -28,3 +28,4 @@ class UnixOperatingSystem(object):
         error_val = madz_init(dependencies_array, requirements_array, return_pointer)
 
         self.loaded_plugins[plugin_stub] = return_pointer.contents
+

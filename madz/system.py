@@ -47,3 +47,4 @@ class PluginSystem(object):
 
     def load_plugin_directory(self, directory, sub_namespace=""):
         self.directories.append(PluginDirectory(self, directory, sub_namespace))
+
