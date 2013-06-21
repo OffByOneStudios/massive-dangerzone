@@ -3,14 +3,19 @@ from plugin import *
 class PluginResolver(object):
     def __init__(self):
         self.namespaces = {}
-        self.plugins = set()
+        self.plugin_stubs = set()
 
-    def add_plugin(self, plugin_stub):
-        self.plugins.add(plugin_stub)
-        self.plugins[plugin_stub.namespace] = plugin_stub
+    def add_plugin_stub(self, plugin_stub):
+        self.plugin_stubs.add(plugin_stub)
+
+        namespace = plugin_stub.id.namespace
+        if not (namespace in self.namespaces):
+            self.namespaces[namespace] = []
+
+        self.namespaces[namespace].append(plugin_stub)
 
     def get_plugin(self, namespace):
-        pass
+        return self.namespaces[namespace][0]
         
 
 class PluginSystem(object):
@@ -22,7 +27,9 @@ class PluginSystem(object):
     def __init__(self, rootname):
         self.rootname = rootname
         self.directories = []
-        self.plugin_descriptions = {}
+        self.plugin_stubs = {}
+
+        self.plugin_resolver = PluginResolver()
 
     @staticmethod
     def _join_namespaces(first, second):
@@ -31,11 +38,12 @@ class PluginSystem(object):
 
         return ".".join(splitfirst + splitsecond)
 
-    def _add_plugin_description(self, plugin_description):
-        self.plugin_descriptions[plugin_description.id] = plugin_description
+    def _add_plugin_stub(self, plugin_stub):
+        self.plugin_stubs[plugin_stub.id] = plugin_stub
+        self.plugin_resolver.add_plugin_stub(plugin_stub)
 
-    def get_plugin(self, plugin_index):
-        return self.plugin_stubs[plugin_index]
+    def get_plugin(self, namespace):
+        return self.plugin_resolver.get_plugin(namespace)
 
     def load_plugin_directory(self, directory, sub_namespace=""):
         self.directories.append(PluginDirectory(self, directory, sub_namespace))

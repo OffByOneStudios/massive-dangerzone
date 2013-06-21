@@ -59,7 +59,7 @@ class PluginId(object):
     def __repr__(self):
         return "PluginId{!r}".format(self.as_tuple())
 
-class PythonPluginDescription(object):
+class PythonPluginStub(object):
     """An object representing a python plugin description.
 
     Python plugin descriptions are represented as a '__plugin__.py' file in the plugin directory.
@@ -74,7 +74,7 @@ class PythonPluginDescription(object):
         self._init_required(plugin_id)
 
     @classmethod
-    def contains_description(cls, directory):
+    def contains_stub_file(cls, directory):
         """Returns true if the directory contains a potential python plugin description."""
         return os.path.exists(os.path.join(directory, "__plugin__.py"))
 
@@ -130,13 +130,13 @@ class PluginDirectory(object):
         self.directory = directory
         self.sub_namespace = sub_namespace
 
-        self._plugin_desciptions = {}
+        self._plugin_stubs = {}
 
         self._init_plugins()
 
-    def _add_plugin_description(self, plugin_description):
-        self._plugin_desciptions[plugin_description.id] = plugin_description
-        self.system._add_plugin_description(plugin_description)
+    def _add_plugin_stub(self, plugin_stub):
+        self._plugin_stubs[plugin_stub.id] = plugin_stub
+        self.system._add_plugin_stub(plugin_stub)
 
     def _init_plugins(self):
         for root, dirs, files in os.walk(self.directory):
@@ -147,9 +147,9 @@ class PluginDirectory(object):
                 if d.startswith('.'):
                     continue
 
-            if PythonPluginDescription.contains_description(root):
+            if PythonPluginStub.contains_stub_file(root):
                 file_pid = PluginId.parse(".".join(splitrelroot))
-                description = PythonPluginDescription(root, file_pid)
+                stub = PythonPluginStub(root, file_pid)
 
-                self._add_plugin_description(description)
+                self._add_plugin_stub(stub)
 
