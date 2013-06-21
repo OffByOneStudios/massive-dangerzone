@@ -7,6 +7,43 @@ import sys
 sys.path.append("../../../")
 from pyMDL import *
 
+function_prefix ="___madz_TYPE_"
+
+def make_typedefs(interface):
+    namespace = interface.name.replace(".","__")
+    res = ""
+    functions = []
+    for key,val in interface.declarations.items():
+        if isinstance(val, TypeFunction):
+            functions.append((key,val))
+        elif isinstance(val, TypeTypedef):
+            res+=as_c_statement(key,val)+";\n"
+        elif isinstance(val,TypeStructType):
+            res += as_c_statement(key,val) + ";\n"
+    for key,val in functions:
+        arglist = [as_c_statement("",v) for k,v in val.args.items()]
+        args= "("
+        for i in arglist:
+            args += i + ", "
+
+        args=args[0:len(args)-3] + ")"
+        res += "typedef "+ as_c_statement("",val.return_type) + "(*" +function_prefix + namespace + "_"+ key +")" + args + ";\n"
+
+
+
+    return res
+
+def make_structs(interface):
+    namespace = interface.name.replace(".","__")
+    res = "typedef struct{\n"
+    for key,val in interface.declarations.items():
+        if isinstance(val,TypeFunction):
+            res += "\t"+function_prefix +key+ " "+key +";\n";
+        elif not isinstance(val,TypeStructType) and not isinstance(val,TypeTypedef):
+            res += "\t"+as_c_statement(key, val)+";\n"
+    res += '}' + function_prefix+namespace + ";"
+    return res;
+
 def as_c_statement(key, val):
     def table_struct(key):
         s = "typedef struct{\n"
@@ -62,7 +99,7 @@ def ordering(node):
 
 def convert(interface):
     """Converts interface's contents to C header/body file
-
+    OBSOLETE
     Args:
         a MDL interface object
     Returns:
@@ -84,9 +121,13 @@ def main():
     import imodule
 
     p = imodule.plugin
-    res = convert(p)
-    print res
+    #res = convert(p)
+
+    tdefs = make_typedefs(p)
+    print tdefs
+    structs= make_structs(p)
+    print structs
 if __name__ =='__main__':
     main()
-    
+
 
