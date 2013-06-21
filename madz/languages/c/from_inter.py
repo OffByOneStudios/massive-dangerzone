@@ -76,7 +76,7 @@ class From_Inter(object):
             TypeFloat64 : lambda k: "double " + k,
             TypeChar : lambda k: "char " + k,
             TypeTypedef : lambda k: "typedef " + self.as_c_statement(name, "",val.type) + function_prefix+namespace+"_"+key,
-            TypeStructVar : lambda k: "struct " + function_prefix+namespace + "_"+val.value + " " + key,
+            TypeStructVar : lambda k: "struct " + function_prefix+namespace + "_"+ val.value + " " + key,
             TypePtr : lambda k: self.as_c_statement(name, "",val.value) + "*" + key,
             TypeStructType : table_struct,
             TypeFunction : table_function
