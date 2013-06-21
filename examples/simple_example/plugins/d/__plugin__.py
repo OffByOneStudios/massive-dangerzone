@@ -1,6 +1,10 @@
-name="d"
-version="1.0.0"
+from madz.stub import *
 
-language="python"
+plugin = Plugin(
+    name="d",
+    version="1.0.0",
 
-dependencies=["c"]
+    language="python",
+
+    requires=["c"]
+)

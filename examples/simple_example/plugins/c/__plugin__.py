@@ -1,6 +1,16 @@
-name="c"
-version="1.0.0"
+from madz.stub import *
 
-language="c"
+plugin = Plugin(
+    name="c",
+    version="1.0.0",
 
-dependencies=["b"]
+    language="c",
+
+    requires=["b", "a"],
+
+    declarations={
+        "origin_distance": TypeFunction(
+            TypeFloat32(),
+            {"x": TypeFloat32(),
+             "y": TypeFloat32()})
+    })

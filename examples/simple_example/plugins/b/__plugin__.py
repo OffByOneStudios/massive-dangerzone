@@ -1,6 +1,15 @@
-name="b"
-version="1.0.0"
+from madz.stub import *
 
-language="python"
+plugin = Plugin(
+    name="b",
+    version="1.0.0",
 
-dependencies=["a"]
+    language="python",
+
+    dependencies=["a"],
+
+    declarations={
+        "origin_distance": TypeFunction(
+            TypeFloat32(),
+            {"a": "a.Point2d"})
+    })

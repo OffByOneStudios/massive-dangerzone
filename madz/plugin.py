@@ -81,8 +81,10 @@ class PythonPluginStub(object):
     def _init_module(self):
         with open(self._py_module_filename) as module_file:
             # TODO(Mason): Exception for failure to load
+            # TODO(Mason): Exception for missing plugin
             # TODO(Mason): Figure out name variable
-            self.module = imp.load_module("test", module_file, self._py_module_filename, ('.py', 'r', imp.PY_SOURCE))
+            self._module = imp.load_module("test", module_file, self._py_module_filename, ('.py', 'r', imp.PY_SOURCE))
+            self._plugin = getattr(self._module, "plugin")
 
     class PluginDescriptionError(PluginError): pass
     class PluginDescriptionKeyError(PluginDescriptionError): pass
@@ -114,7 +116,7 @@ class PythonPluginStub(object):
 
     def get(self, name):
         """Gets an arbitrary value from the loaded plugin file."""
-        return (getattr(self.module, name) if hasattr(self.module, name) else None)
+        return (getattr(self._plugin, name) if hasattr(self._plugin, name) else None)
 
     def get_plugin_id(self):
         """Returns the PluginId described by the description file."""
