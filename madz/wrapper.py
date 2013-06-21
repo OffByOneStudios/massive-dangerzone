@@ -3,7 +3,7 @@ import languages
 
 import plugin
 
-class SystemWrapperGenerator(object):
+class WrapperSystem(object):
     """Generates inter-language wrapper files required by a plugin."""
     def __init__(self, system):
         self.system = system

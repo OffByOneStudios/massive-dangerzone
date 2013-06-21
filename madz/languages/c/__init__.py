@@ -16,3 +16,6 @@ class WrapperGenerator(object):
         self.prep()
         b_dir = self.get_build_directory()
 
+import build
+
+Builder = build.Builder
