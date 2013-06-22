@@ -8,8 +8,8 @@ class BuilderSystem(object):
     def __init__(self, system):
         self.system = system
 
-    def build_plugins(self):
-        for plugin in self.system.plugin_stubs.values():
+    def build(self):
+        for plugin in self.system.plugin_stubs:
             self.build_plugin(plugin)
 
     def build_plugin(self, plugin_stub):

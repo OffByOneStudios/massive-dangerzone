@@ -27,7 +27,7 @@ class PluginSystem(object):
     def __init__(self, rootname):
         self.rootname = rootname
         self.directories = []
-        self.plugin_stubs = {}
+        self.plugin_stubs = []
 
         self.plugin_resolver = PluginResolver()
 
@@ -39,7 +39,7 @@ class PluginSystem(object):
         return ".".join(splitfirst + splitsecond)
 
     def _add_plugin_stub(self, plugin_stub):
-        self.plugin_stubs[plugin_stub.id] = plugin_stub
+        self.plugin_stubs.append(plugin_stub)
         self.plugin_resolver.add_plugin_stub(plugin_stub)
 
     def get_plugin(self, namespace):
@@ -48,3 +48,6 @@ class PluginSystem(object):
     def load_plugin_directory(self, directory, sub_namespace=""):
         self.directories.append(PluginDirectory(self, directory, sub_namespace))
 
+    def init_plugins(self):
+        for plugin in self.plugin_stubs:
+            plugin.load_requires(lambda id: self.plugin_resolver.get_plugin(id.namespace))

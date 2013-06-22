@@ -10,7 +10,7 @@ class LoaderSystem(object):
         self._operating = operating_systems.get_system()
 
     def load(self):
-        for plugin in self.system.plugin_stubs.values():
+        for plugin in self.system.plugin_stubs:
             self.load_plugin(plugin)
 
     def load_plugin(self, plugin_stub):

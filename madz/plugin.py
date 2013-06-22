@@ -121,15 +121,15 @@ class PythonPluginStub(object):
 
         self.requires = self.depends + self.imports
 
-    def init_depends(self, system):
+    def load_requires(self, lookup_func):
         self.loaded_depends = []
         self.loaded_imports = []
 
         for dep in self.depends:
-            self.loaded_depends.append(system.get_plugin(dep))
+            self.loaded_depends.append(lookup_func(dep))
 
         for imp in self.imports:
-            self.loaded_imports.append(system.get_plugin(imp))
+            self.loaded_imports.append(lookup_func(imp))
 
         self.loaded_requires = self.loaded_depends + self.loaded_imports
 
