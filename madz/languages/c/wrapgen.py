@@ -6,7 +6,7 @@ from  madz.pyMDL.plugin_types import *
 class CGenerator(object):
     def __init__(self, dependencies, name, description):
         self.dependencies = dependencies
-        self._namespace = self._namespace_mangle(name)
+        self.namespace = self._namespace_mangle(name)
         self.declarations = description.declarations
         self.variables = description.variables
 
@@ -26,11 +26,11 @@ class CGenerator(object):
         s = "typedef struct{\n"
         for k,v in node.description.items():
             s += "\t" + self.as_c_statement(k, v) + ";\n"
-        s += "} " + self.type_prefix + self._namespace + "_" + name
+        s += "} " + self.type_prefix + self.namespace + "_" + name
         return s
 
     def _gen_table_function(self, node, name):
-        ret = self.as_c_statement(name, "", node.return_type)
+        ret = self.as_c_statement("", node.return_type)
         ret += name + "("
         for k, v in node.args.items():
             ret += self.as_c_statement(k,v) + ", "
@@ -41,6 +41,8 @@ class CGenerator(object):
         return "typedef " + self.as_c_statement("", node.type) + self.type_prefix + self.namespace + "_" + name
 
     def as_c_statement(self, name, node):
+        if isinstance(node, str):
+            node = NamedType(node)
         return self._gen_table[node.node_type()](self, node, name)
 
     _gen_table = {
@@ -57,6 +59,7 @@ class CGenerator(object):
         TypeFloat32 : lambda s, no, na: "float "+ na,
         TypeFloat64 : lambda s, no, na: "double " + na,
         TypePointer : lambda s, no, na: "{} * {}".format(self.generate_type_string(no.type), name),
+        NamedType : lambda s, no, na:"{} {}".format(no.type, na),
         TypeStructType : _gen_table_struct,
         TypeFunction : _gen_table_function,
         TypeTypedef : _gen_table_typedef,
@@ -85,9 +88,21 @@ class CGenerator(object):
             res +=self.as_c_statement(name, node)
         return res
 
-    def make_variables(self):
+    def make_variables(self, namespace):
         """Constructs a struct holding variables for module."""
-        pass
+        namespace =self._namespace_mangle(namespace)
+
+        res= ""
+        if not(self.variables=={}):
+            res = "typedef struct{\n"
+        #TODO(Put everything not a typedef here)
+            for vname, vtype in self.variables.items():
+                print vname,vtype
+                res += "\t"+self.as_c_statement(vname, vtype)+";\n"
+            res += "}" + self.type_prefix+namespace+";\n"
+
+        return res
+
 
 class WrapperGenerator(object):
     lang = shared.LanguageShared
@@ -124,18 +139,19 @@ int ___madz_init(void * * dependencies, void * * requirements, void * * output) 
         self.prep()
         #b_dir = self.get_build_directory()
         res = ""
-
+        print"\n\n\n\n"
         for dep in self.plugin_stub.gen_recursive_loaded_depends()+self.plugin_stub.loaded_imports+[self.plugin_stub]:
-            print"\n\n\n\n"
-            print self.plugin_stub.id, ":", dep.id
+            #
+            #print self.plugin_stub.id, ":", dep.id
             gen = CGenerator([], "" if dep is self.plugin_stub else dep.id.namespace, dep.description)
 
-            print gen.make_declarations()
+            res+=gen.make_declarations()
+            res+= gen.make_variables(dep.id.namespace)
             #res += gen.make_declarations()
             #res += gen.make_variables()
-
+        print res
 
         with open(os.path.join(self._w_dir, "madz.h"), "w") as f:
             f.write(self.hack_preamble)
-            #write generated code
+            f.write(res)
             f.write(self.hack_postamble)
