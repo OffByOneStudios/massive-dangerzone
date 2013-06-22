@@ -4,7 +4,7 @@ plugin = Plugin(
     name="b",
     version="1.0.0",
 
-    language="python",
+    language="c",
 
     depends=["a"],
 

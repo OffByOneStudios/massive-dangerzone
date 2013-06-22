@@ -4,7 +4,7 @@ plugin = Plugin(
     name="d",
     version="1.0.0",
 
-    language="python",
+    language="c",
 
     imports=["c"]
 )
