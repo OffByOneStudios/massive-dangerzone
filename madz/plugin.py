@@ -119,12 +119,11 @@ class PythonPluginStub(object):
             except PluginId.NotAPluginIdString:
                 pass # TODO(Mason): Resuming error messages
 
-        self.requries = self.depends + self.imports
+        self.requires = self.depends + self.imports
 
     def init_depends(self, system):
         self.loaded_depends = []
         self.loaded_imports = []
-
 
         for dep in self.depends:
             self.loaded_depends.append(system.get_plugin(dep))

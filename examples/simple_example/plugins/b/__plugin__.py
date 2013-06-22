@@ -6,10 +6,10 @@ plugin = Plugin(
 
     language="python",
 
-    dependencies=["a"],
+    depends=["a"],
 
-    declarations={
+    variables={
         "origin_distance": TypeFunction(
-            TypeFloat32(),
+            TypeFloat32,
             {"a": "a.Point2d"})
     })

@@ -15,8 +15,8 @@ class Plugin(object):
 
         self.language = init_get("language")
 
-        self.imports = init_get("imports")
-        self.depends = init_get("depends")
+        self.imports = init_get("imports",[])
+        self.depends = init_get("depends",[])
 
         self.declarations = init_get("declarations",{})
         self.variables = init_get("variables",{})

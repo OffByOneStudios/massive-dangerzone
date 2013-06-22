@@ -6,5 +6,5 @@ plugin = Plugin(
 
     language="python",
 
-    requires=["c"]
+    imports=["c"]
 )

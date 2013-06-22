@@ -6,11 +6,11 @@ plugin = Plugin(
 
     language="c",
 
-    requires=["b", "a"],
+    imports=["b", "a"],
 
-    declarations={
+    variables={
         "origin_distance": TypeFunction(
-            TypeFloat32(),
-            {"x": TypeFloat32(),
-             "y": TypeFloat32()})
+            TypeFloat32,
+            {"x": TypeFloat32,
+             "y": TypeFloat32})
     })
