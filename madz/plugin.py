@@ -1,6 +1,6 @@
 import os, sys
 import imp
-
+import pyMDL.plugin
 class PluginError(Exception): pass
 
 class PluginId(object):
@@ -25,7 +25,7 @@ class PluginId(object):
         elif version_start != -1:
             version_string = relativestring[version_start+1:version_end]
             relativestring = relativestring[:version_start] + relativestring[version_end+1:]
-            
+
         implname_string = None
         implname_start = relativestring.find('(')
         implname_end = relativestring.find(')')
@@ -58,6 +58,7 @@ class PluginId(object):
 
     def __repr__(self):
         return "PluginId{!r}".format(self.as_tuple())
+
 
 class PythonPluginStub(object):
     """An object representing a python plugin description.
@@ -99,16 +100,42 @@ class PythonPluginStub(object):
 
         self.language = self._excepting_get("language")
 
-        dependencies = self.get("dependencies")
-        self.dependencies = []
-        if not (dependencies is None):
-            for dep in dependencies:
-                try:
-                    self.dependencies.append(PluginId.parse(dep))
-                except PluginId.NotAPluginIdString:
-                    pass # TODO(Mason): Resuming error messages
+        depends = self.get("depends")
+        self.depends = []
 
-                    
+        for dep in depends:
+            try:
+                self.depends.append(PluginId.parse(dep))
+            except PluginId.NotAPluginIdString:
+                pass # TODO(Mason): Resuming error messages
+
+        imports = self.get("imports")
+        self.imports = []
+
+        for imp in imports:
+            try:
+                self.imports.append(PluginId.parse(imp))
+
+            except PluginId.NotAPluginIdString:
+                pass # TODO(Mason): Resuming error messages
+
+        self.requries = self.depends + self.imports
+
+    def init_depends(self, system):
+        self.loaded_depends = []
+        self.loaded_imports = []
+
+
+        for dep in self.depends:
+            self.loaded_depends.append(system.get_plugin(dep))
+
+        for imp in self.imports:
+            self.loaded_imports.append(system.get_plugin(imp))
+
+        self.loaded_requires = self.loaded_depends + self.loaded_imports
+
+        self.description = pyMDL.plugin.PluginDescription(self.get("declarations"), self.get("variables"), dict((d.id.namespace,d) for d in self.loaded_depends))
+
     def _excepting_get(self, name):
         v = self.get(name)
         if v is None:

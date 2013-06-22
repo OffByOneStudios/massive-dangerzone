@@ -26,6 +26,10 @@ class TypeTypeNone(TypeType):
 TypeNone = TypeTypeNone()
 
 class TypeTypeWidth(TypeType):
+    """A Type which can have a width parameter.
+    ie. Integers have a width parameter. Those widths commonly refered to as byte, short, int, long, etc
+
+    """
     _valid_widths = []
 
     def __init__(self, width):
@@ -50,7 +54,7 @@ TypeInt16 = TypeInt(16)
 TypeInt32 = TypeInt(32)
 TypeInt64 = TypeInt(64)
 
-TypeChar = TypeInt8(8)
+TypeChar = TypeInt(8)
 
 class TypeUInt(TypeTypeWidth):
     _valid_widths = [8, 16, 32, 64]
@@ -102,7 +106,7 @@ class TypePointer(TypeType):
 
 
 class TypeArray(TypeType):
-        def __init__(self, t, count):
+    def __init__(self, t, count):
         """Pointer Type constructor
 
         Args:
@@ -139,7 +143,10 @@ class TypeStructType(TypeType):
 
 
 class NamedType(TypeType):
-    """A Struct Variable"""
+    """A type which has bee previously declared.
+
+    This is  oppsed to 'builtin' types, like integer.
+    """
     def __init__(self, t):
         """Struct Declaration constructor
 
@@ -156,16 +163,8 @@ class NamedType(TypeType):
 
 
 class TypeFunction(TypeType):
-    """A Function"""
+    """A Function Type"""
     def __init__(self, return_type = TypeNone, args={}, attributes = []):
         self.return_type = return_type
         self.attributes = attributes
         self.args = args
-
-
-class Declarations(object):
-    def __init__(self, declarations):
-        
-
-
-
