@@ -10,9 +10,12 @@ plugin = Plugin(
         "Point2d": TypeStructType({
             "x": TypeFloat32,
             "y": TypeFloat32,
-        }),
+        })
+    },
+    variables={
         "distance": TypeFunction(
             TypeFloat32,
             {"a": "Point2d",
              "b": "Point2d"})
-    })
+    }
+)
