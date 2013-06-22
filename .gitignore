@@ -33,3 +33,8 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# MADZ plugins
+.build-*/
+.wrap-*/
+.output
