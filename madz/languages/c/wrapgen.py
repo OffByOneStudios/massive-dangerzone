@@ -1,14 +1,18 @@
 import os
 
 import shared, from_inter
+from  madz.pyMDL.plugin_types import *
 
 class CGenerator(object):
-    def __init__(self, namespace, dependencies, declarations):
-        self._namespace = self._namespace_mangle(namespace)
-        self._dependencies = dependencies
-        self.declarations = declarations
+    def __init__(self, dependencies, name, description):
+        self.dependencies = dependencies
+        self._namespace = self._namespace_mangle(name)
+        self.declarations = description.declarations
+        self.variables = description.variables
 
-    def _namespace_mangle(namespace):
+    type_prefix = "___MADZ_TYPE_"
+
+    def _namespace_mangle(self, namespace):
         return namespace.replace(".", "__")
 
     def _dependency_generate_type_string(self, name):
@@ -18,55 +22,47 @@ class CGenerator(object):
 
         return self.dependencies[namespace].entry_type_string(end_name)
 
-    def _gen_table_struct(node, name):
-        s = "struct{\n"
-        for k,v in val.value.items():
-            s += "\t" + self.as_c_statement(name,k,v) + ";\n"
-        s += "} " + function_prefix+namespace+"_" +key
+    def _gen_table_struct(self, node, name):
+        s = "typedef struct{\n"
+        for k,v in node.description.items():
+            s += "\t" + self.as_c_statement(k, v) + ";\n"
+        s += "} " + self.type_prefix + self._namespace + "_" + name
         return s
 
-    def _gen_table_function(node, name):
-        ret = self.as_c_statement(name, "", val.return_type)
-        ret += key + "("
-        for k, v in val.args.items():
-            ret += self.as_c_statement(k,v) + ", "
-        ret = ret[0:len(ret)-2] + ")"
-        return ret
-    
-    def _gen_table_typedef(node, name):
-        ret = self.as_c_statement(name, "", val.return_type)
-        ret += key + "("
-        for k, v in val.args.items():
+    def _gen_table_function(self, node, name):
+        ret = self.as_c_statement(name, "", node.return_type)
+        ret += name + "("
+        for k, v in node.args.items():
             ret += self.as_c_statement(k,v) + ", "
         ret = ret[0:len(ret)-2] + ")"
         return ret
 
+    def _gen_table_typedef(self, node, name):
+        return "typedef " + self.as_c_statement("", node.type) + self.type_prefix + self.namespace + "_" + name
+
+    def as_c_statement(self, name, node):
+        return self._gen_table[node.node_type()](self, node, name)
+
     _gen_table = {
-        TypeNone : lambda no, na: "void ",
-        TypeInt8 : lambda no, na: "char " + na,
-        TypeInt16 : lambda no, na: "short " + na,
-        TypeInt32 : lambda no, na: "int " + na,
-        TypeInt64 : lambda no, na: "long long " + na,
-        TypeChar : lambda no, na: "char " + na,
-        TypeUInt8 : lambda no, na: "unsigned char " + na,
-        TypeUInt16 : lambda no, na: "unsigned short " + na,
-        TypeUInt32 : lambda no, na: "unsigned int " + na,
-        TypeInt64 : lambda no, na: "unsigned long long" + na,
-        TypeFloat32 : lambda no, na: "float "+ na,
-        TypeFloat64 : lambda no, na: "double " + na,
-        TypePtr : lambda no, na: "{} * {}".format(self.generate_type_string(no.type), name),
+        TypeNone : lambda s, no, na: "void ",
+        TypeInt8 : lambda s, no, na: "char " + na,
+        TypeInt16 : lambda s, no, na: "short " + na,
+        TypeInt32 : lambda s, no, na: "int " + na,
+        TypeInt64 : lambda s, no, na: "long long " + na,
+        TypeChar : lambda s, no, na: "char " + na,
+        TypeUInt8 : lambda s, no, na: "unsigned char " + na,
+        TypeUInt16 : lambda s, no, na: "unsigned short " + na,
+        TypeUInt32 : lambda s, no, na: "unsigned int " + na,
+        TypeInt64 : lambda s, no, na: "unsigned long long" + na,
+        TypeFloat32 : lambda s, no, na: "float "+ na,
+        TypeFloat64 : lambda s, no, na: "double " + na,
+        TypePointer : lambda s, no, na: "{} * {}".format(self.generate_type_string(no.type), name),
         TypeStructType : _gen_table_struct,
         TypeFunction : _gen_table_function,
         TypeTypedef : _gen_table_typedef,
     }
 
-    def _generate_string(self, node, name):
-        return self._gen_table[node](node, name)
-
-    def entry_string(self, name):
-        return self._generate_type_string(self.declarations[name], name)
-
-    def ordering(node):
+    def ordering(self, node):
         node_type = node[0].__class__
         # Typedefs
         # Structs
@@ -80,6 +76,18 @@ class CGenerator(object):
             return 4
         else:
             return 3
+
+    def make_declarations(self):
+        """Constructs Declarations for module"""
+        res = ""
+        #TODO For each typedef, struct def, function defininition generate C rep
+        for name, node in self.declarations.items():
+            res +=self.as_c_statement(name, node)
+        return res
+
+    def make_variables(self):
+        """Constructs a struct holding variables for module."""
+        pass
 
 class WrapperGenerator(object):
     lang = shared.LanguageShared
@@ -95,7 +103,12 @@ class WrapperGenerator(object):
         if not (os.path.exists(self._w_dir)):
             os.makedirs(self._w_dir)
 
-    hack = \
+    hack_preamble = \
+"""
+
+"""
+
+    hack_postamble = \
 """
 #include<stdlib.h>
 struct ___madz_TYPE_a * ___madz_this_output;
@@ -109,11 +122,20 @@ int ___madz_init(void * * dependencies, void * * requirements, void * * output) 
 
     def generate(self):
         self.prep()
+        #b_dir = self.get_build_directory()
+        res = ""
 
-        gen = from_inter.From_Inter()
-        b_dir = self.get_build_directory()
+        for dep in self.plugin_stub.gen_recursive_loaded_depends()+self.plugin_stub.loaded_imports+[self.plugin_stub]:
+            print"\n\n\n\n"
+            print self.plugin_stub.id, ":", dep.id
+            gen = CGenerator([], "" if dep is self.plugin_stub else dep.id.namespace, dep.description)
 
-        with open(os.path.join(b_dir, "madz.h"), "w") as f:
-            f.write(gen.make_typedefs(self.plugin_stub))
-            f.write(gen.make_structs(self.plugin_stub))
-            f.write(self.hack)
+            print gen.make_declarations()
+            #res += gen.make_declarations()
+            #res += gen.make_variables()
+
+
+        with open(os.path.join(self._w_dir, "madz.h"), "w") as f:
+            f.write(self.hack_preamble)
+            #write generated code
+            f.write(self.hack_postamble)

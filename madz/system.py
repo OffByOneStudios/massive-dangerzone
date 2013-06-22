@@ -16,7 +16,7 @@ class PluginResolver(object):
 
     def get_plugin(self, namespace):
         return self.namespaces[namespace][0]
-        
+
 
 class PluginSystem(object):
     """ A plugin system object which manages a root namespace of objects.

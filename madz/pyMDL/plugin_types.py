@@ -16,6 +16,9 @@ class TypeType(object):
     def __hash__(self):
         return hash(self.__class__)
 
+    def node_type(self):
+        return self.__class__
+
     def Pointer(self):
         return TypePointer(self)
 
@@ -45,6 +48,9 @@ class TypeTypeWidth(TypeType):
 
     def __hash__(self):
         return hash((self.__class__, self.width))
+
+    def node_type(self):
+        return self
 
 class TypeInt(TypeTypeWidth):
     _valid_widths = [8, 16, 32, 64]
@@ -134,12 +140,13 @@ class TypeStructType(TypeType):
                 Dict of (name, type) pairs
         """
         self.description = desc
+        self._desc_hash = hash(tuple(sorted(desc.iteritems())))
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.description == other.description
 
     def __hash__(self):
-        return hash((self.__class__, self.description))
+        return hash((self.__class__, self._desc_hash))
 
 
 class NamedType(TypeType):
