@@ -135,6 +135,19 @@ class PythonPluginStub(object):
 
         self.description = pyMDL.plugin.PluginDescription(self.get("declarations"), self.get("variables"), dict((d.id.namespace,d) for d in self.loaded_depends))
 
+    def gen_recursive_loaded_depends(self):
+        depends_list = []
+        new_list = self.loaded_depends
+        while not (len(new_list) == 0):
+            depends_list.extend(new_list)
+            new_list = []
+            for ldep in depends_list:
+                for ldepdeps in ldep.loaded_depends:
+                    if not (ldepdeps in depends_list or ldepdeps in new_list):
+                        new_list.append(ldepdeps)
+        depends_list.reverse()
+        return depends_list
+
     def _excepting_get(self, name):
         v = self.get(name)
         if v is None:

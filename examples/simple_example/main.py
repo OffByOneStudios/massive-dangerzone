@@ -9,7 +9,7 @@ test_plugin_system.load_plugin_directory("plugins")
 test_plugin_system.init_plugins()
 
 for p in test_plugin_system.plugin_stubs:
-    print "{} in '{}' with dependencies: {}".format(p.id, p.language, p.loaded_requires)
+    print "{} in '{}' with dependencies: {}".format(p.id, p.language, p.gen_recursive_loaded_depends())
 
 p_a = test_plugin_system.get_plugin("a")
 
