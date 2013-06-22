@@ -2,120 +2,170 @@
 @OffbyOne Studios
 Basic Classes for C interportability
 """
-from abc import ABCMeta
 
+class MDLError(Exception): pass
+class InvalidTypeMDLError(MDLError): pass
 
-class Type(object):
+class TypeType(object):
     """Abstract Base Class for Types"""
-    __metaclass__ = ABCMeta
+    def __init__(self): raise NotImplementedError()
 
-    def __init__(self, value=None):
-        self.value = value
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__)
 
+    def __hash__(self):
+        return hash(self.__class__)
 
-class TypeNone(Type):
+    def Pointer(self):
+        return TypePointer(self)
+
+class TypeTypeNone(TypeType):
     """Void, as in No Return Type"""
-    pass
+    def __init__(self): pass
+
+TypeNone = TypeTypeNone()
+
+class TypeTypeWidth(TypeType):
+    _valid_widths = []
+
+    def __init__(self, width):
+        self.width = width
+        self._valid()
+
+    def _valid(self):
+        if not (self.width in self._valid_widths):
+            raise InvalidTypeMDLError("'{}' is not a valid width for a {}.".format(self.width, self.__class__))
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and self.width == other.width
+
+    def __hash__(self):
+        return hash((self.__class__, self.width))
+
+class TypeInt(TypeTypeWidth):
+    _valid_widths = [8, 16, 32, 64]
+
+TypeInt8 = TypeInt(8)
+TypeInt16 = TypeInt(16)
+TypeInt32 = TypeInt(32)
+TypeInt64 = TypeInt(64)
+
+TypeChar = TypeInt8(8)
+
+class TypeUInt(TypeTypeWidth):
+    _valid_widths = [8, 16, 32, 64]
+
+TypeUInt8 = TypeUInt(8)
+TypeUInt16 = TypeUInt(16)
+TypeUInt32 = TypeUInt(32)
+TypeUInt64 = TypeUInt(64)
+
+class TypeFloat(TypeTypeWidth):
+    _valid_widths = [32, 64, 128, 256]
+
+TypeFloat32 = TypeFloat(32)
+TypeFloat64 = TypeFloat(64)
 
 
-class TypeVoid(Type):
-    """Void, as in untyped (void *)"""
-    pass
-
-
-class TypeInt8(Type):
-    """8 Bit Signed Integer"""
-    pass
-
-
-class TypeInt16(Type):
-    """16 Bit Signed Integer"""
-    pass
-
-
-class TypeInt32(Type):
-    """32 Bit Signed Integer"""
-    pass
-
-
-class TypeInt64(Type):
-    """64 Bit Signed Integer"""
-    pass
-
-
-class TypeUInt8(Type):
-    """8 Bit Unsigned Integer"""
-    pass
-
-
-class TypeUInt16(Type):
-    """16 Bit Unsigned Integer"""
-    pass
-
-
-class TypeUInt32(Type):
-    """32 Bit Unsigned Integer"""
-    pass
-
-
-class TypeInt64(Type):
-    """64 Bit Unsigned Integer"""
-    pass
-
-
-class TypeFloat32(Type):
-    """32 Bit Floating Point Value"""
-    pass
-
-
-class TypeFloat64(Type):
-    """64 Bit Floating Point Value"""
-    pass
-
-
-class TypeChar(Type):
-    """8 Bit Latin_1 Character"""
-    pass
-
-class TypeTypedef(Type):
+class TypeTypedef(TypeType):
     """A Typedef"""
     def __init__(self, t):
         """Typedef Type constructor
+
         Args:
-            type :The Type to alias
+            t: The Type to alias.
         """
         self.type = t
 
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and self.t == other.t
 
-class TypeStructType(Type):
+    def __hash__(self):
+        return hash((self.__class__, self.t))
+
+
+class TypePointer(TypeType):
+    """A Pointer Type encapsulating another Type"""
+    def __init__(self, t):
+        """Pointer Type constructor
+
+        Args:
+            t: The Type to be a pointer of.
+        """
+        self.type = t
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and self.t == other.t
+
+    def __hash__(self):
+        return hash((self.__class__, self.t))
+
+
+class TypeArray(TypeType):
+        def __init__(self, t, count):
+        """Pointer Type constructor
+
+        Args:
+            t: The Type to be a pointer of.
+            count: number of type t.
+        """
+        self.type = t
+        self.count = count
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and self.t == other.t and self.count == other.count
+
+    def __hash__(self):
+        return hash((self.__class__, self.t, self.count))
+
+
+class TypeStructType(TypeType):
     """A Struct Declaration"""
 
-    def __init__(self, value):
+    def __init__(self, desc):
         """C Struct Representation
-        Args:
-            values:
-                Dict of name,type pairs
-        """
-        self.value = value
 
-class TypeStructVar(Type):
+        Args:
+            desc:
+                Dict of (name, type) pairs
+        """
+        self.description = desc
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and self.description == other.description
+
+    def __hash__(self):
+        return hash((self.__class__, self.description))
+
+
+class NamedType(TypeType):
     """A Struct Variable"""
-    def __init__(self, value):
+    def __init__(self, t):
         """Struct Declaration constructor
+
         Args:
-            value: string name of structtype
+            t: string name of structtype
         """
-        self.value = value
+        self.type = t
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and self.value == other.value
+
+    def __hash__(self):
+        return hash((self.__class__, self.value))
 
 
-class TypePtr(Type):
-    """A Mutable Pointer"""
-    pass
-class TypeFunction(Type):
+class TypeFunction(TypeType):
     """A Function"""
-    def __init__(self, return_type = TypeNone(), args={}, attributes = []):
+    def __init__(self, return_type = TypeNone, args={}, attributes = []):
         self.return_type = return_type
         self.attributes = attributes
         self.args = args
+
+
+class Declarations(object):
+    def __init__(self, declarations):
+        
+
 
 

@@ -8,11 +8,11 @@ plugin = Plugin(
 
     declarations={
         "Point2d": TypeStructType({
-            "x": TypeFloat32(),
-            "y": TypeFloat32(),
+            "x": TypeFloat32,
+            "y": TypeFloat32,
         }),
         "distance": TypeFunction(
-            TypeFloat32(),
-            {"a": TypeStructVar("Point2d"),
-             "b": TypeStructVar("Point2d")})
+            TypeFloat32,
+            {"a": "Point2d",
+             "b": "Point2d"})
     })
