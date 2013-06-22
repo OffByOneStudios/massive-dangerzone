@@ -9,6 +9,7 @@ plugin = Plugin(
     depends=["a"],
 
     variables={
+        "origin" : "Point2d",
         "origin_distance": TypeFunction(
             TypeFloat32,
             {"a": "a.Point2d"})

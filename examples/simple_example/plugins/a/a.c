@@ -1,5 +1,16 @@
 #include "madz.h"
 
-float _madz_out_distance(___madz_TYPE_a_Point2d a, ___madz_TYPE_a_Point2d b){
-	return (a.x - b.x) + (a.y - b.y);
+#include "math.h"
+
+MADZOUT_a_var = 13;
+
+MADZOUT_origin = (MADZTYPE(MADZTHIS,Point2d)) { .x = 0.0, .y = 0.0 };
+
+MADZOUT_distance{
+    xs = (a.x - b.x);
+    xs = xs * xs;
+
+    ys = (a.y - b.y);
+    ys = ys * ys;
+	return sqrtf(xs + ys);
 }

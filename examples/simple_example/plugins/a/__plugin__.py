@@ -13,6 +13,8 @@ plugin = Plugin(
         })
     },
     variables={
+        "a_var" : TypeInt32,
+        "origin" : "Point2d",
         "distance": TypeFunction(
             TypeFloat32,
             {"a": "Point2d",
