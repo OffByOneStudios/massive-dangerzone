@@ -1,3 +1,8 @@
+"""plugin.py
+@OffbyOne Studios 2013
+Code to instantiate Plugin Objects
+"""
+
 import os, sys
 import imp
 import pyMDL.plugin

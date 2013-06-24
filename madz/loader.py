@@ -1,4 +1,7 @@
-
+"""loader.py
+@OffbyOneStudios 2013
+Code to load plugins into memory.
+"""
 import operating_systems
 
 import plugin

@@ -1,4 +1,7 @@
-
+"""builder.py
+@OffbyOne Studios 2013
+Code to generate inter language wraper files
+"""
 import languages
 
 import plugin
