@@ -1,12 +1,28 @@
+"""build.py
+@OffbyOne Studios 2013
+Code to Build C plugins
+"""
+
 import os, sys
 import subprocess
 
 import shared
 
 class Builder(object):
+    """Object Which can build C plugins.
+
+    Attributes:
+        plugin_stub madz.plugin.PythonPluginStub object
+    """
     lang = shared.LanguageShared
 
     def __init__(self, plugin_stub):
+        """Constructor for C Builder.
+
+        Args:
+            plugin_stub madz.plugin.PythonPluginStub object
+        """
+
         self.plugin_stub = plugin_stub
         self._s_dir = self.plugin_stub.abs_directory
         self._b_dir = self.lang.get_build_directory(self.plugin_stub)
@@ -14,6 +30,7 @@ class Builder(object):
         self._o_dir = self.lang.get_output_directory(self.plugin_stub)
 
     def prep(self):
+        """Performs any pre-compile stage prep work for plugin."""
         if not (os.path.exists(self._b_dir)):
             os.makedirs(self._b_dir)
 
@@ -21,6 +38,12 @@ class Builder(object):
             os.makedirs(self._o_dir)
 
     def build(self):
+        """Compiles and links plugin.
+
+        Implementation Notes:
+            Hard Coded to use GCC
+            Links as Unix Style Shared Objects.
+        """
         self.prep()
 
         compile_files = []

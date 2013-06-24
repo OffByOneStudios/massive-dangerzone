@@ -1,3 +1,8 @@
+"""shared.py
+@OffbyoneStudios 2013
+Code to assist in using C as the 'glue' between languages.
+"""
+
 import os
 
 class LanguageShared(object):

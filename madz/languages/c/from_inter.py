@@ -1,6 +1,8 @@
 """from_inter.py
 @OffbyOne Studios
 Converts from MDL to C headers
+
+Depreciated, use wrapgen.
 """
 import sys
 

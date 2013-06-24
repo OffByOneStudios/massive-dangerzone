@@ -1,10 +1,27 @@
+"""wrapgen.py
+@OffbyOneStudios 2013
+Code To generated C Headers from Madz Plugin Descriptions.
+"""
 import os
 
 import shared, from_inter
 from  madz.pyMDL.plugin_types import *
 
 class CGenerator(object):
+    """Class to Generate C Headers from PyMDL
+
+    Attributes:
+        dependencies: Dict of (namespace,CGenerator) tuples
+        namespace : str Stringname of namespace
+        declarations: Dictionary of PyMDL declarations
+        variables: Dictionary of PyMDL declarations
+    """
     def __init__(self, dependencies, namespace, description):
+        """Constructor for C Generators.
+        Args:
+            dependencies: Dict of (namespace,CGenerator) tuples
+            description: pyMDL Object containing declarions, variables, etc
+        """
         self.dependencies = dependencies
         self.namespace = namespace
         self._namespace = self._namespace_mangle(namespace)
@@ -14,9 +31,11 @@ class CGenerator(object):
     type_prefix = "___madz_TYPE_"
 
     def _namespace_mangle(self, namespace):
+        """Removes dots from namespace names, replaces them with ___"""
         return namespace.replace(".", "__")
 
     def _dependency_generate_type_string(self, name):
+        """# TODO (mason) What does this do wut???"""
         split_name = name.split(".")
         end_name = split_name[-1]
         namespace = ".".join(split_name[:-1])
