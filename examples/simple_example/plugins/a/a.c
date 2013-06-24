@@ -3,15 +3,15 @@
 #include "math.h"
 #include "stdio.h"
 
-MADZINIT{
+MADZINIT {
     MADZOUT_a_var = 13;
 
     MADZOUT_origin = (MADZTYPE(,Point2d)) { .x = 0.0, .y = 0.0 };
 
-    printf("TEST!\n");
+    printf("INIT A!\n");
 }
 
-MADZOUTFUNC_distance{
+MADZOUTFUNC_distance {
     float xs = (a.x - b.x);
     xs = xs * xs;
 

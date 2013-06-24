@@ -1,7 +1,10 @@
 #include "madz.h"
 
+MADZINIT {
 MADZOUT_origin = (MADZTYPE(a,Point2d)) { .x = 0.0, .y = 0.0 };
+}
 
-MADZOUT_origin_distance{
-	return MADZ(a,distance)(a, origin);
+
+MADZOUTFUNC_origin_distance {
+	return MADZ(a).distance(a, MADZOUT_origin);
 }

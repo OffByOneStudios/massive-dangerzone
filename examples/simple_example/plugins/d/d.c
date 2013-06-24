@@ -1,2 +1,3 @@
 #include "madz.h"
 
+MADZINIT {}

@@ -34,14 +34,6 @@ class CGenerator(object):
         """Removes dots from namespace names, replaces them with ___"""
         return namespace.replace(".", "__")
 
-    def _dependency_generate_type_string(self, name):
-        """# TODO (mason) What does this do wut???"""
-        split_name = name.split(".")
-        end_name = split_name[-1]
-        namespace = ".".join(split_name[:-1])
-
-        return self.dependencies[namespace].entry_type_string(end_name)
-
     def _gen_table_struct(self, node, name):
         return "typedef struct {{\n{}\n}} {}".format(
             "\n".join(map(lambda t: "\t{};".format(self.gen_type_string(*t)), node.description.items())),
@@ -66,7 +58,7 @@ class CGenerator(object):
         split_name = name.split(".")
         namespace = "__".join(split_name[:-1])
         symbol = split_name[-1]
-        return self.type_prefix + namespace + "_" + symbol
+        return self.type_prefix + (namespace or self._namespace) + "_" + symbol
 
     def gen_type_string(self, name, node):
         if isinstance(node, str):
@@ -120,13 +112,11 @@ class CGenerator(object):
         """Constructs a struct holding variables for module."""
         namespace =self._namespace_mangle(namespace)
 
-        res= ""
-        if not(self.variables=={}):
-            res = "typedef struct{\n"
+        res = "typedef struct{\n"
         #TODO(Put everything not a typedef here)
-            for vname, vtype in self.variables.items():
-                res += "\t"+self.gen_type_string(vname, vtype)+";\n"
-            res += "}" + self.type_prefix+namespace+";\n"
+        for vname, vtype in self.variables.items():
+            res += "\t" + self.gen_type_string(vname, vtype) + ";\n"
+        res += "}" + self.type_prefix + self._namespace + ";\n"
 
         return res
 
@@ -150,6 +140,7 @@ class WrapperGenerator(object):
 #ifndef MADZ_GAURD_WRAP_MADZ_H
 #define MADZ_GAURD_WRAP_MADZ_H
 
+#define MADZ(namespace) ___madz_IN_##namespace
 #define MADZTYPE(namespace,symbol) {}##namespace##_##symbol
 
 #define MADZINIT void ___madz_INIT()
@@ -173,11 +164,12 @@ MADZINIT;
 #include "madz.h"
 
 ___madz_TYPE_ ___madz_OUTPUT;
-int ___madz_init(void * * dependencies, void * * requirements, void * * output) {
+{}
+int ___madz_init(void * * dependencies, void * * requirements, void * * output) {{
     {}
     ___madz_INIT();
     (*output) = &___madz_OUTPUT;
-}
+}}
 
 """
 
@@ -188,6 +180,7 @@ int ___madz_init(void * * dependencies, void * * requirements, void * * output) 
                 return var_type
 
         decsvars = ""
+        self_inputs = ""
         for dep in self.plugin_stub.gen_recursive_loaded_depends()+self.plugin_stub.loaded_imports+[self.plugin_stub]:
             #
             #print self.plugin_stub.id, ":", dep.id
@@ -199,10 +192,14 @@ int ___madz_init(void * * dependencies, void * * requirements, void * * output) 
             decsvars += "/* declarations */\n"
             decsvars += gen.make_declarations()
             decsvars += "/* variable_struct */\n"
-            decsvars += gen.make_variables("")
+            decsvars += gen.make_variables(dep_namespace)
             decsvars += "\n\n\n"
 
-        decsvars += "extern ___madz_TYPE_ ___madz_OUTPUT;\n\n"
+            if dep_namespace != "":
+                decsvars += "extern {} ___madz_IN_{};\n".format(gen.type_prefix + gen._namespace, gen._namespace)
+                self_inputs += "{} ___madz_IN_{};\n".format(gen.type_prefix + gen._namespace, gen._namespace)
+
+        decsvars += "extern ___madz_TYPE_ ___madz_OUTPUT;\n"
 
         self_gen = CGenerator([], "", self.plugin_stub.description)
         self_defines = ""
@@ -218,6 +215,7 @@ int ___madz_init(void * * dependencies, void * * requirements, void * * output) 
             else:
                 self_defines += "#define MADZOUT_{} {}\n".format(var_name, "___madz_OUTPUT." + var_name)
 
+
         with open(self.lang.get_c_header_filename(self.plugin_stub), "w") as f:
             f.write(self.hack_header_preamble)
             f.write(decsvars)
@@ -227,4 +225,4 @@ int ___madz_init(void * * dependencies, void * * requirements, void * * output) 
 
         with open(self.lang.get_c_code_filename(self.plugin_stub), "w") as f:
             f.write(self.hack_code_preamble)
-            f.write(self.hack_code_postamble)
+            f.write(self.hack_code_postamble.format(self_inputs, self_functions))

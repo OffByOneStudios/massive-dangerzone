@@ -6,7 +6,7 @@ plugin = Plugin(
 
     language="c",
 
-    imports=["b", "a"],
+    imports=["a", "b"],
 
     variables={
         "origin_distance": TypeFunction(

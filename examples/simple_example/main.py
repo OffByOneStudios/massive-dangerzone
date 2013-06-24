@@ -21,10 +21,10 @@ test_wrap_gen.wrap()
 import madz.builder
 
 test_builder = madz.builder.BuilderSystem(test_plugin_system)
-test_builder.build_plugin(p_a)
+test_builder.build()
 
 import madz.loader
 
 test_loader = madz.loader.LoaderSystem(test_plugin_system)
-test_loader.load_plugin(p_a)
+test_loader.load()
 
