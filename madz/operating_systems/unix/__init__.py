@@ -7,25 +7,25 @@ class UnixOperatingSystem(object):
 
     @staticmethod
     def output_file_location(plugin_stub):
-        return os.path.join(plugin_stub.directory, "output")
+        return os.path.join(plugin_stub.directory, ".output", plugin_stub.id.namespace + ".madz")
 
     def load(self, plugin_stub):
         plugin_dll = ctypes.cdll.LoadLibrary(self.output_file_location(plugin_stub))
         
-        madz_init = plugin_dll.___madz_init
+        madz_init = getattr(plugin_dll, "___madz_init")
         madz_init.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)]
 
-        return_pointer = ctypes.pointer(ctypes.c_void_p)
+        return_pointer = ctypes.pointer(ctypes.c_void_p())
 
-        dependencies = plugin_stub.dependencies
-        requirements = plugin_stub.requires
+        depends = plugin_stub.depends
+        imports = plugin_stub.imports
 
-        dependencies_array = ctypes.c_void_p * len(dependencies)
-        requirements_array = ctypes.c_void_p * len(requirements)
+        depends_array = (ctypes.c_void_p * len(depends))()
+        imports_array = (ctypes.c_void_p * len(imports))()
 
         # TODO(Mason): assign values into arrays
 
-        error_val = madz_init(dependencies_array, requirements_array, return_pointer)
+        error_val = madz_init(depends_array, imports_array, return_pointer)
 
         self.loaded_plugins[plugin_stub] = return_pointer.contents
 

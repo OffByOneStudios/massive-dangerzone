@@ -1,11 +1,14 @@
 #include "madz.h"
 
 #include "math.h"
+#include "stdio.h"
 
 MADZINIT{
     MADZOUT_a_var = 13;
 
     MADZOUT_origin = (MADZTYPE(,Point2d)) { .x = 0.0, .y = 0.0 };
+
+    printf("TEST!\n");
 }
 
 MADZOUTFUNC_distance{

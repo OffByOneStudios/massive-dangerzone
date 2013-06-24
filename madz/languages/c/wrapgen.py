@@ -156,6 +156,7 @@ MADZINIT;
 ___madz_TYPE_ ___madz_OUTPUT;
 int ___madz_init(void * * dependencies, void * * requirements, void * * output) {
     {}
+    ___madz_INIT();
     (*output) = &___madz_OUTPUT;
 }
 
