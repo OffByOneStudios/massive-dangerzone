@@ -22,11 +22,16 @@ class TypeType(object):
     def Pointer(self):
         return TypePointer(self)
 
+    def validate(self):
+        return True
+
+
 class TypeTypeNone(TypeType):
     """Void, as in No Return Type"""
     def __init__(self): pass
 
 TypeNone = TypeTypeNone()
+
 
 class TypeTypeWidth(TypeType):
     """A Type which can have a width parameter.
@@ -58,6 +63,15 @@ class TypeTypeWidth(TypeType):
 
     def node_type(self):
         return self
+
+    def validate(self):
+        try:
+            self._valid()
+        except InvalidTypeMDLError:
+            return False
+
+        return True
+
 
 class TypeInt(TypeTypeWidth):
     """Object Representing Machine Integers, and their varius widths."""
@@ -101,6 +115,9 @@ class TypeTypedef(TypeType):
         """
         self.type = t
 
+    def validate(self):
+        return self.type.validate()
+
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.t == other.t
 
@@ -124,6 +141,8 @@ class TypePointer(TypeType):
     def __hash__(self):
         return hash((self.__class__, self.t))
 
+    def validate(self):
+        return self.type.validate()
 
 class TypeArray(TypeType):
     """C Style Array Type.
@@ -147,7 +166,8 @@ class TypeArray(TypeType):
     def __hash__(self):
         return hash((self.__class__, self.t, self.count))
 
-
+    def validate(self):
+        return self.type.validate() and isinstance(self.count, int)
 class TypeStructType(TypeType):
     """A Record (C Struct) Type Declaration.
 
@@ -172,6 +192,12 @@ class TypeStructType(TypeType):
     def __hash__(self):
         return hash((self.__class__, self._desc_hash))
 
+    def validate(self):
+        for key, val in self.description.items():
+            if (isinstance(key, str) and val.validate()) == False:
+                return False
+
+        return True
 
 class NamedType(TypeType):
     """A Variable associated with a Declared Type
@@ -197,7 +223,8 @@ class NamedType(TypeType):
     def __hash__(self):
         return hash((self.__class__, self.value))
 
-
+    def validate(self):
+        return isinstance(self.type, str)
 class TypeFunction(TypeType):
     """A Function Type
 
@@ -211,3 +238,12 @@ class TypeFunction(TypeType):
         self.return_type = return_type
         self.attributes = attributes
         self.args = args
+
+    def validate(self):
+        if self.return_type.validate() == False:
+            return False
+        for key, val in self.args.items():
+            if (isinstance(key, str) and val.validate()) == False:
+                return False
+
+        return True
