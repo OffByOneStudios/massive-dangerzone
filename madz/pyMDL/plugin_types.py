@@ -5,7 +5,7 @@ Basic Classes for C interportability
 
 class MDLError(Exception): pass
 class InvalidTypeMDLError(MDLError): pass
-
+class MDLSyntaxError(Exception): pass
 class TypeType(object):
     """Abstract Base Class for Types"""
     def __init__(self): raise NotImplementedError()
@@ -127,6 +127,7 @@ class TypeTypedef(TypeType):
 
 class TypePointer(TypeType):
     """A Pointer Type encapsulating another Type"""
+
     def __init__(self, t):
         """Pointer Type constructor
 
@@ -134,6 +135,14 @@ class TypePointer(TypeType):
             t: The Type to be a pointer of.
         """
         self.type = t
+        self._valid()
+
+    def _valid(self):
+        _valid_pointers = [TypeTypeWidth, TypeArray, NamedType, TypeFunction]
+        for i in _valid_pointers:
+            if isinstance(self.type, i):
+                return
+        raise InvalidTypeMDLError("Pointer Cannot Point to Type: {}".format(self.type))
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.t == other.t
@@ -142,6 +151,7 @@ class TypePointer(TypeType):
         return hash((self.__class__, self.t))
 
     def validate(self):
+        self._valid()
         return self.type.validate()
 
 class TypeArray(TypeType):
@@ -168,6 +178,7 @@ class TypeArray(TypeType):
 
     def validate(self):
         return self.type.validate() and isinstance(self.count, int)
+
 class TypeStructType(TypeType):
     """A Record (C Struct) Type Declaration.
 
