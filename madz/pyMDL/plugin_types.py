@@ -32,6 +32,8 @@ class TypeTypeWidth(TypeType):
     """A Type which can have a width parameter.
     ie. Integers have a width parameter. Those widths commonly refered to as byte, short, int, long, etc
 
+    Attributes:
+        width : List of Integer Bit Width of type
     """
     _valid_widths = []
 
@@ -40,6 +42,11 @@ class TypeTypeWidth(TypeType):
         self._valid()
 
     def _valid(self):
+        """Validator for TypeWidth objects.
+        Returns:
+            Boolean True iff instantiated width is with given width range, False otherwise.
+        """
+
         if not (self.width in self._valid_widths):
             raise InvalidTypeMDLError("'{}' is not a valid width for a {}.".format(self.width, self.__class__))
 
@@ -53,6 +60,7 @@ class TypeTypeWidth(TypeType):
         return self
 
 class TypeInt(TypeTypeWidth):
+    """Object Representing Machine Integers, and their varius widths."""
     _valid_widths = [8, 16, 32, 64]
 
 TypeInt8 = TypeInt(8)
@@ -63,6 +71,7 @@ TypeInt64 = TypeInt(64)
 TypeChar = TypeInt(8)
 
 class TypeUInt(TypeTypeWidth):
+    """Object Representing Machine Unsigned Integers, and their varius widths."""
     _valid_widths = [8, 16, 32, 64]
 
 TypeUInt8 = TypeUInt(8)
@@ -71,6 +80,7 @@ TypeUInt32 = TypeUInt(32)
 TypeUInt64 = TypeUInt(64)
 
 class TypeFloat(TypeTypeWidth):
+    """Object Representing Machine Floating Point Values, and their varius widths."""
     _valid_widths = [32, 64, 128, 256]
 
 TypeFloat32 = TypeFloat(32)
@@ -78,7 +88,11 @@ TypeFloat64 = TypeFloat(64)
 
 
 class TypeTypedef(TypeType):
-    """A Typedef"""
+    """A C-StyleTypedef
+
+    Attributes:
+        type: The Type being aliased.
+    """
     def __init__(self, t):
         """Typedef Type constructor
 
@@ -99,7 +113,7 @@ class TypePointer(TypeType):
     def __init__(self, t):
         """Pointer Type constructor
 
-        Args:
+        Agttributes:
             t: The Type to be a pointer of.
         """
         self.type = t
@@ -112,6 +126,11 @@ class TypePointer(TypeType):
 
 
 class TypeArray(TypeType):
+    """C Style Array Type.
+    Attributes:
+        count: Integer Count of number of elements
+        type: Type of Array Element
+    """
     def __init__(self, t, count):
         """Pointer Type constructor
 
@@ -130,7 +149,12 @@ class TypeArray(TypeType):
 
 
 class TypeStructType(TypeType):
-    """A Struct Declaration"""
+    """A Record (C Struct) Type Declaration.
+
+    Attributes:
+        description: Dictionary of (str,Type) tuples
+
+    """
 
     def __init__(self, desc):
         """C Struct Representation
@@ -150,9 +174,14 @@ class TypeStructType(TypeType):
 
 
 class NamedType(TypeType):
-    """A type which has bee previously declared.
+    """A Variable associated with a Declared Type
 
-    This is  oppsed to 'builtin' types, like integer.
+    While builtin types are represented by their associated types above, declared types
+    (Like TypeStructType) are associated with the string name of the declared type.
+
+
+    Attributes:
+        type: str name of declared type.
     """
     def __init__(self, t):
         """Struct Declaration constructor
@@ -170,7 +199,14 @@ class NamedType(TypeType):
 
 
 class TypeFunction(TypeType):
-    """A Function Type"""
+    """A Function Type
+
+    Attributes:
+        return_type: Type object specifying the return type signiture of the function
+        args: Dict of (str,Type) tuples representing function arguements
+        attributes: keyword modifiers of function (like extern/inline/public/etc..)
+
+    """
     def __init__(self, return_type = TypeNone, args={}, attributes = []):
         self.return_type = return_type
         self.attributes = attributes

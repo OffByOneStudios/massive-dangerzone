@@ -1,8 +1,22 @@
 """plugin.py
 @OffbyOne Studios 2013
-Interface Object for Interfaces
+Code for plugin description objects
 """
 class Plugin(object):
+    """Object Containing description of Plugins.
+
+    Associated with __plugin__.py files, which describe plugins.
+
+    Attributes:
+        name: String name of plugin
+        version: Version of plugin
+        implementation_name: String name of particular implementation of plugin interface
+        language: langauge that implementation is written in
+        imports: Plugins that this plugin makes use of
+        depends: Plugins that this plugin require, usually providing some functionality on said plugins
+        declarations: Dict of Type and Function declarations associated with this plugin
+        variables: Dict Variable delcarations which require space to be allocated.
+    """
     def __init__(self, **kwargs):
         self._args = kwargs
 
