@@ -4,7 +4,7 @@ Code To generated C Headers from Madz Plugin Descriptions.
 """
 import os
 
-import shared, from_inter
+import shared
 import madz.pyMDL.plugin_types as pdl
 
 class CGenerator(object):
