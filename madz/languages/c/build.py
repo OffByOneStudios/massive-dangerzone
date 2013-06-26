@@ -8,6 +8,8 @@ import subprocess
 
 import shared
 
+from madz.dependency import Dependency
+
 class Builder(object):
     """Object Which can build C plugins.
 
@@ -74,3 +76,9 @@ class Builder(object):
         print "*** => LINK"
         print out_link.stdout.read()
 
+    def get_dependency(self):
+        """Returns a dependency object for this operation."""
+        targets = [os.path.join(self._o_dir, self.plugin_stub.id.namespace + ".madz")]
+        dependencies = self.lang.get_c_files_from(self.plugin_stub)
+        dependencies.append(self.lang.get_c_code_filename(self.plugin_stub))
+        return Dependency(dependencies, targets)

@@ -28,9 +28,11 @@ class Dependency(object):
         #Verify each target is newer than the newest dependency, add targets
         #which are older than their dependences to the unsatisfied_targets list
         for t in self.targets:
-            if time.ctime(os.path.getmtime(t)) <= newest_dependency:
+            if os.path.isfile(t):
+                if time.ctime(os.path.getmtime(t)) <= newest_dependency:
+                    unsatisfied_targets.append(t)
+            else:
                 unsatisfied_targets.append(t)
-
         return unsatisfied_targets
 
     def __bool__(self):

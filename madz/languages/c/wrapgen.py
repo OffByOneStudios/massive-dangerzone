@@ -7,6 +7,8 @@ import os
 import shared
 import madz.pyMDL.plugin_types as pdl
 
+from madz.dependency import Dependency
+
 class CGenerator(object):
     """Class to Generate C Headers from PyMDL
 
@@ -168,6 +170,13 @@ class WrapperGenerator(object):
     def prep(self):
         if not (os.path.exists(self._w_dir)):
             os.makedirs(self._w_dir)
+
+    def get_dependency(self):
+        """Returns a dependency object for this operation."""
+        targets = [self.lang.get_c_code_filename(self.plugin_stub),
+                   self.lang.get_c_header_filename(self.plugin_stub)]
+        dependencies = self.lang.get_c_files_from(self.plugin_stub)
+        return Dependency(dependencies, targets)
 
     prefix = "___madz"
     type_prefix = "___madz_TYPE"

@@ -20,5 +20,6 @@ class WrapperSystem(object):
         """# TODO(mason) What do these two functions do"""
         wrapper_generator_class = languages.get_wrapper_generator(plugin_stub.language)
         gen = wrapper_generator_class(plugin_stub)
-        gen.generate()
 
+        if gen.get_dependency():
+            gen.generate()
