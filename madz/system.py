@@ -103,7 +103,20 @@ class PluginSystem(object):
         """
         self.directories.append(PluginDirectory(self, directory, sub_namespace))
 
+    def _init_plugin(self, plugin):
+        resolve_func = lambda id: self.plugin_resolver.get_plugin(id.namespace)
+
+        if not(plugin.inited):
+            for dep_id in plugin.depends:
+                self._init_plugin(resolve_func(dep_id))
+
+            if not plugin.init_requires(resolve_func):
+                print "Plugin {} failed to load.".format(plugin.id)
+            plugin.inited = True
+
     def init_plugins(self):
         """Initilize Plugins."""
         for plugin in self.plugin_stubs:
-            plugin.load_requires(lambda id: self.plugin_resolver.get_plugin(id.namespace))
+            self._init_plugin(plugin)
+
+

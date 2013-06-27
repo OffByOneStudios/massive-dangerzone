@@ -17,13 +17,21 @@ class TypeType(object):
         return hash(self.__class__)
 
     def node_type(self):
-        return self.__class__
+        return self
 
     def Pointer(self):
         return TypePointer(self)
 
-    def validate(self):
+    def node_type(self):
+        return self
+
+    def validate(self, context):
+        """Validates the AST tree from this point on."""
         return True
+
+    def map_over(self, map_func):
+        """Operates on each member of the AST."""
+        return self
 
 
 class TypeTypeNone(TypeType):
@@ -44,16 +52,15 @@ class TypeTypeWidth(TypeType):
 
     def __init__(self, width):
         self.width = width
-        self._valid()
+        if not self._valid():
+            raise InvalidTypeMDLError("'{}' is not a valid width for a {}.".format(self.width, self.__class__))
 
     def _valid(self):
-        """Validator for TypeWidth objects.
+        """Private validator for TypeWidth objects.
         Returns:
             Boolean True iff instantiated width is with given width range, False otherwise.
         """
-
-        if not (self.width in self._valid_widths):
-            raise InvalidTypeMDLError("'{}' is not a valid width for a {}.".format(self.width, self.__class__))
+        return (self.width in self._valid_widths)
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.width == other.width
@@ -61,16 +68,8 @@ class TypeTypeWidth(TypeType):
     def __hash__(self):
         return hash((self.__class__, self.width))
 
-    def node_type(self):
-        return self
-
-    def validate(self):
-        try:
-            self._valid()
-        except InvalidTypeMDLError:
-            return False
-
-        return True
+    def validate(self, context):
+        return self._valid()
 
 
 class TypeInt(TypeTypeWidth):
@@ -82,8 +81,6 @@ TypeInt16 = TypeInt(16)
 TypeInt32 = TypeInt(32)
 TypeInt64 = TypeInt(64)
 
-TypeChar = TypeInt(8)
-
 class TypeUInt(TypeTypeWidth):
     """Object Representing Machine Unsigned Integers, and their varius widths."""
     _valid_widths = [8, 16, 32, 64]
@@ -93,6 +90,8 @@ TypeUInt16 = TypeUInt(16)
 TypeUInt32 = TypeUInt(32)
 TypeUInt64 = TypeUInt(64)
 
+TypeChar = TypeUInt(8)
+
 class TypeFloat(TypeTypeWidth):
     """Object Representing Machine Floating Point Values, and their varius widths."""
     _valid_widths = [32, 64, 128, 256]
@@ -101,116 +100,124 @@ TypeFloat32 = TypeFloat(32)
 TypeFloat64 = TypeFloat(64)
 
 
-class TypeTypedef(TypeType):
-    """A C-StyleTypedef
-
-    Attributes:
-        type: The Type being aliased.
-    """
-    def __init__(self, t):
-        """Typedef Type constructor
-
-        Args:
-            t: The Type to alias.
-        """
-        self.type = t
-
-    def validate(self):
-        return self.type.validate()
-
-    def __eq__(self, other):
-        return (self.__class__ == other.__class__) and self.t == other.t
-
-    def __hash__(self):
-        return hash((self.__class__, self.t))
+class TypeTypeComplex(TypeType):
+    def node_type(self):
+        return self.__class__
 
 
-class TypePointer(TypeType):
-    """A Pointer Type encapsulating another Type"""
+class TypePointer(TypeTypeComplex):
+    """A type representing a pointer to another type"""
 
-    def __init__(self, t):
-        """Pointer Type constructor
+    def __init__(self, type):
+        """A type representing a pointer to another type
 
         Agttributes:
-            t: The Type to be a pointer of.
+            type: The type the pointer will point to.
         """
-        self.type = t
+        self.type = type
         self._valid()
+
+    _invalid_subtypes = []
 
     def _valid(self):
-        _valid_pointers = [TypeTypeWidth, TypeArray, NamedType, TypeFunction]
-        for i in _valid_pointers:
-            if isinstance(self.type, i):
-                return
-        raise InvalidTypeMDLError("Pointer Cannot Point to Type: {}".format(self.type))
+        if len(filter(lambda l: isinstance(self.type, l), self._valid_subtypes)) != 0:
+            raise InvalidTypeMDLError("Pointer Cannot Point to Type: {}".format(self.type))
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__) and self.t == other.t
+        return (self.__class__ == other.__class__) and self.type == other.type
 
     def __hash__(self):
-        return hash((self.__class__, self.t))
+        return hash((self.__class__, self.type))
 
-    def validate(self):
-        self._valid()
-        return self.type.validate()
+    def validate(self, context):
+        return self.type.validate(context)
 
-class TypeArray(TypeType):
-    """C Style Array Type.
+    def map_over(self, map_func):
+        new_sub = map_func(self.type)
+        if len(new_sub) != 1:
+            raise InvalidTypeMDLError("Pointer can only point to a single type. Got instead: {}".format(new_sub))
+        return self.__class__(new_sub[0].map_over(map_func))
+
+
+class TypeArray(TypeTypeComplex):
+    """Fixed length array of homogenous components.
+
     Attributes:
-        count: Integer Count of number of elements
-        type: Type of Array Element
+        length: Number of elements
+        type: Type of elements
     """
-    def __init__(self, t, count):
-        """Pointer Type constructor
+    def __init__(self, type, length):
+        """Fixed length array of homogenous components.
 
         Args:
-            t: The Type to be a pointer of.
-            count: number of type t.
+            type: Type of elements
+            length: Number of elements
         """
-        self.type = t
-        self.count = count
+        self.type = type
+        self.length = length
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__) and self.t == other.t and self.count == other.count
+        return (self.__class__ == other.__class__) and self.type == other.type and self.length == other.length
 
     def __hash__(self):
-        return hash((self.__class__, self.t, self.count))
+        return hash((self.__class__, self.type, self.length))
 
-    def validate(self):
-        return self.type.validate() and isinstance(self.count, int)
+    def validate(self, context):
+        try:
+            foo = int(self.length)
+        except ValueError:
+            return False
+        return self.type.validate(context)
 
-class TypeStructType(TypeType):
+    def map_over(self, map_func):
+        new_sub = map_func(self.type)
+        if len(new_sub) != 1:
+            raise InvalidTypeMDLError("Array can only have a single type. Got instead: {}".format(new_sub))
+        return self.__class__(new_sub[0].map_over(map_func))
+
+
+class TypeStruct(TypeTypeComplex):
     """A Record (C Struct) Type Declaration.
 
     Attributes:
-        description: Dictionary of (str,Type) tuples
+        elements: Dictionary mapping names in the struct to types
 
     """
 
-    def __init__(self, desc):
-        """C Struct Representation
+    def __init__(self, elements):
+        """Record Representation
 
         Args:
-            desc:
-                Dict of (name, type) pairs
+            elements:
+                Dictionary mapping names in the struct to types
         """
-        self.description = desc
-        self._desc_hash = hash(tuple(sorted(desc.iteritems())))
+        self.elements = elements
+        self._elements_hash = hash(tuple(sorted(elements.iteritems())))
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__) and self.description == other.description
+        return (self.__class__ == other.__class__) and self.elements == other.elements
 
     def __hash__(self):
-        return hash((self.__class__, self._desc_hash))
+        return hash((self.__class__, self._elements_hash))
 
-    def validate(self):
-        for key, val in self.description.items():
-            if (isinstance(key, str) and val.validate()) == False:
+    def validate(self, context):
+        for key, val in self.elements.items():
+            if not (context.is_valid_symbol(key) and val.validate(context)):
                 return False
-
         return True
 
-class NamedType(TypeType):
+    def map_over(self, map_func):
+        new_elements = {}
+        for name, node in self.elements.iteritems():
+            new_subs = map_func(node, name=name)
+            for new_sub_name, new_sub_node in new_subs:
+                if new_sub_name in new_elements:
+                    raise InvalidTypeMDLError("Struct can not have multiple new elements with the same name: {}".format(new_sub_name))
+                new_elements[new_sub_name] = new_sub_node.map_over(map_func)
+        return self.__class__(new_elements)
+
+
+class NamedType(TypeTypeComplex):
     """A Variable associated with a Declared Type
 
     While builtin types are represented by their associated types above, declared types
@@ -218,43 +225,74 @@ class NamedType(TypeType):
 
 
     Attributes:
-        type: str name of declared type.
+        symbol: str name of declared type.
     """
-    def __init__(self, t):
+    def __init__(self, symbol):
         """Struct Declaration constructor
 
         Args:
-            t: string name of structtype
+            symbol: string name of a type
         """
-        self.type = t
+        self.symbol = symbol
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__) and self.value == other.value
+        return (self.__class__ == other.__class__) and self.symbol == other.symbol
 
     def __hash__(self):
-        return hash((self.__class__, self.value))
+        return hash((self.__class__, self.symbol))
 
-    def validate(self):
-        return isinstance(self.type, str)
-class TypeFunction(TypeType):
+    def __repr__(self):
+        return "{}({!r})".format(self.__class__.__name__, self.symbol)
+
+    def validate(self, context):
+        return context.validate_symbol(self.symbol)
+
+
+class TypeFunction(TypeTypeComplex):
     """A Function Type
 
     Attributes:
         return_type: Type object specifying the return type signiture of the function
         args: Dict of (str,Type) tuples representing function arguements
-        attributes: keyword modifiers of function (like extern/inline/public/etc..)
 
     """
-    def __init__(self, return_type = TypeNone, args={}, attributes = []):
+    def __init__(self, return_type = TypeNone, args={}):
         self.return_type = return_type
-        self.attributes = attributes
         self.args = args
+        self._ret_args_hash = hash((return_type,
+            tuple(sorted(args.iteritems()))))
 
-    def validate(self):
-        if self.return_type.validate() == False:
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and \
+            self.return_type == other.return_type and \
+            self.args == other.args
+
+    def __hash__(self):
+        return hash((self.__class__, self._ret_attrib_args_hash))
+
+    def validate(self, context):
+        if not self.return_type.validate(context):
             return False
+
         for key, val in self.args.items():
-            if (isinstance(key, str) and val.validate()) == False:
+            if not (context.is_valid_symbol(key) and val.validate(context)):
                 return False
 
         return True
+
+    def map_over(self, map_func):
+        new_sub = map_func(self.return_type)
+        if len(new_sub) != 1:
+            raise InvalidTypeMDLError("Function return type can only be a single type. Got instead: {}".format(new_sub))
+        new_return_type = new_sub[0].map_over(map_func)
+
+        new_args = {}
+        for name, node in self.args.iteritems():
+            new_subs = map_func(node, name=name)
+            for new_sub_name, new_sub_node in new_subs:
+                if new_sub_name in new_args:
+                    raise InvalidTypeMDLError("Function can not have multiple new arguments with the same name: {}".format(new_sub_name))
+                new_args[new_sub_name] = new_sub_node.map_over(map_func)
+        return self.__class__(return_type=new_return_type, args=new_args)
+
+

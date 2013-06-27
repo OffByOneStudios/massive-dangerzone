@@ -80,6 +80,8 @@ class PythonPluginStub(object):
         self._init_module()
         self._init_required(plugin_id)
 
+        self.inited = False
+
     @classmethod
     def contains_stub_file(cls, directory):
         """Returns true if the directory contains a potential python plugin description."""
@@ -126,7 +128,7 @@ class PythonPluginStub(object):
 
         self.requires = self.depends + self.imports
 
-    def load_requires(self, lookup_func):
+    def init_requires(self, lookup_func):
         self.loaded_depends = []
         self.loaded_imports = []
 
@@ -138,7 +140,9 @@ class PythonPluginStub(object):
 
         self.loaded_requires = self.loaded_depends + self.loaded_imports
 
-        self.description = pyMDL.plugin.PluginDescription(self.get("declarations"), self.get("variables"), dict((d.id.namespace,d) for d in self.loaded_depends))
+        self.description = pyMDL.plugin.PluginDescription(self.get("declarations"), self.get("variables"), dict((d.id.namespace, d.description) for d in self.loaded_depends))
+
+        return self.description.validate()
 
     def gen_recursive_loaded_depends(self):
         depends_list = []

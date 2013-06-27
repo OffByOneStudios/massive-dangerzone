@@ -38,7 +38,7 @@ class CGenerator(object):
 
     def _gen_table_struct(self, node, name):
         return "typedef struct {{\n{}\n}} {}".format(
-            "\n".join(map(lambda t: "\t{};".format(self.gen_type_string(*t)), node.description.items())),
+            "\n".join(map(lambda t: "\t{};".format(self.gen_type_string(*t)), node.elements.items())),
             self.mangle_type_name(name))
 
     def _gen_table_function(self, node, name):
@@ -63,8 +63,6 @@ class CGenerator(object):
         return self.type_prefix + "_" + (namespace or self._namespace) + "_" + symbol
 
     def gen_type_string(self, name, node):
-        if isinstance(node, str):
-            node = pdl.NamedType(node)
         return self._gen_table[node.node_type()](self, node, name)
 
     _gen_table = {
@@ -81,10 +79,9 @@ class CGenerator(object):
         pdl.TypeFloat32 : lambda s, no, na: "float " + na,
         pdl.TypeFloat64 : lambda s, no, na: "double " + na,
         pdl.TypePointer : lambda s, no, na: "{} * {}".format(s.gen_type_string(no.type), name),
-        pdl.NamedType : lambda s, no, na:"{} {}".format(s.mangle_type_name(no.type), na),
-        pdl.TypeStructType : _gen_table_struct,
+        pdl.NamedType : lambda s, no, na:"{} {}".format(s.mangle_type_name(no.symbol), na),
+        pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
-        pdl.TypeTypedef : _gen_table_typedef,
     }
 
     def ordering(self, node):

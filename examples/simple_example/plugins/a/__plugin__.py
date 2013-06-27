@@ -7,7 +7,7 @@ plugin = Plugin(
     language="c",
 
     declarations={
-        "Point2d": TypeStructType({
+        "Point2d": TypeStruct({
             "x": TypeFloat32,
             "y": TypeFloat32,
         })

@@ -4,7 +4,8 @@ Code for plugin description objects
 """
 
 import re
-import plugin_types as pt
+import plugin_types as base_types
+
 class Plugin(object):
     """Object Containing description of Plugins.
 
@@ -51,7 +52,7 @@ class Variable(object):
 class PluginDescription(object):
     """Data Structure for Declarations and Variables."""
 
-    def __init__(self, declarations, variables, depends):
+    def __init__(self, declarations, variables, dependencies):
         """Constructor for PluginDescription helper class.
 
         Args:
@@ -63,7 +64,20 @@ class PluginDescription(object):
         """
         self.declarations = declarations
         self.variables = variables
-        self.depends = depends
+        self.dependencies = dependencies
+
+        self._cache_validated_types = {}
+        self._cache_validated_symbols = {}
+
+        def str_to_named(node, name=""):
+            ret_node = node
+            if isinstance(node, basestring):
+                ret_node = base_types.NamedType(node)
+            if name:
+                return [(name, ret_node)]
+            return [ret_node]
+
+        self.map_over(str_to_named)
 
 
     @staticmethod
@@ -93,7 +107,7 @@ class PluginDescription(object):
 
         res = {}
 
-        for key, val in self.declarations.items():
+        for key, val in self.declarations.iteritems():
             if isinstance(val, the_type):
                 res[key] = val
 
@@ -104,184 +118,100 @@ class PluginDescription(object):
         Args:
             stringname: string containing name of declaration.
         """
-        namespace,symbol = self.split_namespace(stringname)
+        namespace, symbol = self.split_namespace(stringname)
         if namespace == "":
             return self.declarations[stringname]
         else:
             # TODO Exception Checking
-            return self.dependencies[namespace].description.get_type(symbol)
+            return self.dependencies[namespace].get_type(symbol)
 
     def contains_type(self, stringname):
         """returns True iff stringname exist in self.declarations"""
         return self.declarations.haskey[stringname]
 
-    def is_visible(self, stringname):
+    def contains_var(self, stringname):
+        """returns True iff stringname exist in self.variables"""
+        return self.variables.haskey[stringname]
+
+    def is_visible_type(self, stringname):
         """Returns True iff stringname exists in this namespace, or any dependant namespace."""
-        if self.contains_type(self, stringname) == True:
+        if self.contains_type(self, stringname):
             return True
-        else:
-            for name, plugin in self.depends:
-                if plugin.contains_type(stringname):
-                    return True
-            return False
-    def _validate_keys():
-        c_regex ="[A-Za-z_][A-Za-z_0-9]"
-        c_reserved=["auto", "else", "long", "switch", "break", "enum", "register", "typedef",
-            "case", "extern", "return", "union", "char", "float", "short", " unsigned",
-            "const", "for", "signed", "void",
-            "continue", "goto", "sizeof", "volatile",
-            "default", "if", "static", "while",
-            "do", "int", "struct", "_Packed",
-            "double"]
 
-        for key in self.declarations:
-            if key in c_reserved:
-                raise pt.MDLSyntaxError("Keywords {} is not a valid C Identifier".format(key))
+        for name, description in self.dependencies.iteritems():
+            if description.contains_type(stringname):
+                return True
 
-    def _validate_vals():
-        for key, val in self.declarations.items():
-            if val.validate() == False:
-                raise pt.MDLSyntaxError("Invalid Declaration: {} \t {}".format(key, val))
-    def validate_declarations(self):
+        return False
+
+    def is_visible_var(self, stringname):
+        """Returns True iff stringname exists in this namespace, or any dependant namespace."""
+        if self.contains_var(self, stringname):
+            return True
+
+        for name, description in self.dependencies.iteritems():
+            if description.contains_var(stringname):
+                return True
+
+        return False
+
+    _symbol_regex = re.compile("^[A-Za-z][A-Za-z_0-9]*$")
+
+    @classmethod
+    def is_valid_symbol(cls, symbol):
+        return not (cls._symbol_regex.search(symbol) is None)
+
+    def validate_type(self, type_instance):
+        if type_instance in self._cache_validated_types:
+            self._cache_validated_types[type_instance]
+        
+        result = type_instance.validate(self)
+
+        self._cache_validated_types[type_instance] = result
+
+    def validate_symbol(self, symbol):
+        if symbol in self._cache_validated_symbols:
+            return self._cache_validated_symbols[symbol]
+
+        result = True
+        try:
+            sym_type = self.get_type(symbol)
+        except KeyError:
+            result = False
+
+        if not(result):
+            result = sym_type.validate(self)
+
+        self._cache_validated_symbols[symbol] = result
+        return result
+
+    def validate(self):
         """Checks for valid declarations."""
-        def validate_typedef(t):
-            if isinstance(t.type, TypeTypedef):
-                return validate_typedef(t.type)
-            elif isinstance(t.type, TypePointer):
-                return validate_pointer(t.type)
-            elif isinstance(t.type, TypeArray):
-                return validate_array(t.type)
-            elif isinstance(t.type, TypeStructType):
-                return validate_struct(t.type)
-            elif isinstance(t.type, NamedType):
-                return validate_named(t.type)
-            elif isinstance(t.type, TypeFunction):
-                return validate_function(t.type)
-            else:
-                return True
+        for name, node in self.declarations.iteritems():
+            if not (self.is_valid_symbol(name) and node.validate(self)):
+                return False
 
-        def validate_pointer(p):
-            if isinstance(p.type, TypeTypedef):
-                return validate_typedef(p.type)
-            if isinstance(p.type, TypePointer):
-                return validate_pointer(p.type)
-            elif isinstance(p.type, TypeArray):
-                return validate_array(p.type)
-            elif isinstance(p.type, TypeStructType):
-                return validate_struct(p.type)
-            elif isinstance(p.type, NamedType):
-                return validate_named(p.type)
-            elif isinstance(p.type, TypeFunction):
-                return validate_function(p.type)
-            else:
-                return True
+        for name, node in self.variables.iteritems():
+            if not (self.is_valid_symbol(name) and node.validate(self)):
+                return False
+        return True
 
-        def validate_array(a):
-            if isinstance(a.type, TypeTypedef):
-                return validate_typedef(a.type)
-            elif isinstance(a.type, TypePointer):
-                return validate_pointer(a.type)
-            elif isinstance(a.type, TypeArray):
-                return validate_array(a.type)
-            elif isinstance(a.type, TypeStructType):
-                return validate_struct(a.type)
-            elif isinstance(a.type, NamedType):
-                return validate_named(a.type)
-            elif isinstance(a.type, TypeFunction):
-                return validate_function(a.type)
-            else:
-                return True
+    def map_over(self, map_func):
+        new_elements = {}
+        for name, node in self.declarations.iteritems():
+            new_subs = map_func(node, name=name)
+            for new_sub_name, new_sub_node in new_subs:
+                if new_sub_name in new_elements:
+                    raise InvalidTypeMDLError("Declarations can not have multiple new elements with the same name: {}".format(new_sub_name))
+                new_elements[new_sub_name] = new_sub_node.map_over(map_func)
+        self.declarations = new_elements
 
-        def validate_struct(s):
-            s.description #(str, type pairs)
-            for key, val in s.description.items():
-                if isinstance(val, TypeTypedef):
-                    if validate_typedef(val) == False:
-                        return False
-                elif isinstance(val, TypePointer):
-                    if validate_pointer(val) == False:
-                        return False
-                elif isinstance(val, TypeArray):
-                    if validate_array(val) == False:
-                        return False
-                elif isinstance(val, TypeStructType):
-                    if validate_struct(val) == False:
-                        return False
-                elif isinstance(val, NamedType):
-                    if validate_named(val) == False:
-                        return False
-                elif isinstance(val, TypeFunction):
-                    if validate_function(val) == False:
-                        return False
-                else:
-                    continue
-            return True
-        def validate_named(n):
+        new_elements = {}
+        for name, node in self.variables.iteritems():
+            new_subs = map_func(node, name=name)
+            for new_sub_name, new_sub_node in new_subs:
+                if new_sub_name in new_elements:
+                    raise InvalidTypeMDLError("Variables can not have multiple new elements with the same name: {}".format(new_sub_name))
+                new_elements[new_sub_name] = new_sub_node.map_over(map_func)
+        self.variables = new_elements
 
-            return self.is_visible(n.type)
-        def validate_function(f):
-            n.return_type
-            n.args
-            if isinstance(n.return_type, TypeTypedef):
-                if validate_typedef(n.return_type) == False:
-                    return False
-            elif isinstance(n.return_type, TypePointer):
-                if validate_pointer(n.return_type) == False:
-                    return False
-            elif isinstance(n.return_type, TypeArray):
-                if validate_array(n.return_type) == False:
-                    return False
-            elif isinstance(n.return_type, TypeStructType):
-                if validate_struct(n.return_type) == False:
-                    return False
-            elif isinstance(n.return_type, NamedType):
-                if validate_named(n.return_type) == False:
-                    return False
-            elif isinstance(n.return_type, TypeFunction):
-                if validate_function(n.return_type) == False:
-                    return False
-            
-            for key, val in n.args.items():
-                if isinstance(val, TypeTypedef):
-                    if validate_typedef(val) == False:
-                        return False
-                elif isinstance(val, TypePointer):
-                    if validate_pointer(val) == False:
-                        return False
-                elif isinstance(val, TypeArray):
-                    if validate_array(val) == False:
-                        return False
-                elif isinstance(val, TypeStructType):
-                    if validate_struct(val) == False:
-                        return False
-                elif isinstance(val, NamedType):
-                    if validate_named(val) == False:
-                        return False
-                elif isinstance(val, TypeFunction):
-                    if validate_function(val) == False:
-                        return False
-            return True
-
-        self._validate_keys()
-        self._validate_vals()
-        for key, val in self.declarations.items():
-            if isinstance(val, TypeTypedef):
-                if validate_typedef(val) == False:
-                    raise pt.MDLSyntaxError("Invalid Declaration: {} \t {}".format(key, val))
-            elif isinstance(val, TypePointer):
-                if validate_pointer(val) == False:
-                    raise pt.MDLSyntaxError("Invalid Declaration: {} \t {}".format(key, val))
-            elif isinstance(val, TypeArray):
-                if validate_array(val) == False:
-                    raise pt.MDLSyntaxError("Invalid Declaration: {} \t {}".format(key, val))
-            elif isinstance(val, TypeStructType):
-                if validate_struct(val) == False:
-                    raise pt.MDLSyntaxError("Invalid Declaration: {} \t {}".format(key, val))
-            elif isinstance(val, NamedType):
-                if validate_named(val) == False:
-                    raise pt.MDLSyntaxError("Invalid Declaration: {} \t {}".format(key, val))
-            elif isinstance(val, TypeFunction):
-                if validate_function(val) == False:
-                    raise pt.MDLSyntaxError("Invalid Declaration: {} \t {}".format(key, val))
-            else:
-                continue
