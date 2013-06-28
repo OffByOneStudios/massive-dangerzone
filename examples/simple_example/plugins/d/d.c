@@ -1,3 +1,7 @@
 #include "madz.h"
 
-MADZINIT {}
+#include "stdio.h"
+
+MADZINIT {
+    printf("INIT D!\n");
+}

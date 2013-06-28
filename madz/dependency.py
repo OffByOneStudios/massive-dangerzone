@@ -11,7 +11,6 @@ class Dependency(object):
     def __init__(self, dependencies, targets):
         self.dependencies = dependencies
         self.targets = targets
-        self._unsatisfied_targets = self.check()
 
     def check(self):
         """Checks that there are no targets which are older than the dependencies."""
@@ -33,9 +32,10 @@ class Dependency(object):
                     unsatisfied_targets.append(t)
             else:
                 unsatisfied_targets.append(t)
-        return unsatisfied_targets
+        self._unsatisfied_targets = unsatisfied_targets
 
     def __bool__(self):
+        self.check()
         if len(self._unsatisfied_targets) == 0:
             return True
         else:

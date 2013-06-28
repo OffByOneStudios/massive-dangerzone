@@ -21,5 +21,5 @@ class WrapperSystem(object):
         wrapper_generator_class = languages.get_wrapper_generator(plugin_stub.language)
         gen = wrapper_generator_class(plugin_stub)
 
-        if gen.get_dependency():
+        if not gen.get_dependency():
             gen.generate()

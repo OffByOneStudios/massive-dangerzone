@@ -19,6 +19,6 @@ class BuilderSystem(object):
         builder_class = languages.get_builder(plugin_stub.language)
         builder = builder_class(plugin_stub)
 
-        if builder.get_dependency():
+        if not builder.get_dependency():
             builder.build()
 

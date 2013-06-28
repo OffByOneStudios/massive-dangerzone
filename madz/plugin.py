@@ -140,7 +140,7 @@ class PythonPluginStub(object):
 
         self.loaded_requires = self.loaded_depends + self.loaded_imports
 
-        self.description = pyMDL.plugin.PluginDescription(self.get("declarations"), self.get("variables"), dict((d.id.namespace, d.description) for d in self.loaded_depends))
+        self.description = pyMDL.plugin.PluginDescription(self.get("description"), dict((d.id.namespace, d.description) for d in self.loaded_depends))
 
         return self.description.validate()
 

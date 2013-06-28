@@ -8,9 +8,10 @@ plugin = Plugin(
 
     imports=["a", "b"],
 
-    variables={
-        "origin_distance": TypeFunction(
-            TypeFloat32,
-            {"x": TypeFloat32,
-             "y": TypeFloat32})
-    })
+    description=[
+        VariableDefinition("origin_distance",
+            TypeFunction(
+                TypeFloat32,
+                [TypeFunctionArgument("x", TypeFloat32),
+                 TypeFunctionArgument("y", TypeFloat32)]))
+    ])

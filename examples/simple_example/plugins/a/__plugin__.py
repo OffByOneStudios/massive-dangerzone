@@ -6,18 +6,18 @@ plugin = Plugin(
 
     language="c",
 
-    declarations={
-        "Point2d": TypeStruct({
-            "x": TypeFloat32,
-            "y": TypeFloat32,
-        })
-    },
-    variables={
-        "a_var" : TypeInt32,
-        "origin" : "Point2d",
-        "distance": TypeFunction(
-            TypeFloat32,
-            {"a": "Point2d",
-             "b": "Point2d"})
-    }
+    description=[
+        TypeDeclaration("Point2d", 
+            TypeStruct({
+                "x": TypeFloat32,
+                "y": TypeFloat32,
+            })),
+        VariableDefinition("a_var", TypeInt32),
+        VariableDefinition("origin", "Point2d"),
+        VariableDefinition("distance", 
+            TypeFunction(
+                TypeFloat32,
+                [TypeFunctionArgument("a", "Point2d"),
+                 TypeFunctionArgument("b", "Point2d")]))
+    ]
 )

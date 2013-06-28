@@ -8,9 +8,10 @@ plugin = Plugin(
 
     depends=["a"],
 
-    variables={
-        "origin" : "a.Point2d",
-        "origin_distance": TypeFunction(
-            TypeFloat32,
-            {"a": "a.Point2d"})
+    description={
+        VariableDefinition("origin", "a.Point2d"),
+        VariableDefinition("origin_distance",
+            TypeFunction(
+                TypeFloat32,
+                [TypeFunctionArgument("a", "a.Point2d")]))
     })

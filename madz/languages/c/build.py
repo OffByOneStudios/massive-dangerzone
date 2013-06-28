@@ -82,3 +82,4 @@ class Builder(object):
         dependencies = self.lang.get_c_files_from(self.plugin_stub)
         dependencies.append(self.lang.get_c_code_filename(self.plugin_stub))
         return Dependency(dependencies, targets)
+

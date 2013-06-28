@@ -5,7 +5,7 @@ Code To generated C Headers from Madz Plugin Descriptions.
 import os
 
 import shared
-import madz.pyMDL.plugin_types as pdl
+import madz.pyMDL as pdl
 
 from madz.dependency import Dependency
 
@@ -27,8 +27,7 @@ class CGenerator(object):
         self.dependencies = dependencies
         self.namespace = namespace
         self._namespace = self._namespace_mangle(namespace)
-        self.declarations = description.declarations
-        self.variables = description.variables
+        self.description = description
 
     type_prefix = "___madz_TYPE"
 
@@ -45,7 +44,7 @@ class CGenerator(object):
         return "{}(*{})({})".format(
             self.gen_type_string("", node.return_type),
             name,
-            ", ".join(map(lambda t: self.gen_type_string(*t), node.args.items())))
+            ", ".join(map(lambda a: self.gen_type_string(a.name, a.type), node.args)))
 
     def _gen_table_typedef(self, node, name):
         return "typedef " + self.gen_type_string("", node.type) + self.type_prefix + "_" + self.namespace + "_" + name
@@ -54,7 +53,7 @@ class CGenerator(object):
         return "{}{}({})".format(
             self.gen_type_string("", node.return_type),
             name,
-            ", ".join(map(lambda t: self.gen_type_string(*t), node.args.items())))
+            ", ".join(map(lambda a: self.gen_type_string(a.name, a.type), node.args)))
 
     def mangle_type_name(self, name):
         split_name = name.split(".")
@@ -103,8 +102,8 @@ class CGenerator(object):
         """Constructs Declarations for module"""
         res = ""
         #TODO For each typedef, struct def, function defininition generate C rep
-        for name, node in self.declarations.items():
-            res += self.gen_type_string(name, node) + ";\n"
+        for node in self.description.declarations():
+            res += self.gen_type_string(node.name, node.type) + ";\n"
         return res
 
     def make_variables(self):
@@ -112,8 +111,8 @@ class CGenerator(object):
 
         res = "typedef struct{\n"
         #TODO(Put everything not a typedef here)
-        for vname, vtype in self.variables.items():
-            res += "\t" + self.gen_type_string(vname, vtype) + ";\n"
+        for node in self.description.definitions():
+            res += "\t" + self.gen_type_string(node.name, node.type) + ";\n"
         res += "}" + self.type_prefix + "_" + self._namespace + ";\n"
 
         return res
@@ -132,27 +131,27 @@ class CGenerator(object):
         def get_actual_type(var_type):
             return var_type
 
-        for var_name, var_type in self.variables.items():
-            actual_type = get_actual_type(var_type)
+        for var in self.description.definitions():
+            actual_type = get_actual_type(var.type)
             if isinstance(actual_type, pdl.TypeFunction):
                 code_fragments["output_var_bindings"] += \
                     "#define MADZOUTFUNC_{} {}\n".format(
-                        var_name,
-                        self._gen_actual_function(actual_type, "___madz_OUTPUTFUNC_" + var_name))
+                        var.name,
+                        self._gen_actual_function(actual_type, "___madz_OUTPUTFUNC_" + var.name))
 
                 code_fragments["output_var_bindings"] += \
                     "#define MADZOUT_{} {}\n".format(
-                        var_name,
-                        "___madz_OUTPUTFUNC_" + var_name)
+                        var.name,
+                        "___madz_OUTPUTFUNC_" + var.name)
 
                 code_fragments["output_var_func_declares"] += \
-                    "MADZOUTFUNC_{};\n".format(var_name)
+                    "MADZOUTFUNC_{};\n".format(var.name)
 
                 code_fragments["out_struct_func_assigns"] += \
-                    "___madz_OUTPUT.{} = &MADZOUT_{};\n".format(var_name, var_name)
+                    "___madz_OUTPUT.{} = &MADZOUT_{};\n".format(var.name, var.name)
             else:
                 code_fragments["output_var_bindings"] += \
-                    "#define MADZOUT_{} {}\n".format(var_name, "___madz_OUTPUT." + var_name)
+                    "#define MADZOUT_{} {}\n".format(var.name, "___madz_OUTPUT." + var.name)
 
 class WrapperGenerator(object):
     lang = shared.LanguageShared
