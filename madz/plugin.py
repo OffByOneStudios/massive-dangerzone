@@ -69,6 +69,20 @@ class PythonPluginStub(object):
     """An object representing a python plugin description.
 
     Python plugin descriptions are represented as a '__plugin__.py' file in the plugin directory.
+
+    Attributes:
+        directory: The directory containing the plugin.
+        abs_directory: An absolute version of directory.
+        id: The PluginId object representing this plugin.
+        language: The programming language of this plugin.
+        depends: The PluginId's of plugins this one's description depends on.
+        imports: The PluginId's of plugins this one uses in it's implementation.
+        requires: Both depends and imports.
+        inited: False untill init_requires is called.
+        loaded_depends: The plugins corresponding to depends. (Monkeypatched by init_requires)
+        loaded_imports: The plugins corresponding to imports. (Monkeypatched by init_requires)
+        loaded_requires: The plugins corresponding to requires. (Monkeypatched by init_requires)
+        description: Contains a PluginDescription object wrapping the MDL for this plugin. (Monkeypatched by init_requires)
     """
     def __init__(self, directory, plugin_id):
         """Attempts to load a python description from the directory given."""
