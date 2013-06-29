@@ -9,7 +9,13 @@ import pyMDL.plugin
 class PluginError(Exception): pass
 
 class PluginId(object):
-    """A value type for uniquely identifying plugins."""
+    """A value type for uniquely identifying plugins.
+
+    Attributes:
+        namespace: The dotted namespace.
+        version: The semver version.
+        implementation_name: A string representing the unique implementation name.
+    """
     def __init__(self, namespace, version, implementation_name="default"):
         self.namespace = namespace
         self.version = version
