@@ -12,14 +12,15 @@ class WrapperSystem(object):
         self.system = system
 
     def wrap(self):
-        """# TODO(mason) What do these two functions do"""
+        """Wraps all plugins."""
         for plugin in self.system.plugin_stubs:
             self.wrap_plugin(plugin)
 
     def wrap_plugin(self, plugin_stub):
-        """# TODO(mason) What do these two functions do"""
+        """Wraps a single plugin."""
         wrapper_generator_class = languages.get_wrapper_generator(plugin_stub.language)
         gen = wrapper_generator_class(plugin_stub)
 
-        if not gen.get_dependency():
+        if True or not gen.get_dependency():
+            print "gen", plugin_stub.id
             gen.generate()
