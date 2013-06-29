@@ -14,9 +14,9 @@ class CGenerator(object):
 
     Attributes:
         dependencies: Dict of (namespace,CGenerator) tuples
-        namespace : str Stringname of namespace
-        declarations: Dictionary of PyMDL declarations
-        variables: Dictionary of PyMDL declarations
+        namespace: The namespace represented by this CGenerator.
+        mangled_namespace: The mangled namepace to refrenced variables in this CGenerator.
+        description: The PluginDescription object this generator generates from.
     """
     def __init__(self, dependencies, namespace, description):
         """Constructor for C Generators.
@@ -26,7 +26,7 @@ class CGenerator(object):
         """
         self.dependencies = dependencies
         self.namespace = namespace
-        self._namespace = self._namespace_mangle(namespace)
+        self.mangled_namespace = self._namespace_mangle(namespace)
         self.description = description
 
     type_prefix = "___madz_TYPE"
@@ -36,15 +36,19 @@ class CGenerator(object):
         return namespace.replace(".", "__")
 
     def _gen_table_struct(self, node, name):
-        return "typedef struct {{\n{}\n}} {}".format(
-            "\n".join(map(lambda t: "\t{};".format(self.gen_type_string(*t)), node.elements.items())),
+        return "struct {{\n{}\n}} {}".format(
+            "\n".join(map(
+                lambda t: "\t{};".format(self.gen_type_string(*t)),
+                node.elements.items())),
             self.mangle_type_name(name))
 
     def _gen_table_function(self, node, name):
         return "{}(*{})({})".format(
             self.gen_type_string("", node.return_type),
             name,
-            ", ".join(map(lambda a: self.gen_type_string(a.name, a.type), node.args)))
+            ", ".join(map(
+                lambda a: self.gen_type_string(a.name, a.type),
+                node.args)))
 
     def _gen_table_typedef(self, node, name):
         return "typedef " + self.gen_type_string("", node.type) + self.type_prefix + "_" + self.namespace + "_" + name
@@ -53,15 +57,18 @@ class CGenerator(object):
         return "{}{}({})".format(
             self.gen_type_string("", node.return_type),
             name,
-            ", ".join(map(lambda a: self.gen_type_string(a.name, a.type), node.args)))
+            ", ".join(map(
+                lambda a: self.gen_type_string(a.name, a.type),
+                node.args)))
 
     def mangle_type_name(self, name):
         split_name = name.split(".")
         namespace = "__".join(split_name[:-1])
         symbol = split_name[-1]
-        return self.type_prefix + "_" + (namespace or self._namespace) + "_" + symbol
+        return self.type_prefix + "_" + (namespace or self.mangled_namespace) + "_" + symbol
 
     def gen_type_string(self, name, node):
+        """Given a name and a node, which is a type, generates a string for a variable of that type"""
         return self._gen_table[node.node_type()](self, node, name)
 
     _gen_table = {
@@ -99,25 +106,26 @@ class CGenerator(object):
             return 3
 
     def make_declarations(self):
-        """Constructs Declarations for module"""
+        """Constructs Declarations for this namespace"""
         res = ""
         #TODO For each typedef, struct def, function defininition generate C rep
         for node in self.description.declarations():
-            res += self.gen_type_string(node.name, node.type) + ";\n"
+            res += "typedef {};\n".format(self.gen_type_string(node.name, node.type))
         return res
 
     def make_variables(self):
-        """Constructs a struct holding variables for module."""
+        """Constructs a struct holding variables for this namespace."""
 
         res = "typedef struct{\n"
         #TODO(Put everything not a typedef here)
         for node in self.description.definitions():
             res += "\t" + self.gen_type_string(node.name, node.type) + ";\n"
-        res += "}" + self.type_prefix + "_" + self._namespace + ";\n"
+        res += "}" + self.type_prefix + "_" + self.mangled_namespace + ";\n"
 
         return res
 
     def make_declares_and_vars(self):
+        """Makes the c declarations and variables for this namespace."""
         declares_vars  = "/*   * NAMESPACE: {} */\n".format(self.namespace)
         declares_vars += "/*   * \> declarations */\n"
         declares_vars += self.make_declarations()
@@ -154,6 +162,7 @@ class CGenerator(object):
                     "#define MADZOUT_{} {}\n".format(var.name, "___madz_OUTPUT." + var.name)
 
 class WrapperGenerator(object):
+    """Responsible for driving the generation of wrapper files for C code."""
     lang = shared.LanguageShared
 
     def __init__(self, plugin_stub):
@@ -176,6 +185,51 @@ class WrapperGenerator(object):
 
     prefix = "___madz"
     type_prefix = "___madz_TYPE"
+
+    def generate(self):
+        self.prep()
+
+        code_fragments = {
+            "in_struct_defines" : "/* Definied structs for the incoming plugin variables */\n",
+            "in_struct_declares" : "/* Declaring structs for the incoming plugin variables */\n",
+            "out_struct_func_assigns" : "/* Assign functions in this plugin into the outgoing variables struct */\n",
+            "in_struct_assigns" : "/* Definied structs for the incoming plugin variables */\n",
+            "output_var_bindings" : "/* Bindings for ease of use in c */\n",
+            "output_var_func_declares" : "/* Declare output functions */\n",
+            "madz_prefix" : self.prefix,
+            "type_prefix" : self.type_prefix,
+            "depends_declares_vars" : "",
+            "imports_declares_vars" : "",
+            "current_declares_vars" : "",
+        }
+
+        def make_in_struct(gen):
+            type_and_name = \
+                "{type_prefix}_{namespace} ___madz_IN_{namespace};\n".format(
+                    type_prefix = self.type_prefix,
+                    namespace = gen.mangled_namespace)
+            code_fragments["in_struct_declares"] += "extern " + type_and_name
+            code_fragments["in_struct_defines"] += type_and_name
+
+        for dep in self.plugin_stub.gen_recursive_loaded_depends():
+            gen = CGenerator([], dep.id.namespace, dep.description)
+            code_fragments["depends_declares_vars"] += gen.make_declares_and_vars()
+            make_in_struct(gen)
+
+        for imp in self.plugin_stub.loaded_imports:
+            gen = CGenerator([], imp.id.namespace, imp.description)
+            code_fragments["imports_declares_vars"] += gen.make_declares_and_vars()
+            make_in_struct(gen)
+
+        gen = CGenerator([], "", self.plugin_stub.description)
+        code_fragments["current_declares_vars"] += gen.make_declares_and_vars()
+        gen.build_current_output(code_fragments)
+
+        with open(self.lang.get_c_header_filename(self.plugin_stub), "w") as f:
+            f.write(self.header_file_template.format(**code_fragments))
+
+        with open(self.lang.get_c_code_filename(self.plugin_stub), "w") as f:
+            f.write(self.code_file_template.format(**code_fragments))
 
     header_file_template = \
 """
@@ -237,48 +291,3 @@ int {madz_prefix}_EXTERN_INIT(void * * dependencies, void * * requirements, void
 }}
 
 """
-
-    def generate(self):
-        self.prep()
-
-        code_fragments = {
-            "in_struct_defines" : "/* Definied structs for the incoming plugin variables */\n",
-            "in_struct_declares" : "/* Declaring structs for the incoming plugin variables */\n",
-            "out_struct_func_assigns" : "/* Assign functions in this plugin into the outgoing variables struct */\n",
-            "in_struct_assigns" : "/* Definied structs for the incoming plugin variables */\n",
-            "output_var_bindings" : "/* Bindings for ease of use in c */\n",
-            "output_var_func_declares" : "/* Declare output functions */\n",
-            "madz_prefix" : self.prefix,
-            "type_prefix" : self.type_prefix,
-            "depends_declares_vars" : "",
-            "imports_declares_vars" : "",
-            "current_declares_vars" : "",
-        }
-
-        def make_in_struct(gen):
-            type_and_name = \
-                "{type_prefix}_{namespace} ___madz_IN_{namespace};\n".format(
-                    type_prefix = self.type_prefix,
-                    namespace = gen._namespace)
-            code_fragments["in_struct_declares"] += "extern " + type_and_name
-            code_fragments["in_struct_defines"] += type_and_name
-
-        for dep in self.plugin_stub.gen_recursive_loaded_depends():
-            gen = CGenerator([], dep.id.namespace, dep.description)
-            code_fragments["depends_declares_vars"] += gen.make_declares_and_vars()
-            make_in_struct(gen)
-
-        for imp in self.plugin_stub.loaded_imports:
-            gen = CGenerator([], imp.id.namespace, imp.description)
-            code_fragments["imports_declares_vars"] += gen.make_declares_and_vars()
-            make_in_struct(gen)
-
-        gen = CGenerator([], "", self.plugin_stub.description)
-        code_fragments["current_declares_vars"] += gen.make_declares_and_vars()
-        gen.build_current_output(code_fragments)
-
-        with open(self.lang.get_c_header_filename(self.plugin_stub), "w") as f:
-            f.write(self.header_file_template.format(**code_fragments))
-
-        with open(self.lang.get_c_code_filename(self.plugin_stub), "w") as f:
-            f.write(self.code_file_template.format(**code_fragments))
