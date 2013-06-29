@@ -65,11 +65,21 @@ class TypeType(Node):
     def is_general_type(self):
         return True
 
+    def is_namedonly_type(self):
+        return False
+
+    def get_type(self):
+        return self
+
     @classmethod
     def type_validate(cls, type, context):
-        return isinstance(type, cls) and \
-            type.is_general_type() and \
-            type.validate(context)
+        #validate should ensure that get_type behaves correctly
+        return \
+            isinstance(type, TypeType) and \
+            type.validate(context) and \
+            type.get_type().is_general_type() and \
+            not(type.get_type().is_namedonly_type()) and \
+            isinstance(type.get_type(), cls)
 
 class RootNode(Node):
     @abc.abstractmethod
@@ -115,9 +125,9 @@ class Definition(RootNode):
 
 class VariableDefinition(Definition):
     """A definition of a new variables."""
-    def __init__(self, name, type):
+    def __init__(self, name, typename):
         self.name = name
-        self.type = type
+        self.type = typename
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and \

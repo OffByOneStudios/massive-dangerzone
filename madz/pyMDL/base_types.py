@@ -301,6 +301,7 @@ class NamedType(TypeTypeComplex):
     def validate(self, context):
         self.resolve(context)
 
-        return TypeType.type_validate(self._res_type,
-            context.get_context(context.split_namespace(self.symbol)[0]))
+        return isinstance(self._res_type, TypeType) and \
+            self._res_type.validate(context.get_context(context.split_namespace(self.symbol)[0])) and \
+            self._res_type.get_type().is_general_type()
 
