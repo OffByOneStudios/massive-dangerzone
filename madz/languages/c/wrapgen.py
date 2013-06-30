@@ -73,15 +73,15 @@ class CGenerator(object):
 
     _gen_table = {
         pdl.TypeNone : lambda s, no, na: "void ",
-        pdl.TypeInt8 : lambda s, no, na: "char " + na,
-        pdl.TypeInt16 : lambda s, no, na: "short " + na,
-        pdl.TypeInt32 : lambda s, no, na: "int " + na,
-        pdl.TypeInt64 : lambda s, no, na: "long long " + na,
+        pdl.TypeInt8 : lambda s, no, na: "int8_t " + na,
+        pdl.TypeInt16 : lambda s, no, na: "int16_t " + na,
+        pdl.TypeInt32 : lambda s, no, na: "int32_t " + na,
+        pdl.TypeInt64 : lambda s, no, na: "int64_t " + na,
         pdl.TypeChar : lambda s, no, na: "char " + na,
-        pdl.TypeUInt8 : lambda s, no, na: "unsigned char " + na,
-        pdl.TypeUInt16 : lambda s, no, na: "unsigned short " + na,
-        pdl.TypeUInt32 : lambda s, no, na: "unsigned int " + na,
-        pdl.TypeInt64 : lambda s, no, na: "unsigned long long" + na,
+        pdl.TypeUInt8 : lambda s, no, na: "uint8_t " + na,
+        pdl.TypeUInt16 : lambda s, no, na: "uint16_t " + na,
+        pdl.TypeUInt32 : lambda s, no, na: "uint32_t " + na,
+        pdl.TypeUInt64 : lambda s, no, na: "uint64_t " + na,
         pdl.TypeFloat32 : lambda s, no, na: "float " + na,
         pdl.TypeFloat64 : lambda s, no, na: "double " + na,
         pdl.TypePointer : lambda s, no, na: "{} * {}".format(s.gen_type_string(no.type), name),
@@ -235,6 +235,8 @@ class WrapperGenerator(object):
 """
 #ifndef MADZ_GAURD_WRAP_MADZ_H
 #define MADZ_GAURD_WRAP_MADZ_H
+
+#include <inttypes.h>
 
 #define MADZ(namespace) {madz_prefix}_IN_##namespace
 #define MADZTYPE(namespace,symbol) {type_prefix}_##namespace##_##symbol
