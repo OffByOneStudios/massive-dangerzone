@@ -98,13 +98,6 @@ class TypePointer(TypeTypeComplex):
             type: The type the pointer will point to.
         """
         self.type = type
-        self._valid()
-
-    _invalid_subtypes = []
-
-    def _valid(self):
-        if len(filter(lambda l: isinstance(self.type, l), self._valid_subtypes)) != 0:
-            raise InvalidTypeMDLError("Pointer Cannot Point to Type: {}".format(self.type))
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.type == other.type

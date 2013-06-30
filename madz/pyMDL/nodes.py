@@ -72,13 +72,13 @@ class TypeType(Node):
         return self
 
     @classmethod
-    def type_validate(cls, type, context):
+    def type_validate(cls, type, context, namedonly_ok=False):
         #validate should ensure that get_type behaves correctly
         return \
             isinstance(type, TypeType) and \
             type.validate(context) and \
             type.get_type().is_general_type() and \
-            not(type.get_type().is_namedonly_type()) and \
+            (namedonly_ok or not(type.get_type().is_namedonly_type())) and \
             isinstance(type.get_type(), cls)
 
 class RootNode(Node):
@@ -109,7 +109,7 @@ class TypeDeclaration(Declaration):
         return hash((self.__class__, self.name, self.type))
 
     def validate(self, context):
-        return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context)
+        return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context, namedonly_ok=True)
 
     def map_over(self, map_func):
         return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
@@ -125,9 +125,9 @@ class Definition(RootNode):
 
 class VariableDefinition(Definition):
     """A definition of a new variables."""
-    def __init__(self, name, typename):
+    def __init__(self, name, type):
         self.name = name
-        self.type = typename
+        self.type = type
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and \

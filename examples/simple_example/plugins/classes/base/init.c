@@ -1,0 +1,5 @@
+#include "madz.h"
+
+MADZINIT {
+
+}

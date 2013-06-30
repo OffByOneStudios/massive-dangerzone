@@ -22,5 +22,4 @@ class WrapperSystem(object):
         gen = wrapper_generator_class(plugin_stub)
 
         if True or not gen.get_dependency():
-            print "gen", plugin_stub.id
             gen.generate()

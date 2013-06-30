@@ -5,6 +5,7 @@ Code for plugin description objects
 
 import re
 import nodes, base_types
+import extensions.objects.types as ext_objects
 
 class Plugin(object):
     """Object Containing description of Plugins.
@@ -61,7 +62,7 @@ class PluginDescription(object):
             return [ret_node]
 
         self.ast = self.map_over(str_to_named)
-
+        self.ast = ext_objects.expand(self.ast)
 
     @staticmethod
     def split_namespace(stringname):
@@ -134,7 +135,7 @@ class PluginDescription(object):
                 namespaces[namespacekey] = set()
             
             if node.name in namespaces[namespacekey]:
-                print "VALIDATION: Multiple names in namespace."
+                print "VALIDATION: Multiple names ({}) in namespace.".format(node.name)
                 return False
             namespaces[namespacekey].add(node.name)
 

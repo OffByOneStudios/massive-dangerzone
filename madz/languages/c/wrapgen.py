@@ -40,7 +40,7 @@ class CGenerator(object):
             "\n".join(map(
                 lambda t: "\t{};".format(self.gen_type_string(*t)),
                 node.elements.items())),
-            self.mangle_type_name(name))
+            name)
 
     def _gen_table_function(self, node, name):
         return "{}(*{})({})".format(
@@ -84,7 +84,7 @@ class CGenerator(object):
         pdl.TypeUInt64 : lambda s, no, na: "uint64_t " + na,
         pdl.TypeFloat32 : lambda s, no, na: "float " + na,
         pdl.TypeFloat64 : lambda s, no, na: "double " + na,
-        pdl.TypePointer : lambda s, no, na: "{} * {}".format(s.gen_type_string(no.type), name),
+        pdl.TypePointer : lambda s, no, na: "{} * {}".format(s.gen_type_string("", no.type), na),
         pdl.NamedType : lambda s, no, na:"{} {}".format(s.mangle_type_name(no.symbol), na),
         pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
@@ -110,7 +110,7 @@ class CGenerator(object):
         res = ""
         #TODO For each typedef, struct def, function defininition generate C rep
         for node in self.description.declarations():
-            res += "typedef {};\n".format(self.gen_type_string(node.name, node.type))
+            res += "typedef {};\n".format(self.gen_type_string(self.mangle_type_name(node.name), node.type))
         return res
 
     def make_variables(self):
