@@ -1,7 +1,7 @@
 from madz.stub import *
 
 plugin = Plugin(
-    name="a",
+    name="base_c.a",
     version="1.0.0",
 
     language="c",
@@ -13,6 +13,7 @@ plugin = Plugin(
                 "y": TypeFloat32,
             })),
         VariableDefinition("a_var", TypeInt32),
+        VariableDefinition("a_uvar", TypeUInt32),
         VariableDefinition("origin", "Point2d"),
         VariableDefinition("distance", 
             TypeFunction(

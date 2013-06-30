@@ -5,6 +5,7 @@
 
 MADZINIT {
     MADZOUT_a_var = 13;
+    MADZOUT_a_uvar = 13;
 
     MADZOUT_origin = (MADZTYPE(,Point2d)) { .x = 0.0, .y = 0.0 };
 

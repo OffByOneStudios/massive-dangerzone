@@ -1,10 +1,10 @@
 from madz.stub import *
 
 plugin = Plugin(
-    name="d",
+    name="base_c.d",
     version="1.0.0",
 
     language="c",
 
-    imports=["c"]
+    imports=["base_c.c"]
 )

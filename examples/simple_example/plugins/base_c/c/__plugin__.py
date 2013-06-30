@@ -1,12 +1,12 @@
 from madz.stub import *
 
 plugin = Plugin(
-    name="c",
+    name="base_c.c",
     version="1.0.0",
 
     language="c",
 
-    imports=["a", "b"],
+    imports=["base_c.a", "base_c.b"],
 
     description=[
         VariableDefinition("origin_distance",
