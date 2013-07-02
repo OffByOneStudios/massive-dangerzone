@@ -133,7 +133,7 @@ class PluginDescription(object):
             namespacekey = node.get_namespace_key()
             if not (namespacekey in namespaces):
                 namespaces[namespacekey] = set()
-            
+
             if node.name in namespaces[namespacekey]:
                 print "VALIDATION: Multiple names ({}) in namespace.".format(node.name)
                 return False
