@@ -40,3 +40,11 @@ double MADZ_pyobject_to_double(PyObject *p);
 //Char to Python
 PyObject * MADZ_char_to_pyobject(char c);
 char MADZ_pyobject_to_char(PyObject *c);
+
+
+typedef struct{
+	PyObject *value;
+}__madz_TYPE_pointer_object;
+static PyTypeObject ___madz_TYPE_pointer_object_Type;
+
+
