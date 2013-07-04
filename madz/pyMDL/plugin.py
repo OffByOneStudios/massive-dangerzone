@@ -38,6 +38,8 @@ class Plugin(object):
         self.depends = init_get("depends",[])
 
         self.description = init_get("description",[])
+        self.doc =init_get("doc", "")
+
 
 
 class PluginDescription(object):

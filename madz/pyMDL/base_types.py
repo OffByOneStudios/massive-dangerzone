@@ -153,7 +153,7 @@ class TypeStruct(TypeTypeComplex):
 
     """
 
-    def __init__(self, elements):
+    def __init__(self, elements, doc=""):
         """A fixed size record of hetrogenous components.n
 
         Args:
@@ -161,7 +161,7 @@ class TypeStruct(TypeTypeComplex):
         """
         self.elements = elements
         self._elements_hash = hash(tuple(sorted(elements.iteritems())))
-
+        self.doc = doc
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.elements == other.elements
 
@@ -186,10 +186,10 @@ class TypeStruct(TypeTypeComplex):
 
 
 class TypeFunctionArgument(TypeTypeComplex):
-    def __init__(self, name, type):
+    def __init__(self, name, type, doc=""):
         self.name = name
         self.type = type
-
+        self.doc = doc
     def is_general_type(self):
         return False
 
@@ -216,9 +216,10 @@ class TypeFunction(TypeTypeComplex):
         args: Dict of (str,Type) tuples representing function arguements
 
     """
-    def __init__(self, return_type = TypeNone, args=[]):
+    def __init__(self, return_type = TypeNone, args=[], doc=""):
         self.return_type = return_type
         self.args = args
+        self.doc = doc
         self._arg_lookup = dict((i[1].name, i[0]) for i in enumerate(args))
         self._ret_args_hash = hash((return_type, tuple(args)))
 
@@ -266,7 +267,7 @@ class NamedType(TypeTypeComplex):
     Attributes:
         symbol: str name of declared type.
     """
-    def __init__(self, symbol):
+    def __init__(self, symbol, doc=""):
         """Struct Declaration constructor
 
         Args:
@@ -274,7 +275,7 @@ class NamedType(TypeTypeComplex):
         """
         self.symbol = symbol
         self._res_type = None
-
+        self.doc = doc
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.symbol == other.symbol
 

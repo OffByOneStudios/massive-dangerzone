@@ -125,10 +125,10 @@ class Definition(RootNode):
 
 class VariableDefinition(Definition):
     """A definition of a new variables."""
-    def __init__(self, name, type):
+    def __init__(self, name, type, doc=""):
         self.name = name
         self.type = type
-
+        self.doc = doc
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and \
             self.name == other.name and \

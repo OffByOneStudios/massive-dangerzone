@@ -7,7 +7,7 @@ plugin = Plugin(
     language="c",
 
     description=[
-        TypeDeclaration("Point2d",
+        TypeDeclaration("Point2d", 
             TypeStruct({
                 "x": TypeFloat32,
                 "y": TypeFloat32,
@@ -15,7 +15,7 @@ plugin = Plugin(
         VariableDefinition("a_var", TypeInt32),
         VariableDefinition("a_uvar", TypeUInt32),
         VariableDefinition("origin", "Point2d"),
-        VariableDefinition("distance",
+        VariableDefinition("distance", 
             TypeFunction(
                 TypeFloat32,
                 [TypeFunctionArgument("a", "Point2d"),
