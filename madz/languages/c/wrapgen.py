@@ -280,7 +280,7 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 {in_struct_defines}
 
 /* The external dll function, called by the madz plugin system */
-int {madz_prefix}_EXTERN_INIT(void * * dependencies, void * * requirements, void * * output) {{
+int __stdcall __declspec(dllexport) {madz_prefix}_EXTERN_INIT(void * * dependencies, void * * requirements, void * * output) {{
     {out_struct_func_assigns}
 
     {in_struct_assigns}

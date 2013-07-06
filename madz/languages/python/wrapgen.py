@@ -121,7 +121,7 @@ class PythonGenerator(object):
         """Unbox struct_node's underlying c value."""
         res = "static " + self.type_prefix + "_" + struct_node.name + "_object* " + self.type_prefix + "_" + struct_node.name + "_object_to_" + self.type_prefix + "_" + struct_node.name
         res += "(" + self.type_prefix + "_" + struct_node.name + "_object *val){\n"
-        res += "\treturn val->c_val;\n"
+        res += "\treturn val.c_val;\n"
         res += "}\n"
 
         return res
@@ -132,7 +132,7 @@ class PythonGenerator(object):
         res += "(" + self.type_prefix + "_" + struct_node.name + " *c_val){\n"
 
         res += "\t" + self.type_prefix + "_" + struct_node.name + "_object *p = new_" + self.type_prefix + "_" + struct_node.name + "(NULL);\n"
-        res += "\tp->c_val = c_val;\n"
+        res += "\tp.c_val = c_val;\n"
         res += "\treturn p;\n"
         res += "}\n"
 
@@ -149,7 +149,7 @@ class PythonGenerator(object):
             res += "\t}\n"
 
             # Return pointer
-            res += "\tself.c_val = NULL;\n"
+
             res +=  "\treturn self;\n"
             res += "}\n"
             return res
@@ -199,8 +199,8 @@ class PythonGenerator(object):
         res += "\t\t}\n"
 
         for key, val in struct_node.type.elements.items():
-            if notisinstance(val, pdl.TypeFunction):
-                if isinstance(val, pdl.TypePointer)
+            if not isinstance(val, pdl.TypeFunction):
+                if isinstance(val, pdl.TypePointer):
                     res += "\t\tself.c_val->" + key + " = " + self.python_to_c_for_node(tmpnode(key, val))
                 else:
                     res += "\t\tself.c_val." + key + " = " + self.python_to_c_for_node(tmpnode(key, val))
@@ -230,7 +230,7 @@ class PythonGenerator(object):
 
     def make_pyobject_member_table(self, struct_node):
         def member_macro_for_type(t):
-            if isinstance(t.type,pdl.TypeInt):
+            if isinstance(t,pdl.TypeInt):
                 if t.width == 8:
                     return "T_BYTE"
                 elif t.width == 16:
@@ -239,7 +239,7 @@ class PythonGenerator(object):
                     return "T_INT"
                 elif t.width == 64:
                     return "T_LONGLONG"
-            elif isinstance(t.type, pdl.TypeUInt):
+            elif isinstance(t, pdl.TypeUInt):
                 if t.width == 8:
                     return "T_BYTE"
                 elif t.width == 16:
@@ -249,8 +249,13 @@ class PythonGenerator(object):
                 elif t.width == 64:
                     return "T_LONGLONG"
 
-            else
-                return "T_OBJECT_X"
+            elif isinstance(t, pdl.TypeFloat):
+                if t.width == 32:
+                    return "T_FLOAT"
+                else:
+                    return "T_DOUBLE"
+            else:
+                return "T_OBJECT_EX"
 
 
         docstring = "#TODO(MADZ) add documentation support"
@@ -261,7 +266,7 @@ class PythonGenerator(object):
                 if isinstance(val,pdl.TypePointer):
                     res += "\t{\"" + key +"\", T_OBJECT_EX, offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
                 else:
-                    res += "\t{\"" + key +"\", " +member_macro_for_type(t) +", offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
+                    res += "\t{\"" + key +"\", " +member_macro_for_type(val) + ", offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
         res +="\t{NULL}\n"
 
         res +="};\n"
@@ -269,25 +274,28 @@ class PythonGenerator(object):
         return res
 
     def make_pyobject_getattr(self, struct_node):
-        """Wraps getattr calls to access the cstruct.
-
-        #TODO(Clark) If the type is a primative type it functions as it already does, ignore these cases
-        If the type is a named type call it's constructor
-        If the type is a pointer call Py_Capsule
-        Have an elsif that tries a normal dispatch, if that fails try the method dispatch
-        """
+        """Wraps getattr calls to access the cstruct"""
         res = "static PyObject* " + self.type_prefix + "_" + struct_node.name + "_object_getattr("+self.type_prefix + "_" + struct_node.name + "_object, char *name){\n"
         if_marker = "if" # simpler loop
 
         for key, val in struct_node.type.elements.items():
             if not isinstance(val, pdl.TypeFunction):
-                res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self->c_val->"+key,val))
-                res += "\t\tif(v == NULL){\n"
-                res += "\t\t\tPy_INCREF(v);\n"
-                res += "\t\t\treturn v;\n"
-                res =="\t\t}\n"
-                res +="\t}\n"
+                if isinstance(val, pdl.TypePointer):
+                    res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
+                    res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self.c_val->"+key,val))
+                    res += "\t\tif(v == NULL){\n"
+                    res += "\t\t\tPy_INCREF(v);\n"
+                    res += "\t\t\treturn v;\n"
+                    res =="\t\t}\n"
+                    res +="\t}\n"
+                else:
+                    res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
+                    res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self.c_val."+key,val))
+                    res += "\t\tif(v == NULL){\n"
+                    res += "\t\t\tPy_INCREF(v);\n"
+                    res += "\t\t\treturn v;\n"
+                    res =="\t\t}\n"
+                    res +="\t}\n"
                 if_marker= "else if"
         res +="\telse{\n"
         res +="\t\treturn Py_FindMethod(" +self.type_prefix + "_" + struct_node.name + "_object_methods, (PyObject *)self, name);\n"
@@ -301,10 +309,16 @@ class PythonGenerator(object):
         if_marker = "if" # simpler loop
         for key, val in struct_node.type.elements.items():
             if not isinstance(val, pdl.TypeFunction):
-                res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                res += "\t\tself->c_val->"+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
-                res += "\t\treturn 0l\n"
-                res += "\t}\n"
+                if isinstance(val, pdl.TypePointer):
+                    res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
+                    res += "\t\tself.c_val->"+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
+                    res += "\t\treturn 0l\n"
+                    res += "\t}\n"
+                else:
+                    res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
+                    res += "\t\tself.c_val."+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
+                    res += "\t\treturn 0l\n"
+                    res += "\t}\n"
                 if_marker= "else if"
         res += "\treturn -1;\n"
         res += "}\n"
@@ -407,7 +421,7 @@ void init_module(PyObject *p);
         for arg in function.type.args:
                args += self._gen_table[arg.type.node_type()](self, arg.type, arg.name) +", "
                pyargdec += "\tPyObject *p" +arg.name+";\n"
-               boxing += "\t" + self.c_to_python_for_node(arg)
+               boxing += "\tp" + arg.name + " = " + self.c_to_python_for_node(arg)
                tuple_formatter_args +="p"+arg.name+", "
                tuple_formatter +="O"
         args = args[0:-2]
@@ -441,7 +455,7 @@ void init_module(PyObject *p);
 	}}
 	res = PyObject_Call(fn, args, NULL);
 	if(result ==NULL){{
-		fprintf(stderr, "Error in Calling python function do_foo\n");
+		fprintf(stderr, "Error in Calling python function \"{function_name}\"\\n");
 	}}
     return {unbox}
 

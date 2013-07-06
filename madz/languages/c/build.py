@@ -40,13 +40,16 @@ class Builder(object):
             os.makedirs(self._o_dir)
 
     def subprocess_list_c_compile(self):
-        return ["gcc", "-c", "-I"+shared.LanguageShared.get_wrap_directory(self.plugin_stub), "-fpic"]
+        return ["gcc", "-c", "-m32", "-I"+shared.LanguageShared.get_wrap_directory(self.plugin_stub), "-fpic"]
 
     def build_c_files(self, filenames):
+
         compile_process = subprocess.Popen(
             self.subprocess_list_c_compile() + filenames,
             cwd=self._b_dir,
-            stdout=subprocess.PIPE)
+            stdout=subprocess.PIPE,
+            shell=True)
+        #TODO(Madz) shell=True allows for shell code injection.
         return compile_process.stdout.read()
 
     def build(self):
@@ -72,7 +75,9 @@ class Builder(object):
         out_link = subprocess.Popen(
             ["gcc", "-shared", "-o", os.path.join(self._o_dir, self.plugin_stub.id.namespace + ".madz")] + object_files,
             cwd=self._b_dir,
-            stdout=subprocess.PIPE)
+            stdout=subprocess.PIPE,
+            shell=True)
+            #TODO(Madz) shell=True allows for shell code injection.
         print "*** => LINK"
         print out_link.stdout.read()
 
