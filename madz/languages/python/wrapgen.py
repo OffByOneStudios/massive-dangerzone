@@ -7,7 +7,6 @@ from collections import namedtuple
 from ..c import wrapgen as c_wrapgen
 # TODO(Any) Fix importing
 
-import shared
 import madz.pyMDL as pdl
 from madz.dependency import Dependency
 
@@ -464,17 +463,13 @@ void init_module(PyObject *p);
 
         return res
 class WrapperGenerator(object):
-    lang = shared.LanguageShared
-    def __init__(self, plugin_stub):
-        self.plugin_stub = plugin_stub
-        self._s_dir = self.plugin_stub.abs_directory
-        self._b_dir = self.lang.get_build_directory(self.plugin_stub)
-        self._w_dir = self.lang.get_wrap_directory(self.plugin_stub)
-        self._o_dir = self.lang.get_output_directory(self.plugin_stub)
+    def __init__(self, language):
+        self.language = language
+        self.plugin_stub = language.plugin_stub
 
     def prep(self):
-        if not (os.path.exists(self._w_dir)):
-            os.makedirs(self._w_dir)
+        if not (os.path.exists(self.language.get_wrap_directory())):
+            os.makedirs(self.language.get_wrap_directory())
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""
@@ -483,7 +478,7 @@ class WrapperGenerator(object):
     def generate(self):
         self.prep()
 
-        c_gen = c_wrapgen.WrapperGenerator(self.plugin_stub)
+        c_gen = c_wrapgen.WrapperGenerator(self.language)
 
         c_gen.generate()
         #Write shit here.
@@ -514,8 +509,8 @@ class WrapperGenerator(object):
         for node in gen.description.definitions():
             if isinstance(node.type, pdl.TypeFunction):
                 c_body += gen.make_function(node)
-        with open(self.lang.get_c_header_filename(self.plugin_stub), "a") as f:
+        with open(self.language.get_c_header_filename(), "a") as f:
             f.write(c_head)
 
-        with open(self.lang.get_c_code_filename(self.plugin_stub), "w") as f:
+        with open(self.language.get_c_code_filename(), "w") as f:
             f.write(c_body)

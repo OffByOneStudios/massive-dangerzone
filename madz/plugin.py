@@ -89,6 +89,7 @@ class PythonPluginStub(object):
         loaded_imports: The plugins corresponding to imports. (Monkeypatched by init_requires)
         loaded_requires: The plugins corresponding to requires. (Monkeypatched by init_requires)
         description: Contains a PluginDescription object wrapping the MDL for this plugin. (Monkeypatched by init_requires)
+        language_config: A processed language config ready for consumption.
     """
     def __init__(self, directory, plugin_id):
         """Attempts to load a python description from the directory given."""
@@ -147,6 +148,8 @@ class PythonPluginStub(object):
                 pass # TODO(Mason): Resuming error messages
 
         self.requires = self.depends + self.imports
+
+        self.language_config = {"compiler": "mingw"}
 
     def init_requires(self, lookup_func):
         self.loaded_depends = []

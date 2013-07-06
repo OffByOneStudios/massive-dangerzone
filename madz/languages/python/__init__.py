@@ -1,3 +1,3 @@
-from wrapgen import *
-from build import *
+from language import LanguagePy
 
+Language = LanguagePy

@@ -1,2 +1,3 @@
-from wrapgen import *
-from build import *
+from language import LanguageC
+
+Language = LanguageC

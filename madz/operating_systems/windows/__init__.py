@@ -11,9 +11,8 @@ class WindowsOperatingSystem(object):
 
     def load(self, plugin_stub):
         loc = self.output_file_location(plugin_stub)
-        print loc
-        plugin_dll = ctypes.windll.LoadLibrary(loc)
-
+        plugin_dll = ctypes.cdll.LoadLibrary(loc)
+        
         madz_init = getattr(plugin_dll, "___madz_EXTERN_INIT")
         madz_init.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)]
 

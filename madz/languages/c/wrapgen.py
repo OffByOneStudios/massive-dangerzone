@@ -4,7 +4,6 @@ Code To generated C Headers from Madz Plugin Descriptions.
 """
 import os
 
-import shared
 import madz.pyMDL as pdl
 
 from madz.dependency import Dependency
@@ -163,24 +162,20 @@ class CGenerator(object):
 
 class WrapperGenerator(object):
     """Responsible for driving the generation of wrapper files for C code."""
-    lang = shared.LanguageShared
 
-    def __init__(self, plugin_stub):
-        self.plugin_stub = plugin_stub
-        self._s_dir = self.plugin_stub.abs_directory
-        self._b_dir = self.lang.get_build_directory(self.plugin_stub)
-        self._w_dir = self.lang.get_wrap_directory(self.plugin_stub)
-        self._o_dir = self.lang.get_output_directory(self.plugin_stub)
+    def __init__(self, language):
+        self.language = language
+        self.plugin_stub = language.plugin_stub
 
     def prep(self):
-        if not (os.path.exists(self._w_dir)):
-            os.makedirs(self._w_dir)
+        if not (os.path.exists(self.language.get_wrap_directory())):
+            os.makedirs(self.language.get_wrap_directory())
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""
-        targets = [self.lang.get_c_code_filename(self.plugin_stub),
-                   self.lang.get_c_header_filename(self.plugin_stub)]
-        dependencies = self.lang.get_c_files_from(self.plugin_stub)
+        targets = [self.language.get_c_code_filename(),
+                   self.language.get_c_header_filename()]
+        dependencies = self.language.get_c_files_from()
         return Dependency(dependencies, targets)
 
     prefix = "___madz"
@@ -225,10 +220,10 @@ class WrapperGenerator(object):
         code_fragments["current_declares_vars"] += gen.make_declares_and_vars()
         gen.build_current_output(code_fragments)
 
-        with open(self.lang.get_c_header_filename(self.plugin_stub), "w") as f:
+        with open(self.language.get_c_header_filename(), "w") as f:
             f.write(self.header_file_template.format(**code_fragments))
 
-        with open(self.lang.get_c_code_filename(self.plugin_stub), "w") as f:
+        with open(self.language.get_c_code_filename(), "w") as f:
             f.write(self.code_file_template.format(**code_fragments))
 
     header_file_template = \
@@ -274,13 +269,23 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 
 #include "madz.h"
 
+//Some defines for cross platform madz dlls
+#ifndef WIN32
+#define __stdcall
+#endif
+#ifdef WIN32
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT
+#endif
+
 /* Define the outgoing variable's struct */
 {type_prefix}_ {madz_prefix}_OUTPUT;
 
 {in_struct_defines}
 
 /* The external dll function, called by the madz plugin system */
-int __stdcall __declspec(dllexport) {madz_prefix}_EXTERN_INIT(void * * dependencies, void * * requirements, void * * output) {{
+int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * dependencies, void * * requirements, void * * output) {{
     {out_struct_func_assigns}
 
     {in_struct_assigns}

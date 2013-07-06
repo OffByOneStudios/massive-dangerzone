@@ -18,8 +18,8 @@ class WrapperSystem(object):
 
     def wrap_plugin(self, plugin_stub):
         """Wraps a single plugin."""
-        wrapper_generator_class = languages.get_wrapper_generator(plugin_stub.language)
-        gen = wrapper_generator_class(plugin_stub)
+        language = languages.get_language(plugin_stub.language).Language(plugin_stub)
+        wrapper = language.make_wraper()
 
-        if True or not gen.get_dependency():
-            gen.generate()
+        if True or not wrapper.get_dependency():
+            wrapper.generate()
