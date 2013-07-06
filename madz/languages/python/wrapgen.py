@@ -58,9 +58,12 @@ class PythonGenerator(object):
 
         elif isinstance(node.type, pdl.NamedType):
             return self.type_prefix + "_" + node.type.symbol + "_object_to_" + self.type_prefix + node.type.symbol +"(" + node.name +");\n"
+
         # TODO(Clark) Complex Types
-        else:
-            raise NotImplementedError(node.name)
+        elif isinstance(node.type, pdl.TypePointer):
+            ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "")
+            return "(" + ctype + ")PyCapsule_GetPointer(" + node.name +",\" " + ctype + "\");\n"
+
 
     def c_to_python_for_node(self, node):
         if isinstance(node.type, pdl.TypeInt):
@@ -92,19 +95,21 @@ class PythonGenerator(object):
         elif isinstance(node.type, pdl.NamedType):
             return self.type_prefix + "_" + node.type.symbol + "_to_" + self.type_prefix + "_" + node.type.symbol +"_object(" + node.name + ");\n"
 
+
+        elif isinstance(node.type, pdl.TypePointer):
+            ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "")
+            return "PyCapsule_New((void *)" + node.name + ", \""+ctype +"\", NULL);\n"
+
         else:
             raise NotImplementedError(node.name)
     def make_pyobject(self, struct_node):
-            """Construct a PyObject struct.
-            This struct's members contain dummy PyObject variables for each member in struct.
-            Additionally they contain a pointer to struct.
-            """
+            """Construct a PyObject struct."""
             res = "typedef struct{\n"
             for key, val in struct_node.type.elements.items():
                 if not isinstance(val, pdl.TypeFunction):
                     res +="\tPyObject *"+key+";\n"
 
-            res +="\t" + struct_node.name + " *c_val;\n" # Pointer to hidden struct
+            res +="\t" + struct_node.name + " c_val;\n" # Pointer to hidden struct
             res+="}" + self.type_prefix + "_"+struct_node.name + "_object;\n"
             return res
 
@@ -142,11 +147,9 @@ class PythonGenerator(object):
             res += "\tif (self == NULL){\n"
             res += "\t\treturn NULL;\n"
             res += "\t}\n"
-            for key, val in struct_node.type.elements.items():
-                if not isinstance(val, pdl.TypeFunction):
-                    res +="\tself->"+key+" = NULL;\n"
+
             # Return pointer
-            res += "\tself->c_val = NULL;\n"
+            res += "\tself.c_val = NULL;\n"
             res +=  "\treturn self;\n"
             res += "}\n"
             return res
@@ -155,9 +158,7 @@ class PythonGenerator(object):
             """Constructs dealloc code for PyObject"""
             res = "static void " + self.type_prefix + "_" + struct_node.name + "_object_dealloc(" + self.type_prefix + "_" + struct_node.name + "_object  *self){\n" # Function Header
             #Decrement Class Attribute Pointers
-            for key, val in struct_node.type.elements.items():
-                if not isinstance(val, pdl.TypeFunction):
-                    res +="\tPy_XDECREF(self->"+key+");\n"
+
             # Dealloc Self
             res += "\tPyObject_del(self);\n"
             res +="}\n"
@@ -171,7 +172,7 @@ class PythonGenerator(object):
             This is used if you need to deallocate the incoming struct from madz from python.
             """
             res = "static void "+self.type_prefix + "_" + struct_node.name +"_free(" + self.type_prefix + "_" + struct_node.name +" *self, PyObject *args){\n"
-            res += "\tfree(self->c_struct);\n"
+            res += "\tfree(self.c_struct);\n"
             res += "}\n"
 
             return res
@@ -183,8 +184,8 @@ class PythonGenerator(object):
         parsetuple = ""
         for key, val in struct_node.type.elements.items():
             if not isinstance(val, pdl.TypeFunction):
-                res +="\tPyObject *"+key+" = NULL;\n"
-                parsetuple += key + ", "
+                res +="\tPyObject *p"+key+" = NULL;\n"
+                parsetuple += "p" + key + ", "
                 argcount+=1
         parsetuple = parsetuple[0:-2]
         res += "\tPyObject *tmp;\n"
@@ -198,16 +199,12 @@ class PythonGenerator(object):
         res += "\t\t}\n"
 
         for key, val in struct_node.type.elements.items():
-            res += "\t\tself->c_val->" + key + " = " + self.python_to_c_for_node(tmpnode(key, val))
+            if notisinstance(val, pdl.TypeFunction):
+                if isinstance(val, pdl.TypePointer)
+                    res += "\t\tself.c_val->" + key + " = " + self.python_to_c_for_node(tmpnode(key, val))
+                else:
+                    res += "\t\tself.c_val." + key + " = " + self.python_to_c_for_node(tmpnode(key, val))
 
-
-        #Pointer Magic
-        for key, val in struct_node.type.elements.items():
-            if not isinstance(val, pdl.TypeFunction):
-                res += "\t\ttmp = self->" + key +";\n"
-                res += "\t\tPy_INCREF(" + key +");\n"
-                res += "\t\tself->" + key +" = " + key +";\n"
-                res += "\t\tPy_XDECREF(tmp)\n"
         res += "\t}\n" # Close null cval
 
         res += "\treturn 0;\n" # already has a cstruct, use that instead
@@ -232,13 +229,39 @@ class PythonGenerator(object):
         return res
 
     def make_pyobject_member_table(self, struct_node):
+        def member_macro_for_type(t):
+            if isinstance(t.type,pdl.TypeInt):
+                if t.width == 8:
+                    return "T_BYTE"
+                elif t.width == 16:
+                    return "T_SHORT"
+                elif t.width == 32:
+                    return "T_INT"
+                elif t.width == 64:
+                    return "T_LONGLONG"
+            elif isinstance(t.type, pdl.TypeUInt):
+                if t.width == 8:
+                    return "T_BYTE"
+                elif t.width == 16:
+                    return "T_SHORT"
+                elif t.width == 32:
+                    return "T_INT"
+                elif t.width == 64:
+                    return "T_LONGLONG"
+
+            else
+                return "T_OBJECT_X"
+
+
         docstring = "#TODO(MADZ) add documentation support"
         res = "static PyMemberDef" + self.type_prefix + "_" + struct_node.name + "_object_members[] ={\n"
 
         for key, val in struct_node.type.elements.items():
             if not isinstance(val, pdl.TypeFunction):
-                res += "\t{\"" + key +"\", T_OBJECT_EX, offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
-
+                if isinstance(val,pdl.TypePointer):
+                    res += "\t{\"" + key +"\", T_OBJECT_EX, offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
+                else:
+                    res += "\t{\"" + key +"\", " +member_macro_for_type(t) +", offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
         res +="\t{NULL}\n"
 
         res +="};\n"
@@ -246,7 +269,13 @@ class PythonGenerator(object):
         return res
 
     def make_pyobject_getattr(self, struct_node):
-        """Wraps getattr calls to access the cstruct."""
+        """Wraps getattr calls to access the cstruct.
+
+        #TODO(Clark) If the type is a primative type it functions as it already does, ignore these cases
+        If the type is a named type call it's constructor
+        If the type is a pointer call Py_Capsule
+        Have an elsif that tries a normal dispatch, if that fails try the method dispatch
+        """
         res = "static PyObject* " + self.type_prefix + "_" + struct_node.name + "_object_getattr("+self.type_prefix + "_" + struct_node.name + "_object, char *name){\n"
         if_marker = "if" # simpler loop
 
