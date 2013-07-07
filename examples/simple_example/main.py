@@ -1,22 +1,10 @@
-import sys
+import os, sys
 sys.path.append("../../")
 
-# # # # # # LOGGING # # # #
-import logging
-# create console handler and set level to debug
-log_ch = logging.StreamHandler()
-log_ch.setLevel(logging.DEBUG)
+import madz
 
-# create formatter
-log_formatter = logging.Formatter('%(asctime)-15s - %(levelname)s - %(name)-8s\n\t%(message)s')
-
-# add formatter to ch
-log_ch.setFormatter(log_formatter)
-
-# add ch to logger
-logging.getLogger("madz").setLevel(logging.DEBUG)
-logging.getLogger("madz").addHandler(log_ch)
-# # # # END LOGGING # # # #
+madz.logging_add_console()
+madz.logging_add_file(os.path.join(os.path.dirname(__file__), "madz_test.log"))
 
 import madz.system
 
@@ -40,3 +28,8 @@ import madz.loader
 test_loader = madz.loader.LoaderSystem(test_plugin_system)
 test_loader.load()
 
+if len(sys.argv) > 1 and sys.argv[1] == "clean":
+    import madz.cleaner
+
+    test_cleaner = madz.cleaner.CleanerSystem(test_plugin_system)
+    test_cleaner.clean()
