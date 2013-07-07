@@ -42,9 +42,10 @@ class Builder(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
-        output = ""
-        errput = ""
-        while True:
+        cpdone = compile_process.returncode is None
+        output = compile_process.stdout.read() if cpdone else ""
+        errput = compile_process.stderr.read() if cpdone else ""
+        while compile_process.returncode is None:
             tout, terr = compile_process.communicate()
             output += tout
             errput += terr
