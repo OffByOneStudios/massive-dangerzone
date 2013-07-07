@@ -2,9 +2,12 @@
 @OffbyOneStudios 2013
 Code to load plugins into memory.
 """
-import operating_systems
+import logging
 
+import operating_systems
 import plugin
+
+logger = logging.getLogger(__name__)
 
 class LoaderSystem(object):
     """Loads plugins into the program's memory space and provides access to them."""
@@ -17,5 +20,6 @@ class LoaderSystem(object):
             self.load_plugin(plugin)
 
     def load_plugin(self, plugin_stub):
+        logger.info("Loading plugin: {}".format(plugin_stub))
         self._operating.load(plugin_stub)
 

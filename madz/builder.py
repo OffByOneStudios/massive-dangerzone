@@ -2,9 +2,12 @@
 @OffbyOne Studios 2013
 Code to generate inter language wraper files
 """
-import languages
+import logging
 
+import languages
 import plugin
+
+logger = logging.getLogger(__name__)
 
 class BuilderSystem(object):
     """Generates inter-language wrapper files required by a plugin."""
@@ -20,5 +23,6 @@ class BuilderSystem(object):
         builder = language.make_builder()
 
         if True or not builder.get_dependency():
+            logger.info("Building plugin: {}".format(plugin_stub))
             builder.build()
 

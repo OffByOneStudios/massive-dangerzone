@@ -2,7 +2,11 @@
 @OffbyOneStudios 2013
 Code to create Plugin Systems
 """
+import logging
+
 from plugin import *
+
+logger = logging.getLogger(__name__)
 
 class PluginResolver(object):
     """Class to lookup PluginSystems based on namespaces"""
@@ -111,7 +115,7 @@ class PluginSystem(object):
                 self._init_plugin(resolve_func(dep_id))
 
             if not plugin.init_requires(resolve_func):
-                print "Plugin {} failed to load.".format(plugin.id)
+                logger.error("Plugin {} failed to load.".format(plugin.id))
             plugin.inited = True
 
     def init_plugins(self):

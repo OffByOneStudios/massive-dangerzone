@@ -4,8 +4,12 @@ Code for plugin description objects
 """
 
 import re
+import logging
+
 import nodes, base_types
 import extensions.objects.types as ext_objects
+
+logger = logging.getLogger(__name__)
 
 class Plugin(object):
     """Object Containing description of Plugins.
@@ -129,7 +133,7 @@ class PluginDescription(object):
         namespaces = {}
         for node in self.ast:
             if not (isinstance(node, nodes.Declaration) or isinstance(node, nodes.Definition)):
-                print "VALIDATION: Root node is not declaration or definition."
+                logger.error("VALIDATION: Root node is not declaration or definition.")
                 return False
 
             namespacekey = node.get_namespace_key()
@@ -137,12 +141,12 @@ class PluginDescription(object):
                 namespaces[namespacekey] = set()
 
             if node.name in namespaces[namespacekey]:
-                print "VALIDATION: Multiple names ({}) in namespace.".format(node.name)
+                logger.error("VALIDATION: Multiple names ({}) in namespace.".format(node.name))
                 return False
             namespaces[namespacekey].add(node.name)
 
             if not (node.validate(self)):
-                return "VALIDATION: Node is not validated."
+                logger.error("VALIDATION: Node is not validated.")
                 return False
 
         return True

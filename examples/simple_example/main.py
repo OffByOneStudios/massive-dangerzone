@@ -1,15 +1,29 @@
 import sys
 sys.path.append("../../")
 
+# # # # # # LOGGING # # # #
+import logging
+# create console handler and set level to debug
+log_ch = logging.StreamHandler()
+log_ch.setLevel(logging.DEBUG)
+
+# create formatter
+log_formatter = logging.Formatter('%(asctime)-15s - %(levelname)s - %(name)-8s\n\t%(message)s')
+
+# add formatter to ch
+log_ch.setFormatter(log_formatter)
+
+# add ch to logger
+logging.getLogger("madz").setLevel(logging.DEBUG)
+logging.getLogger("madz").addHandler(log_ch)
+# # # # END LOGGING # # # #
+
 import madz.system
 
 test_plugin_system = madz.system.PluginSystem("madztests")
 test_plugin_system.load_plugin_directory("plugins")
 
 test_plugin_system.init_plugins()
-
-for p in test_plugin_system.plugin_stubs:
-    print "{} in '{}' with dependencies: {}".format(p.id, p.language, p.gen_recursive_loaded_depends())
 
 import madz.wrapper
 

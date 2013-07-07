@@ -2,9 +2,12 @@
 @OffbyOne Studios 2013
 Code to generate inter-language wrapper files.
 """
-import languages
+import logging
 
+import languages
 import plugin
+
+logger = logging.getLogger(__name__)
 
 class WrapperSystem(object):
     """Generates inter-language wrapper files required by a plugin."""
@@ -21,5 +24,8 @@ class WrapperSystem(object):
         language = languages.get_language(plugin_stub.language).Language(plugin_stub)
         wrapper = language.make_wraper()
 
-        if True or not wrapper.get_dependency():
+        # TODO(Mason): remove this hack.
+        if True or not gen.get_dependency():
+            logger.info("Wrapping plugin: {}".format(plugin_stub))
             wrapper.generate()
+

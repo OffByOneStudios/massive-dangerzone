@@ -103,6 +103,9 @@ class PythonPluginStub(object):
 
         self.inited = False
 
+    def __repr__(self):
+        return "<PythonPluginStub: {!r}>".format(self.id)
+
     @classmethod
     def contains_stub_file(cls, directory):
         """Returns true if the directory contains a potential python plugin description."""
@@ -193,6 +196,7 @@ class PythonPluginStub(object):
     def get_plugin_id(self):
         """Returns the PluginId described by the description file."""
         return PluginId(self.namespace, self.version, self.implementation_name)
+
 
 class PluginDirectory(object):
     """Represents a directory potentially containing numerous plugins, which are assummed to follow canonical naming standards.
