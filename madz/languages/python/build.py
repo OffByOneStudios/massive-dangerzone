@@ -1,26 +1,34 @@
-"""build.py
-@OffbyOne Studios 2013
-Code to Build C plugins
+"""languages/python/build.py
+@OffbyOneStudios
+Code to Build Python Plugins
 """
-
-import os, sys
+import os, sys, shutil, logging
 import subprocess
 
+import shared
+
+import madz.languages.c.build as c_build
 from madz.dependency import Dependency
 
-class Builder(object):
-    """Object Which can build C plugins.
+logger = logging.getLogger(__name__)
+
+class Builder(c_build.Builder):
+    """Object Which can build Python plugins.
 
     Attributes:
         plugin_stub madz.plugin.PythonPluginStub object
     """
+    lang = shared.LanguageShared
+
     def __init__(self, language):
-        """Constructor for C Builder.
+        """Constructor for Python Builder.
 
         Args:
             plugin_stub madz.plugin.PythonPluginStub object
         """
+
         self.language = language
+        self.compiler = language.get_compiler()
         self.plugin_stub = language.plugin_stub
 
     def prep(self):
@@ -29,23 +37,10 @@ class Builder(object):
             os.makedirs(self.language.get_build_directory())
 
         if not (os.path.exists(self.language.get_output_directory())):
-            os.makedirs(self.language.get_output_directory())
+            os.makedirs(self.language.get_output_directory)
 
-    def run_subprocess(self, dir, args):
-        compile_process = subprocess.Popen(
-            args,
-            cwd=dir,
-            stdout=subprocess.PIPE)
-        return compile_process.stdout.read()
-
-    def build(self):
-        """Compiles and links plugin.
-
-        Implementation Notes:
-            Hard Coded to use GCC
-            Links as Unix Style Shared Objects.
-        """
-        pass
+        shutil.copyfile(self.language.get_language_path() + "/madz_c_to_python.c", self.language.get_wrap_directory() + "/madz_c_to_python.c")
+        shutil.copyfile(self.language.get_language_path() + "/madz_c_to_python.h", self.language.get_wrap_directory() + "/madz_c_to_python.h")
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""

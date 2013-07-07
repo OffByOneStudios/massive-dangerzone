@@ -1,25 +1,39 @@
 """language.py
 @OffbyoneStudios 2013
+languages/python
 The language object pulling togeather all of the pieces needed for a plugin of this language.
 """
 
 import os
 import glob
 
-import build
-import wrapgen
+import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
+from . import wrapgen, build
 
 class LanguagePy(object):
     def __init__(self, plugin_stub):
         self.plugin_stub = plugin_stub
         self.config = plugin_stub.language_config
-        
+
+    compilers = {
+        "gcc": compiler_gcc.GCCCompiler,
+        "mingw": compiler_mingw.MinGWCompiler,
+        "clang": compiler_clang.ClangCompiler,
+        "cl": compiler_cl.MSCLCompiler,
+    }
+
+    def get_language_path(self):
+        return os.path.dirname(__file__)
+
+    def get_compiler(self):
+        return self.compilers[self.config["compiler"]](self)
+
     def make_builder(self):
-        return build.Builder(self)
+        return build.Builder(language=self)
 
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
-    
+
     def get_wrap_directory(self):
         return os.path.join(self.plugin_stub.abs_directory, ".wrap-c")
 

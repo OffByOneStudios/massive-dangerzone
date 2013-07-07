@@ -21,7 +21,7 @@ class PythonGenerator(object):
         self.namespace = namespace
         self.description = description
         self.mangled_namespace = self._namespace_mangle(namespace)
-        self.type_prefix = "___madz_TYPE"
+        self.type_prefix = "___madz_TYPE_"
         self._gen_table = c_wrapgen.CGenerator._gen_table
 
     def _namespace_mangle(self, namespace):
@@ -60,9 +60,12 @@ class PythonGenerator(object):
 
         # TODO(Clark) Complex Types
         elif isinstance(node.type, pdl.TypePointer):
-            ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "")
-            return "(" + ctype + ")PyCapsule_GetPointer(" + node.name +",\" " + ctype + "\");\n"
+            if not isinstance(node.type.type, pdl.NamedType):
+                ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "").strip()
+                return "MADZ_pyobject_to_" + ctype + "_pointer(" +node.name+");\n"
 
+        else:
+            raise NotImplementedError("Named Pointers")
 
     def c_to_python_for_node(self, node):
         if isinstance(node.type, pdl.TypeInt):
@@ -94,21 +97,22 @@ class PythonGenerator(object):
         elif isinstance(node.type, pdl.NamedType):
             return self.type_prefix + "_" + node.type.symbol + "_to_" + self.type_prefix + "_" + node.type.symbol +"_object(" + node.name + ");\n"
 
-
         elif isinstance(node.type, pdl.TypePointer):
-            ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "")
-            return "PyCapsule_New((void *)" + node.name + ", \""+ctype +"\", NULL);\n"
+            if not isinstance(node.type.type, pdl.NamedType):
+                ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "").strip()
+                return "MADZ_" +ctype +"_pointer_to_pyobject(" +node.name+");\n"
+            else:
+                raise NotImplementedError("Named Pointers")
 
-        else:
-            raise NotImplementedError(node.name)
     def make_pyobject(self, struct_node):
             """Construct a PyObject struct."""
             res = "typedef struct{\n"
+            res += "\tPyObject_HEAD\n"
             for key, val in struct_node.type.elements.items():
                 if not isinstance(val, pdl.TypeFunction):
                     res +="\tPyObject *"+key+";\n"
 
-            res +="\t" + struct_node.name + " c_val;\n" # Pointer to hidden struct
+            res +="\t" + self.type_prefix + "_" + struct_node.name + " *c_val;\n" # Pointer to hidden struct
             res+="}" + self.type_prefix + "_"+struct_node.name + "_object;\n"
             return res
 
@@ -118,20 +122,20 @@ class PythonGenerator(object):
 
     def make_pyobject_to_c(self, struct_node):
         """Unbox struct_node's underlying c value."""
-        res = "static " + self.type_prefix + "_" + struct_node.name + "_object* " + self.type_prefix + "_" + struct_node.name + "_object_to_" + self.type_prefix + "_" + struct_node.name
+        res = "static " + self.type_prefix + "_" + struct_node.name + "* " + self.type_prefix + "_" + struct_node.name + "_object_to_" + self.type_prefix + "_" + struct_node.name
         res += "(" + self.type_prefix + "_" + struct_node.name + "_object *val){\n"
-        res += "\treturn val.c_val;\n"
+        res += "\treturn val->c_val;\n"
         res += "}\n"
 
         return res
 
     def make_c_to_pyobject(self, struct_node):
         """Box c_struct into python struct"""
-        res = "static " + self.type_prefix + "_" + struct_node.name + "* " + self.type_prefix + "_" + struct_node.name + "_to_" + self.type_prefix + "_" + struct_node.name +"_object"
+        res = "static " + self.type_prefix + "_" + struct_node.name + "_object* " + self.type_prefix + "_" + struct_node.name + "_to_" + self.type_prefix + "_" + struct_node.name +"_object"
         res += "(" + self.type_prefix + "_" + struct_node.name + " *c_val){\n"
 
         res += "\t" + self.type_prefix + "_" + struct_node.name + "_object *p = new_" + self.type_prefix + "_" + struct_node.name + "(NULL);\n"
-        res += "\tp.c_val = c_val;\n"
+        res += "\tp->c_val = c_val;\n"
         res += "\treturn p;\n"
         res += "}\n"
 
@@ -140,8 +144,8 @@ class PythonGenerator(object):
     def make_pyobject_new(self, struct_node):
             """Create Function to Perform Tp_alloc on the pyObject struct."""
             res = "static " + self.type_prefix + "_" + struct_node.name + "_object* new_" + self.type_prefix + "_" + struct_node.name + "(PyObject *args){\n" # Function header
-            res += "\t" + self.type_prefix + "_" + struct_node.name + "_object *self;\n"  # Pointer to object
-            res += "\tself = PyObject_new(" + self.type_prefix + "_" + struct_node.name + "_object, &" + self.type_prefix + "_" + struct_node.name + "_object_Type);\n" # Allocate object
+            res += "\t" + self.type_prefix + "_" + struct_node.name + "_object *self = PyObject_New(" + self.type_prefix + "_" + struct_node.name + "_object, &" + self.type_prefix + "_" + struct_node.name + "_object_Type);\n"  # Pointer to object
+
             # Failed Construction Check
             res += "\tif (self == NULL){\n"
             res += "\t\treturn NULL;\n"
@@ -170,15 +174,15 @@ class PythonGenerator(object):
 
             This is used if you need to deallocate the incoming struct from madz from python.
             """
-            res = "static void "+self.type_prefix + "_" + struct_node.name +"_free(" + self.type_prefix + "_" + struct_node.name +" *self, PyObject *args){\n"
-            res += "\tfree(self.c_struct);\n"
+            res = "static void "+self.type_prefix + "_" + struct_node.name + "_object_free(" + self.type_prefix + "_" + struct_node.name + "_object *self, PyObject *args){\n"
+            res += "\tfree(self->c_val);\n"
             res += "}\n"
 
             return res
 
     def make_pyobject_init(self, struct_node):
         """Creates C description for the class's python constructor."""
-        res = "static int " + self.type_prefix + "_" + struct_node.name +"_init(" + self.type_prefix + "_" + struct_node.name +"_object *self, PyObject *args, PyObject **kwargs){\n"
+        res = "static int " + self.type_prefix + "_" + struct_node.name +"_init(" + self.type_prefix + "_" + struct_node.name +"_object *self, PyObject *args, PyObject *kwargs){\n"
         argcount = 0
         parsetuple = ""
         for key, val in struct_node.type.elements.items():
@@ -190,19 +194,17 @@ class PythonGenerator(object):
         res += "\tPyObject *tmp;\n"
 
         # If The C struct is empty allocate it and place *args in it
-        res += "\tif self->c_val == NULL{\n"
-        res += "\t\tself->res = malloc(sizeof( " + self.type_prefix + "_" + struct_node.name + "));\n"
+        res += "\tif(self->c_val == NULL){\n"
+        res += "\t\tself->c_val = malloc(sizeof( " + self.type_prefix + "_" + struct_node.name + "));\n"
 
-        res += "\t\tif(!PyArg_ParseTuple(args, \"" + "O"*argcount + "\", " + parsetuple +"){\n"
+        res += "\t\tif(!PyArg_ParseTuple(args, \"" + "O"*argcount + "\", " + parsetuple +")){\n"
         res += "\t\t\t return -1;\n"
         res += "\t\t}\n"
 
         for key, val in struct_node.type.elements.items():
             if not isinstance(val, pdl.TypeFunction):
-                if isinstance(val, pdl.TypePointer):
-                    res += "\t\tself.c_val->" + key + " = " + self.python_to_c_for_node(tmpnode(key, val))
-                else:
-                    res += "\t\tself.c_val." + key + " = " + self.python_to_c_for_node(tmpnode(key, val))
+                res += "\t\tself->c_val->" + key + " = " + self.python_to_c_for_node(tmpnode("p" + key, val))
+
 
         res += "\t}\n" # Close null cval
 
@@ -221,7 +223,7 @@ class PythonGenerator(object):
         """
 
         res = "static PyMethodDef " +  self.type_prefix + "_" + struct_node.name + "_object_methods[] ={\n"
-        res +="\t{\"MADZ_finalize\", (PyCFunction) "  + self.type_prefix + "_" + struct_node.name + "_free, METH_VARARGS, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
+        res +="\t{\"MADZ_finalize\", (PyCFunction) "  + self.type_prefix + "_" + struct_node.name + "_object_free, METH_VARARGS, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
         res +="\t{NULL,	NULL} //Bad method lookup sentinel\n"
         res += "};\n"
 
@@ -263,9 +265,9 @@ class PythonGenerator(object):
         for key, val in struct_node.type.elements.items():
             if not isinstance(val, pdl.TypeFunction):
                 if isinstance(val,pdl.TypePointer):
-                    res += "\t{\"" + key +"\", T_OBJECT_EX, offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
+                    res += "\t{\"" + key +"\", T_OBJECT_EX, offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + ", c_val->" + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
                 else:
-                    res += "\t{\"" + key +"\", " +member_macro_for_type(val) + ", offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + "," + key +"), 0, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
+                    res += "\t{\"" + key +"\", " +member_macro_for_type(val) + ", offsetof(" + self.type_prefix + "_" + struct_node.name + "_object" + ", 0, c_val->" + key +"), PyDoc_STR(\"" + struct_node.doc + "\")},\n"
         res +="\t{NULL}\n"
 
         res +="};\n"
@@ -281,7 +283,7 @@ class PythonGenerator(object):
             if not isinstance(val, pdl.TypeFunction):
                 if isinstance(val, pdl.TypePointer):
                     res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                    res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self.c_val->"+key,val))
+                    res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self->c_val->"+key,val))
                     res += "\t\tif(v == NULL){\n"
                     res += "\t\t\tPy_INCREF(v);\n"
                     res += "\t\t\treturn v;\n"
@@ -289,7 +291,7 @@ class PythonGenerator(object):
                     res +="\t}\n"
                 else:
                     res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                    res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self.c_val."+key,val))
+                    res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self->c_val."+key,val))
                     res += "\t\tif(v == NULL){\n"
                     res += "\t\t\tPy_INCREF(v);\n"
                     res += "\t\t\treturn v;\n"
@@ -310,12 +312,12 @@ class PythonGenerator(object):
             if not isinstance(val, pdl.TypeFunction):
                 if isinstance(val, pdl.TypePointer):
                     res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                    res += "\t\tself.c_val->"+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
+                    res += "\t\tself->c_val->"+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
                     res += "\t\treturn 0l\n"
                     res += "\t}\n"
                 else:
                     res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                    res += "\t\tself.c_val."+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
+                    res += "\t\tself->c_val."+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
                     res += "\t\treturn 0l\n"
                     res += "\t}\n"
                 if_marker= "else if"
@@ -462,7 +464,7 @@ void init_module(PyObject *p);
 """.format(**stubs)
 
         return res
-class WrapperGenerator(object):
+class WrapperGenerator(c_wrapgen.WrapperGenerator):
     def __init__(self, language):
         self.language = language
         self.plugin_stub = language.plugin_stub
@@ -475,18 +477,23 @@ class WrapperGenerator(object):
         """Returns a dependency object for this operation."""
         pass
 
+    header_file_template = "#include \"Python.h\"\n#include \"madz_c_to_python.h\"\n" + c_wrapgen.WrapperGenerator.header_file_template
     def generate(self):
         self.prep()
 
-        c_gen = c_wrapgen.WrapperGenerator(self.language)
 
-        c_gen.generate()
+        c_wrapgen.WrapperGenerator.generate(self)
+
         #Write shit here.
         gen = PythonGenerator([], "", self.plugin_stub.description)
         # TODO(Clark) Implementation Order:
         # Get Pyobject, alloc and deallocing working
         # Get conversion functions generating
-        c_head, c_body = gen.make_module_variable()
+
+        c_body ="#include \"madz.h\"\n"
+        head, body = gen.make_module_variable()
+        c_head = head
+        c_body += body
 
         for node in gen.description.declarations():
             if isinstance(node.type, pdl.TypeStruct):
@@ -510,7 +517,9 @@ class WrapperGenerator(object):
             if isinstance(node.type, pdl.TypeFunction):
                 c_body += gen.make_function(node)
         with open(self.language.get_c_header_filename(), "a") as f:
+            #f.write("#include <Python.h>\n")
             f.write(c_head)
+
 
         with open(self.language.get_c_code_filename(), "w") as f:
             f.write(c_body)
