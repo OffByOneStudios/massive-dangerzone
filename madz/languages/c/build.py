@@ -42,9 +42,15 @@ class Builder(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
+        output = ""
+        errput = ""
+
+        while compile_process.poll():
+            tout, terr = compile_process.communicate()
+            output += tout
+            errput += terr
+
         retcode = compile_process.returncode
-        output = compile_process.stdout.read()
-        errput = compile_process.stderr.read()
         foutput = "Build Phase ({}) Out:\n\t\t{}".format(
             name, "\n\t\t".join(output.split("\n")))
         ferrput = "Build Phase ({}) Err:\n\t\t{}".format(
