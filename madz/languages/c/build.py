@@ -44,11 +44,12 @@ class Builder(object):
 
         output = ""
         errput = ""
-
-        while compile_process.poll():
+        while True:
             tout, terr = compile_process.communicate()
             output += tout
             errput += terr
+            if tout == "" and terr == "":
+                break
 
         retcode = compile_process.returncode
         foutput = "Build Phase ({}) Out:\n\t\t{}".format(
@@ -66,7 +67,7 @@ class Builder(object):
                 logger.warning(foutput)
             if errput != "":
                 logger.warning(ferrput)
-            
+
 
     def build(self):
         """Compiles and links plugin.
