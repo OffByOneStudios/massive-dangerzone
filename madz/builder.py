@@ -4,7 +4,6 @@ Code to generate inter language wraper files
 """
 import logging
 
-import languages
 import plugin
 
 logger = logging.getLogger(__name__)
@@ -19,7 +18,7 @@ class BuilderSystem(object):
             self.build_plugin(plugin)
 
     def build_plugin(self, plugin_stub):
-        language = languages.get_language(plugin_stub.language).Language(plugin_stub)
+        language = plugin_stub.language
         builder = language.make_builder()
 
         if True or not builder.get_dependency():

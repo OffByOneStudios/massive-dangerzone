@@ -19,7 +19,7 @@ class CleanerSystem(object):
             self.clean_plugin(plugin)
 
     def clean_plugin(self, plugin_stub):
-        language = languages.get_language(plugin_stub.language).Language(plugin_stub)
+        language = plugin_stub.language
         cleaner = language.make_cleaner()
 
         if True or not cleaner.get_dependency():

@@ -71,6 +71,9 @@ class PluginId(object):
         return "PluginId{!r}".format(self.as_tuple())
 
 
+import languages
+import language_config
+
 class PythonPluginStub(object):
     """An object representing a python plugin description.
 
@@ -129,7 +132,7 @@ class PythonPluginStub(object):
 
         self.id = desc_pid.merge(file_pid)
 
-        self.language = self._excepting_get("language")
+        self.language = languages.get_language(self._excepting_get("language")).Language(self)
 
         depends = self.get("depends")
         self.depends = []
@@ -152,7 +155,9 @@ class PythonPluginStub(object):
 
         self.requires = self.depends + self.imports
 
-        self.language_config = {"compiler": "mingw"}
+        self.language_config = language_config.LanguageConfig(
+            self.get("language_config", {}),
+            self.language.get_default_language_config())
 
     def init_requires(self, lookup_func):
         self.loaded_depends = []
@@ -189,9 +194,9 @@ class PythonPluginStub(object):
             raise PluginDescriptionKeyError()
         return v
 
-    def get(self, name):
+    def get(self, name, default_value=None):
         """Gets an arbitrary value from the loaded plugin file."""
-        return (getattr(self._plugin, name) if hasattr(self._plugin, name) else None)
+        return (getattr(self._plugin, name) if hasattr(self._plugin, name) else default_value)
 
     def get_plugin_id(self):
         """Returns the PluginId described by the description file."""

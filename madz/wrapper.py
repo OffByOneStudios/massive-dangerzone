@@ -21,7 +21,7 @@ class WrapperSystem(object):
 
     def wrap_plugin(self, plugin_stub):
         """Wraps a single plugin."""
-        language = languages.get_language(plugin_stub.language).Language(plugin_stub)
+        language = plugin_stub.language
         wrapper = language.make_wraper()
 
         # TODO(Mason): remove this hack.
