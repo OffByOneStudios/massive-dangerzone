@@ -15,12 +15,13 @@ class LanguageConfig(object):
     @classmethod
     def _get_config_list_from(cls, config_dict, key):
         ret = []
-        if key in config_dict:
-            ret.append(config_dict[key])
 
         nkey = "{}+{}".format(key, cls.os)
         if nkey in config_dict:
             ret.append(config_dict[nkey])
+
+        if key in config_dict:
+            ret.append(config_dict[key])
 
         return ret
 
