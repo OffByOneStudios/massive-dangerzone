@@ -188,7 +188,8 @@ class WrapperGenerator(object):
             "in_struct_defines" : "/* Definied structs for the incoming plugin variables */\n",
             "in_struct_declares" : "/* Declaring structs for the incoming plugin variables */\n",
             "out_struct_func_assigns" : "/* Assign functions in this plugin into the outgoing variables struct */\n",
-            "in_struct_assigns" : "/* Definied structs for the incoming plugin variables */\n",
+            "in_struct_depends_assigns" : "/* Definied structs for the incoming depends plugin variables */\n\tint in_req=0;\n",
+            "in_struct_imports_assigns" : "/* Definied structs for the incoming imports plugin variables */\n\tint in_req=0;\n",
             "output_var_bindings" : "/* Bindings for ease of use in c */\n",
             "output_var_func_declares" : "/* Declare output functions */\n",
             "madz_prefix" : self.prefix,
@@ -198,23 +199,29 @@ class WrapperGenerator(object):
             "current_declares_vars" : "",
         }
 
-        def make_in_struct(gen):
+        def make_in_struct(gen, is_dep):
+            namespace = gen.mangled_namespace
+            name = "___madz_IN_{namespace}".format(namespace=namespace)
             type_and_name = \
-                "{type_prefix}_{namespace} ___madz_IN_{namespace};\n".format(
+                "{type_prefix}_{namespace} * {name};\n".format(
                     type_prefix = self.type_prefix,
-                    namespace = gen.mangled_namespace)
+                    namespace = namespace,
+                    name = name)
             code_fragments["in_struct_declares"] += "extern " + type_and_name
             code_fragments["in_struct_defines"] += type_and_name
+            code_fragments["in_struct_depends_assigns" if is_dep else "in_struct_imports_assigns"] += \
+                "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=name, 
+                    require_type="depends" if is_dep else "imports")
 
         for dep in self.plugin_stub.gen_recursive_loaded_depends():
             gen = CGenerator([], dep.id.namespace, dep.description)
             code_fragments["depends_declares_vars"] += gen.make_declares_and_vars()
-            make_in_struct(gen)
+            make_in_struct(gen, True)
 
         for imp in self.plugin_stub.loaded_imports:
             gen = CGenerator([], imp.id.namespace, imp.description)
             code_fragments["imports_declares_vars"] += gen.make_declares_and_vars()
-            make_in_struct(gen)
+            make_in_struct(gen, False)
 
         gen = CGenerator([], "", self.plugin_stub.description)
         code_fragments["current_declares_vars"] += gen.make_declares_and_vars()
@@ -233,7 +240,7 @@ class WrapperGenerator(object):
 
 #include <inttypes.h>
 
-#define MADZ(namespace) {madz_prefix}_IN_##namespace
+#define MADZ(namespace) (*{madz_prefix}_IN_##namespace)
 #define MADZTYPE(namespace,symbol) {type_prefix}_##namespace##_##symbol
 
 #define MADZINIT void {madz_prefix}_init()
@@ -284,17 +291,22 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 
 {in_struct_defines}
 
-/* The external dll function, called by the madz plugin system */
-int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * dependencies, void * * requirements, void * * output) {{
-    {out_struct_func_assigns}
+/* The external dll function, called by the madz plugin system, to intialize this plugin */
+int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * depends, void * * output) {{
+\t{out_struct_func_assigns}
 
-    {in_struct_assigns}
+\t{in_struct_depends_assigns}
 
-    /* Call this plugin's init function */
-    {madz_prefix}_init();
+\t/* Call this plugin's init function */
+\t{madz_prefix}_init();
 
-    /* Output this plugin's variable struct */
-    (*output) = &{madz_prefix}_OUTPUT;
+\t/* Output this plugin's variable struct */
+\t(*output) = &{madz_prefix}_OUTPUT;
+}}
+
+/* The external dll function, called by the madz plugin system, to provide imports */
+int DLLEXPORT {madz_prefix}_EXTERN_INITIMPORTS(void * * imports) {{
+\t{in_struct_imports_assigns}
 }}
 
 """

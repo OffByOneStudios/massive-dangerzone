@@ -3,6 +3,32 @@ from ... import base_types
 
 extension_prefix = "MADZ_EXT_OBJECTS_"
 
+class MemberFunctionDefinition(nodes.Definition):
+    def __init__(self, name, type):
+        self.name = name
+        self.type = type
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and \
+            self.name == other.name and \
+            self.type == other.type
+
+    def __hash__(self):
+        return hash((self.__class__, self.name, self.type))
+
+    def validate(self, context):
+        # TODO(Mason): Self parameter?
+        return context.is_valid_symbol(self.name) and base_types.TypeFunction.type_validate(self.type, context)
+
+    def map_over(self, map_func):
+        return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
+
+    class NamespaceKey(object): pass
+
+    def get_namespace_key(self):
+        return self.NamespaceKey
+
+
 class TypeClass(base_types.TypeTypeComplex):
     def __init__(self, parents=[], members=[]):
         self.parents = parents

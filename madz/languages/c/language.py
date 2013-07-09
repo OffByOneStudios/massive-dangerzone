@@ -7,6 +7,7 @@ import os
 import glob
 
 import clean
+import load
 import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 import wrapgen
 
@@ -27,6 +28,9 @@ class LanguageC(object):
 
     def make_cleaner(self):
         return clean.Cleaner(self)
+
+    def make_loader(self):
+        return load.Loader(self)
 
     def make_builder(self):
         return build.Builder(self)

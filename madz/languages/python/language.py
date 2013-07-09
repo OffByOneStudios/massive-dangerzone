@@ -7,8 +7,10 @@ The language object pulling togeather all of the pieces needed for a plugin of t
 import os
 import glob
 
-import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
-from . import wrapgen, build, clean
+import clean
+import load
+import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
+import wrapgen
 
 class LanguagePy(object):
     def __init__(self, plugin_stub):
@@ -30,6 +32,9 @@ class LanguagePy(object):
 
     def make_cleaner(self):
         return clean.Cleaner(self)
+
+    def make_loader(self):
+        return load.Loader(self)
 
     def make_builder(self):
         return build.Builder(language=self)
