@@ -142,7 +142,7 @@ class TypeArray(TypeTypeComplex):
         return TypeType.type_validate(self.type, context)
 
     def map_over(self, map_func):
-        return self.__class__(self._map_over_single_val(self, map_func, self.type), length)
+        return self.__class__(self._map_over_single_val(self, map_func, self.type), self.length)
 
 
 class TypeStruct(TypeTypeComplex):
@@ -285,15 +285,24 @@ class NamedType(TypeTypeComplex):
     def __repr__(self):
         return "{}({!r})".format(self.__class__.__name__, self.symbol)
 
+    class SymbolResolutionError(Exception): pass
+
     def resolve(self, context):
         namespace, symbol = context.split_namespace(self.symbol)
-        self._res_type = context.get_root_node(namespace, lambda n: isinstance(n, TypeDeclaration) and n.name == symbol).type
+        try:
+            root_node = context.get_root_node(namespace, lambda n: isinstance(n, TypeDeclaration) and n.name == symbol)
+        except:
+            raise SymbolResolutionError("Symbol not found: {}".format(self.symbol))
+        self._res_type = root_node.type
 
     def get_type(self):
         return self._res_type
 
     def validate(self, context):
-        self.resolve(context)
+        try:
+            self.resolve(context)
+        except:
+            return False
 
         return isinstance(self._res_type, TypeType) and \
             self._res_type.validate(context.get_context(context.split_namespace(self.symbol)[0])) and \

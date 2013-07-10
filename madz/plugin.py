@@ -5,7 +5,13 @@ Code to instantiate Plugin Objects
 
 import os, sys
 import imp
+import logging
+import traceback
+
 import pyMDL.plugin
+
+logger = logging.getLogger(__name__)
+
 class PluginError(Exception): pass
 
 class PluginId(object):
@@ -40,9 +46,10 @@ class PluginId(object):
         implname_string = None
         implname_start = relativestring.find('(')
         implname_end = relativestring.find(')')
+        print implname_start, implname_end
         if (implname_start == -1) ^ (implname_start == -1):
             raise NotAPluginIdString("Cannot contain ')' or '(' except as version delimiters.")
-        elif version_start != -1:
+        elif implname_start != -1:
             implname_string = relativestring[implname_start+1:implname_end]
             relativestring = relativestring[:implname_start] + relativestring[implname_end+1:]
 
@@ -231,8 +238,14 @@ class PluginDirectory(object):
                     continue
 
             if PythonPluginStub.contains_stub_file(root):
-                file_pid = PluginId.parse(".".join(splitrelroot))
-                stub = PythonPluginStub(root, file_pid)
+                try:
+                    file_pid = PluginId.parse(".".join(splitrelroot))
+                    stub = PythonPluginStub(root, file_pid)
 
-                self._add_plugin_stub(stub)
+                    self._add_plugin_stub(stub)
+                except:
+                    # TODO(Mason): More specific exceptions
+                    tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+                    logger.error("Plugin failed to load, ID per directory is '{}':\n\t{}".format(file_pid, tb_string))
+
 

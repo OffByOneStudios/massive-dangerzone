@@ -82,9 +82,10 @@ class Builder(object):
         source_files = self.language.get_c_source_files()
         source_files.append(self.language.get_c_code_filename())
 
-        self.run_subprocess(name="Compile",
-            args=self.compiler.args_compile(source_files),
-            dir=self.language.get_build_directory())
+        for sf in source_files:
+            self.run_subprocess(name="Compile",
+                args=self.compiler.args_compile([sf]),
+                dir=self.language.get_build_directory())
 
         object_files = map(lambda c: os.path.basename(c)[:-2] + ".o", source_files)
 

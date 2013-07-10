@@ -11,6 +11,8 @@ import extensions.objects.types as ext_objects
 
 logger = logging.getLogger(__name__)
 
+class NotFoundError(Exception): pass
+
 class Plugin(object):
     """Object Containing description of Plugins.
 
@@ -121,6 +123,7 @@ class PluginDescription(object):
         else:
             # TODO Exception Checking
             return self.dependencies[namespace].get_root_node("", test_func)
+        raise NotFoundError()
 
     _symbol_regex = re.compile("^[A-Za-z][A-Za-z_0-9]*$")
 

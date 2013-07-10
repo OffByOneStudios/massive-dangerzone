@@ -5,6 +5,7 @@ The language object pulling togeather all of the pieces needed for a plugin of t
 
 import os
 import glob
+import re
 
 import clean
 import load
@@ -61,7 +62,15 @@ class LanguageC(object):
         return os.path.join(self.get_wrap_directory(), "_madz.c")
 
     def get_c_source_files(self):
-        return glob.glob(os.path.join(self.plugin_stub.abs_directory, "*.c"))
+        glob_pattern = os.path.join(self.plugin_stub.abs_directory, "*.c")
+
+        # replace the left square bracket with [[]
+        glob_pattern = re.sub(r'\[', '[[]', glob_pattern)
+        # replace the right square bracket with []] but be careful not to replace
+        # the right square brackets in the left square bracket's 'escape' sequence.
+        glob_pattern = re.sub(r'(?<!\[)\]', '[]]', glob_pattern)
+
+        return glob.glob(glob_pattern)
 
     def get_output_file(self):
         return os.path.join(self.get_output_directory(), self.plugin_stub.id.namespace + ".madz")

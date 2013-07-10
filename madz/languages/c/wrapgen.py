@@ -84,6 +84,7 @@ class CGenerator(object):
         pdl.TypeFloat32 : lambda s, no, na: "float " + na,
         pdl.TypeFloat64 : lambda s, no, na: "double " + na,
         pdl.TypePointer : lambda s, no, na: "{} * {}".format(s.gen_type_string("", no.type), na),
+        pdl.TypeArray : lambda s, no, na: "{} {}[{}]".format(s.gen_type_string("", no.type), na, no.length),
         pdl.NamedType : lambda s, no, na:"{} {}".format(s.mangle_type_name(no.symbol), na),
         pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
@@ -283,7 +284,7 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 #ifdef WIN32
 #define DLLEXPORT __declspec(dllexport)
 #else
-#define DLLEXPORT
+#define DLLEXPORT __attribute__ ((visibility ("default")))
 #endif
 
 /* Define the outgoing variable's struct */
