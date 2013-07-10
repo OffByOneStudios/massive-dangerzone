@@ -83,7 +83,7 @@ class Builder(object):
         source_files.append(self.language.get_c_code_filename())
 
         for sf in source_files:
-            self.run_subprocess(name="Compile",
+            self.run_subprocess(name="Compile: \"{}\"".format(sf),
                 args=self.compiler.args_compile([sf]),
                 dir=self.language.get_build_directory())
 
