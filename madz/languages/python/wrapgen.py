@@ -69,7 +69,7 @@ class PythonGenerator(object):
         pdl.TypeFloat32 : lambda s, no, na: "c_float" if na=="" else "(c_float,\"" + na + "\")",
         pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(c_double, \"" + na + "\")",
         pdl.TypePointer : _gen_pointer,
-        pdl.NamedType : lambda s, no, na: no.symbol.upper() if na=="" else "({}, {})".format(no.symbol.upper(), na),
+        pdl.NamedType : lambda s, no, na: no.symbol.upper() if na =="" else "({}, {})".format(no.symbol.upper(), na),
         pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
     }
@@ -136,6 +136,13 @@ class PythonGenerator(object):
 
         return res.format(**fragments)
 
+    def make_c_init(self):
+        res = \
+"""void ___madz_init(){
+    //# TODO(MADZ) Something useful
+}
+"""
+        return res
 class WrapperGenerator(c_wrapgen.WrapperGenerator):
     def __init__(self, language):
         self.language = language
@@ -177,6 +184,10 @@ def madz_init():
 #Fill In These Functions
 {function_stubs}
 """
+    def _filter_code_fragments(self, code_fragments):
+        code_fragments["out_struct_func_assigns"] = ""
+        code_fragments["output_var_func_declares"] = ""
+        return code_fragments
 
     def generate(self):
 
@@ -197,6 +208,7 @@ def madz_init():
 
         self.prep()
         c_wrapgen.WrapperGenerator.generate(self)
+        c_source = py_gen.make_c_init()
 
         for dep in self.plugin_stub.gen_recursive_loaded_depends():
             gen = PythonGenerator([], dep.id.namespace, dep.description)
@@ -205,14 +217,17 @@ def madz_init():
             code_fragments["in_structs"] += gen.make_out_struct()
             code_fragments["module_hooks"] +="\t" +  gen.make_module_hook()
         for imp in self.plugin_stub.loaded_imports:
-            print imp
+            #print imp
             gen = PythonGenerator([], imp.id.namespace, imp.description)
-            print gen.description.definitions()
+            #print gen.description.definitions()
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
             code_fragments["in_structs"] += gen.make_out_struct()
             code_fragments["module_hooks"] += "\t" + gen.make_module_hook()
 
+
+        with open(self.language.get_c_code_filename(), "a") as f:
+            f.write("\n{}\n".format(c_source))
 
         with open(self.language.get_python_code_filename(), "w") as f:
             f.write(self.py_template.format(**code_fragments))

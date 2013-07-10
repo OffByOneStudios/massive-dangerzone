@@ -1,7 +1,7 @@
 import ctypes
 import os
 
-from . import unix
+from .. import unix
 
 class WindowsOperatingSystem(unix.UnixOperatingSystem):
     pass

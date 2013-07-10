@@ -182,6 +182,9 @@ class WrapperGenerator(object):
     prefix = "___madz"
     type_prefix = "___madz_TYPE"
 
+    def _filter_code_fragments(self, code_fragments):
+        return code_fragments
+
     def generate(self):
         self.prep()
 
@@ -211,7 +214,7 @@ class WrapperGenerator(object):
             code_fragments["in_struct_declares"] += "extern " + type_and_name
             code_fragments["in_struct_defines"] += type_and_name
             code_fragments["in_struct_depends_assigns" if is_dep else "in_struct_imports_assigns"] += \
-                "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=name, 
+                "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=name,
                     require_type="depends" if is_dep else "imports")
 
         for dep in self.plugin_stub.gen_recursive_loaded_depends():
@@ -227,6 +230,8 @@ class WrapperGenerator(object):
         gen = CGenerator([], "", self.plugin_stub.description)
         code_fragments["current_declares_vars"] += gen.make_declares_and_vars()
         gen.build_current_output(code_fragments)
+
+        code_fragments = self._filter_code_fragments(code_fragments)
 
         with open(self.language.get_c_header_filename(), "w") as f:
             f.write(self.header_file_template.format(**code_fragments))
