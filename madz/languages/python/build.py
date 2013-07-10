@@ -39,6 +39,8 @@ class Builder(c_build.Builder):
         if not (os.path.exists(self.language.get_output_directory())):
             os.makedirs(self.language.get_output_directory())
 
+        shutil.copyfile(self.language.get_language_path() + "/madz_c_to_python.h", self.language.get_wrap_directory() + "/madz_c_to_python.h")
+
     def get_dependency(self):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_output_file()]

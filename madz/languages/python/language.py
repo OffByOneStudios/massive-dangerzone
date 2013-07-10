@@ -64,6 +64,9 @@ class LanguagePy(object):
     def get_c_code_filename(self):
         return os.path.join(self.get_wrap_directory(), "_madz.c")
 
+    def get_python_code_filename(self):
+        return os.path.join(self.get_wrap_directory(), "madz.py")
+
     def get_c_source_files(self):
         return glob.glob(os.path.join(self.plugin_stub.abs_directory, "*.c"))
 

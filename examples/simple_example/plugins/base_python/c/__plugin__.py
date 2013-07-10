@@ -9,6 +9,12 @@ plugin = Plugin(
     imports=["base_c.a", "base_c.b"],
 
     description=[
+                 TypeDeclaration("Color",
+            TypeStruct({
+                "r" : TypeInt8,
+                "g" : TypeInt8,
+                "b" : TypeInt8
+            }), doc="A Point in 3R"),
         VariableDefinition("origin_distance",
             TypeFunction(
                 TypeFloat32,

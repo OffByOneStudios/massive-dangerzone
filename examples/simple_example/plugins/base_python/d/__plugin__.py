@@ -6,7 +6,7 @@ plugin = Plugin(
 
     language="python",
 
-    imports=["base_c.c"],
+    imports=["base_python.c"],
 
     description=[
         TypeDeclaration("Point3d",

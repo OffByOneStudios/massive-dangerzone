@@ -22,436 +22,120 @@ class PythonGenerator(object):
         self.description = description
         self.mangled_namespace = self._namespace_mangle(namespace)
 
-        self._gen_table = c_wrapgen.CGenerator._gen_table
-
-    type_prefix = "___madz_TYPE"
 
     def _namespace_mangle(self, namespace):
         """Removes dots from namespace names, replaces them with ___"""
         return namespace.replace(".", "__")
 
-    def python_to_c_for_node(self, node):
-        if isinstance(node.type, pdl.TypeInt):
-            if node.type.width == 8:
-                return "MADZ_pyobject_to_int8("  + node.name + ");\n"
-            elif node.type.width == 16:
-                return "MADZ_pyobject_to_int16(" + node.name + ");\n"
-            elif node.type.width == 32:
-                return "MADZ_pyobject_to_int32(" + node.name + ");\n"
-            elif node.type.width == 64:
-                return "MADZ_pyobject_to_int64(" + node.name + ");\n"
-
-        elif isinstance(node.type, pdl.TypeUInt):
-            if node.type.width == 8:
-                return "MADZ_pyobject_to_uint8(" + node.name + ");\n"
-            elif node.type.width == 16:
-                return "MADZ_pyobject_to_uint16(" + node.name + ");\n"
-            elif node.type.width == 32:
-                return "MADZ_pyobject_to_uint32(" + node.name + ");\n"
-            elif node.type.width == 64:
-                return "MADZ_pyobject_to_uint64(" + node.name + ");\n"
-
-        elif isinstance(node.type, pdl.TypeFloat):
-            if node.type.width == 32:
-                return "MADZ_pyobject_to_float(" + node.name +");\n"
-            elif node.type.width == 64:
-                return "MADZ_pyobject_to_double(" + node.name +");\n"
-
-        elif isinstance(node.type, pdl.NamedType):
-            return self.type_prefix + "__" + node.type.symbol + "_object_to_" + self.type_prefix + "__" + node.type.symbol +"(" + node.name +");\n"
-
-        # TODO(Clark) Complex Types
-        elif isinstance(node.type, pdl.TypePointer):
-            if not isinstance(node.type.type, pdl.NamedType):
-                ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "").strip()
-                return "MADZ_pyobject_to_" + ctype + "_pointer(" +node.name+");\n"
-
-        else:
-            raise NotImplementedError("Named Pointers")
-
-    def c_to_python_for_node(self, node):
-        if isinstance(node.type, pdl.TypeInt):
-            if node.type.width == 8:
-                return "MADZ_int8_to_pyobject("  + node.name + ");\n"
-            elif node.type.width == 16:
-                return "MADZ_int16_to_pyobject("  + node.name + ");\n"
-            elif node.type.width == 32:
-                return "MADZ_int32_to_pyobject("  + node.name + ");\n"
-            elif node.type.width == 64:
-                return "MADZ_int64_to_pyobject("  + node.name + ");\n"
-
-        elif isinstance(node.type, pdl.TypeUInt):
-            if node.type.width == 8:
-                return "MADZ_uint8_to_pyobject("  + node.name + ");\n"
-            elif node.type.width == 16:
-                return "MADZ_uint16_to_pyobject("  + node.name + ");\n"
-            elif node.type.width == 32:
-                return "MADZ_uint32_to_pyobject("  + node.name + ");\n"
-            elif node.type.width == 64:
-                return "MADZ_uint64_to_pyobject("  + node.name + ");\n"
-
-        elif isinstance(node.type, pdl.TypeFloat):
-            if node.type.width == 32:
-                return "MADZ_float_to_pyobject(" + node.name +");\n"
-            elif node.type.width == 64:
-                return "MADZ_double_to_pyobject(" + node.name +");\n"
-
-        elif isinstance(node.type, pdl.NamedType):
-            return self.type_prefix + "__" + node.type.symbol + "_to_" + self.type_prefix + "__" + node.type.symbol +"_object(" + node.name + ");\n"
-
-        elif isinstance(node.type, pdl.TypePointer):
-            if not isinstance(node.type.type, pdl.NamedType):
-                ctype = self._gen_table[node.type.type.node_type()](self, node.type.type, "").strip()
-                return "MADZ_" +ctype +"_pointer_to_pyobject(" +node.name+");\n"
-            else:
-                raise NotImplementedError("Named Pointers")
-
-    def make_pyobject(self, struct_node):
-            """Construct a PyObject struct."""
-            res = "typedef struct{\n"
-            res += "\tPyObject_HEAD\n"
-            for key, val in struct_node.type.elements.items():
-                if not isinstance(val, pdl.TypeFunction):
-                    res +="\tPyObject *"+key+";\n"
-
-            res +="\t" + self.type_prefix + "__" + struct_node.name + " *c_val;\n" # Pointer to hidden struct
-            res+="}" + self.type_prefix + "__"+struct_node.name + "_object;\n"
-            return res
-
-    def make_pyobject_type(self, struct_node):
-            """Create Python Type for pyobject"""
-            return "static PyTypeObject " + self.type_prefix+"__"+struct_node.name+"_object_Type;\n"
-
-    def make_pyobject_to_c(self, struct_node):
-        """Unbox struct_node's underlying c value."""
-        res = "static " + self.type_prefix + "__" + struct_node.name + "* " + self.type_prefix + "__" + struct_node.name + "_object_to_" + self.type_prefix + "__" + struct_node.name
-        res += "(" + self.type_prefix + "__" + struct_node.name + "_object *val){\n"
-        res += "\treturn val->c_val;\n"
-        res += "}\n"
-
-        return res
-
-    def make_c_to_pyobject(self, struct_node):
-        """Box c_struct into python struct"""
-        res = "static " + self.type_prefix + "__" + struct_node.name + "_object* " + self.type_prefix + "__" + struct_node.name + "_to_" + self.type_prefix + "__" + struct_node.name +"_object"
-        res += "(" + self.type_prefix + "__" + struct_node.name + " *c_val){\n"
-
-        res += "\t" + self.type_prefix + "__" + struct_node.name + "_object *p = new_" + self.type_prefix + "__" + struct_node.name + "(NULL);\n"
-        res += "\tp->c_val = c_val;\n"
-        res += "\treturn p;\n"
-        res += "}\n"
-
-        return res
-
-    def make_pyobject_new(self, struct_node):
-            """Create Function to Perform Tp_alloc on the pyObject struct."""
-            res = "static " + self.type_prefix + "__" + struct_node.name + "_object* new_" + self.type_prefix + "__" + struct_node.name + "(PyObject *args){\n" # Function header
-            res += "\t" + self.type_prefix + "__" + struct_node.name + "_object *self = PyObject_New(" + self.type_prefix + "__" + struct_node.name + "_object, &" + self.type_prefix + "__" + struct_node.name + "_object_Type);\n"  # Pointer to object
-
-            # Failed Construction Check
-            res += "\tif (self == NULL){\n"
-            res += "\t\treturn NULL;\n"
-            res += "\t}\n"
-
-            # Return pointer
-
-            res +=  "\treturn self;\n"
-            res += "}\n"
-            return res
-
-    def make_pyobject_dealloc(self, struct_node):
-            """Constructs dealloc code for PyObject"""
-            res = "static void " + self.type_prefix + "__" + struct_node.name + "_object_dealloc(" + self.type_prefix + "__" + struct_node.name + "_object  *self){\n" # Function Header
-            #Decrement Class Attribute Pointers
-
-            # Dealloc Self
-            res += "\tPyObject_del(self);\n"
-            res +="}\n"
-
-            return res
-
-
-    def make_pyobject_hidden_dealloc(self, struct_node):
-            """Creates method on PyObject that can free the object's hidden struct pointer.
-
-            This is used if you need to deallocate the incoming struct from madz from python.
-            """
-            res = "static void "+self.type_prefix + "__" + struct_node.name + "_object_free(" + self.type_prefix + "__" + struct_node.name + "_object *self, PyObject *args){\n"
-            res += "\tfree(self->c_val);\n"
-            res += "}\n"
-
-            return res
-
-    def make_pyobject_init(self, struct_node):
-        """Creates C description for the class's python constructor."""
-        res = "static int " + self.type_prefix + "__" + struct_node.name +"_init(" + self.type_prefix + "__" + struct_node.name +"_object *self, PyObject *args, PyObject *kwargs){\n"
-        argcount = 0
-        parsetuple = ""
-        for key, val in struct_node.type.elements.items():
-            if not isinstance(val, pdl.TypeFunction):
-                res +="\tPyObject *p"+key+" = NULL;\n"
-                parsetuple += "p" + key + ", "
-                argcount+=1
-        parsetuple = parsetuple[0:-2]
-        res += "\tPyObject *tmp;\n"
-
-        # If The C struct is empty allocate it and place *args in it
-        res += "\tif(self->c_val == NULL){\n"
-        res += "\t\tself->c_val = malloc(sizeof( " + self.type_prefix + "__" + struct_node.name + "));\n"
-
-        res += "\t\tif(!PyArg_ParseTuple(args, \"" + "O"*argcount + "\", " + parsetuple +")){\n"
-        res += "\t\t\t return -1;\n"
-        res += "\t\t}\n"
-
-        for key, val in struct_node.type.elements.items():
-            if not isinstance(val, pdl.TypeFunction):
-                res += "\t\tself->c_val->" + key + " = " + self.python_to_c_for_node(tmpnode("p" + key, val))
-
-
-        res += "\t}\n" # Close null cval
-
-        res += "\treturn 0;\n" # already has a cstruct, use that instead
-        res += "}\n"
-        return res
-
-    def make_pyobject_method_table(self, struct_node):
-        """Initializes method table.
-
-        The method table for a python object constructed from a C struct will contain at least a method to deallocate the underlying c struct.
-        Additionally it will contain entries for the function pointers attached to the object. These fp's are actually wrapped elsewhere
-
-        # TODO(clark) Function pointers will need a naming scheme and local code to wrap the content into python
-
-        """
-
-        res = "static PyMethodDef " +  self.type_prefix + "__" + struct_node.name + "_object_methods[] ={\n"
-        res +="\t{\"MADZ_finalize\", (PyCFunction) "  + self.type_prefix + "__" + struct_node.name + "_object_free, METH_VARARGS, PyDoc_STR(\"" + struct_node.doc + "\")},\n"
-        res +="\t{NULL,	NULL} //Bad method lookup sentinel\n"
-        res += "};\n"
-
-        return res
-
-    def make_pyobject_member_table(self, struct_node):
-        def member_macro_for_type(t):
-            if isinstance(t,pdl.TypeInt):
-                if t.width == 8:
-                    return "T_BYTE"
-                elif t.width == 16:
-                    return "T_SHORT"
-                elif t.width == 32:
-                    return "T_INT"
-                elif t.width == 64:
-                    return "T_LONGLONG"
-            elif isinstance(t, pdl.TypeUInt):
-                if t.width == 8:
-                    return "T_BYTE"
-                elif t.width == 16:
-                    return "T_SHORT"
-                elif t.width == 32:
-                    return "T_INT"
-                elif t.width == 64:
-                    return "T_LONGLONG"
-
-            elif isinstance(t, pdl.TypeFloat):
-                if t.width == 32:
-                    return "T_FLOAT"
-                else:
-                    return "T_DOUBLE"
-            else:
-                return "T_OBJECT_EX"
-
-
-        docstring = "#TODO(MADZ) add documentation support"
-        res = "static PyMemberDef " + self.type_prefix + "__" + struct_node.name + "_object_members[] ={\n"
-
-        for key, val in struct_node.type.elements.items():
-            if not isinstance(val, pdl.TypeFunction):
-                if isinstance(val,pdl.TypePointer):
-                    res += "\t{\"" + key +"\", T_OBJECT_EX, offsetof(" + self.type_prefix + "__" + struct_node.name + "_object" + ", c_val), 0, \"" + struct_node.doc + "\"},\n"
-                else:
-                    res += "\t{\"" + key +"\", " +member_macro_for_type(val) + ", offsetof(" + self.type_prefix + "__" + struct_node.name + "_object" + ", c_val), 0, \"" + struct_node.doc + "\"},\n"
-        res +="\t{NULL}\n"
-
-        res +="};\n"
-
-        return res
-
-    def make_pyobject_getattr(self, struct_node):
-        """Wraps getattr calls to access the cstruct"""
-        res = "static PyObject* " + self.type_prefix + "__" + struct_node.name + "_object_getattr("+self.type_prefix + "__" + struct_node.name + "_object *self, char *name){\n"
-        if_marker = "if" # simpler loop
-
-        for key, val in struct_node.type.elements.items():
-            if not isinstance(val, pdl.TypeFunction):
-
-                res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                res += "\t\tPyObject *v =" + self.c_to_python_for_node(tmpnode("self->c_val->"+key,val))
-                res += "\t\tif(v != NULL){\n"
-                res += "\t\t\tPy_INCREF(v);\n"
-                res += "\t\t\treturn v;\n"
-                res +="\t\t}\n"
-                res +="\t}\n"
-                if_marker= "else if"
-        res +="\telse{\n"
-        res +="\t\treturn Py_FindMethod(" +self.type_prefix + "__" + struct_node.name + "_object_methods, (PyObject *)self, name);\n"
-        res +="\t}\n"
-        res +="}\n"
-
-        return res
-
-    def make_pyobject_setattr(self, struct_node):
-        res = "static int " + self.type_prefix + "__" + struct_node.name + "_object_setattr("+self.type_prefix + "__" + struct_node.name + "_object *self, char *name, PyObject *v){\n"
-        if_marker = "if" # simpler loop
-        for key, val in struct_node.type.elements.items():
-            if not isinstance(val, pdl.TypeFunction):
-                res += "\t"+if_marker +"(strcmp(name, \"" + key + "\") == 0){\n"
-                res += "\t\tself->c_val->"+key + " = " + self.python_to_c_for_node(tmpnode("v", val))
-                res += "\t\treturn 0;\n"
-                res += "\t}\n"
-                if_marker= "else if"
-        res += "\treturn -1;\n"
-        res += "}\n"
-        return res
-
-    def make_pyobject_type_table(self, struct_node):
-        """Fill in PyTypeObject table."""
-        res = "PyTypeObject " +self.type_prefix + "__" + struct_node.name + "_" + "_Type = {\n"
-        code_fragments = {
-        "module_name":self.namespace+"."+struct_node.name,
-        "object_type":self.type_prefix + "__" + struct_node.name + "_object",
-        "fn_dealloc":self.type_prefix + "__" + struct_node.name + "_object_dealloc",
-        "fn_getattr":self.type_prefix + "__" + struct_node.name + "_object_getattr",
-        "fn_setattr":self.type_prefix + "__" + struct_node.name + "_object_setattr",
-        "docstring":struct_node.doc,
-        "method_table":self.type_prefix + "__" + struct_node.name + "_object_methods",
-        "member_table":self.type_prefix + "__" + struct_node.name + "_object_members",
-        "fn_init":self.type_prefix + "__" + struct_node.name + "_init",
-        "fn_new":"new_" + self.type_prefix + "__" + struct_node.name
-
-        }
-        res += \
-"""
-    PyObject_HEAD_INIT(NULL)
-    "{module_name}", /*tp_name*/
-    sizeof({object_type}), /*tp_basicsize*/
-    0, /*tp_itemsize*/
-    (destructor){fn_dealloc}, /*tp_dealloc*/
-    0, /*tp_print*/
-    (getattrfunc){fn_getattr}, /*tp_getattr*/
-    (setattrfunc ){fn_setattr}, /*tp_setattr*/
-    0, /*tp_compare*/
-    0, /*tp_repr*/
-    0, /*tp_as_number*/
-    0, /*tp_as_sequence*/
-    0, /*tp_as_mapping*/
-    0, /*tp_hash */
-    0, /*tp_call*/
-    0, /*tp_str*/
-    0, /*tp_getattro*/
-    0, /*tp_setattro*/
-    0, /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "{docstring}", /* tp_doc */
-    0,	/* tp_traverse */
-    0,	/* tp_clear */
-    0,	/* tp_richcompare */
-    0,	/* tp_weaklistoffset */
-    0,	/* tp_iter */
-    0,	/* tp_iternext */
-    {method_table}, /* tp_methods */
-    {member_table}, /* tp_members */
-    0, /* tp_getset */
-    0, /* tp_base */
-    0, /* tp_dict */
-    0, /* tp_descr_get */
-    0, /* tp_descr_set */
-    0, /* tp_dictoffset */
-    (initproc){fn_init}, /* tp_init */
-    0, /* tp_alloc */
-    (newfunc ){fn_new}, /* tp_new */
-
-""".format(**code_fragments)
-        res +="};\n"
-        return res
-
-    def make_module_variable(self):
-        header =\
-"""
-PyObject *module;
-void init_module(PyObject *p);
-"""
-        body = \
-"""void init_module(PyObject *p){\n
-	module = p;
-}
-"""
-        return header, body
-
-    def mangle_type_name(self, name):
-        split_name = name.split(".")
-        namespace = "__".join(split_name[:-1])
-        symbol = split_name[-1]
-        return self.type_prefix + "_" + (namespace or self.mangled_namespace) + "_" + symbol
+    def make_function_pointers(self):
+        #CFUNCTYPE(return_type, arg1_type, arg2_type)
+        pass
 
     def gen_type_string(self, name, node):
         """Given a name and a node, which is a type, generates a string for a variable of that type"""
         return self._gen_table[node.node_type()](self, node, name)
 
-    def make_function(self, function):
-
-        head = self._gen_table[function.type.return_type](self, function.type.return_type, function.name)
-        args = ""
-        pyargdec = ""
-        boxing =""
-        tuple_formatter = ""
-        tuple_formatter_args=""
-        for arg in function.type.args:
-               argname=arg.name
-               if isinstance(arg.type, pdl.NamedType):
-                   args += self._gen_table[arg.type.node_type()](self, arg.type, arg.name) +", "
-               pyargdec += "\tPyObject *p" +arg.name+";\n"
-               boxing += "\tp" + arg.name + " = " + self.c_to_python_for_node(arg)
-               tuple_formatter_args +="p"+arg.name+", "
-               tuple_formatter +="O"
-        args = args[0:-2]
-        tuple_formatter_args = tuple_formatter_args[0:-2]
-        body = ""
+    def _gen_table_function(self, node, name):
+        pointer = "{}FUNC = CFUNCTYPE({}, {})".format(name.upper(), self.gen_type_string("", node.return_type),
+                                                  ", ".join(map(
+                lambda t: "{}".format(self.gen_type_string("", t.type)),
+                node.args)))
 
 
-        stubs={"head":head,
-               "args":args,
-               "pyargdec":pyargdec,
-               "boxing":boxing,
-               "tuple_formatter":tuple_formatter,
-               "tuple_formatter_args":tuple_formatter_args,
-               "function_name":function.name,
-               "unbox": self.python_to_c_for_node(tmpnode("res", function.type.return_type))}
-        res = \
-"""
-{head}({args}){{
-    PyObject *res, *fn, args;
-{pyargdec}
+        return pointer
 
-{boxing}
-    args = Py_BuildValue("({tuple_formatter})", {tuple_formatter_args});
-    if (args == NULL){{
-		fprintf(stderr, "Code Gen Error: Unable to Box function \"{function_name}\" args into tuple\\n");
-	}}
-	fn = PyObject_GetAttrString(module, {function_name});
-	if(fn == NULL){{
-		fprintf(stderr, "Corresponding python function \"{function_name}\" does not exist\\n");
+    def _gen_pointer(self, node, name):
 
-	}}
-	res = PyObject_Call(fn, args, NULL);
-	if(result ==NULL){{
-		fprintf(stderr, "Error in Calling python function \"{function_name}\"\\n");
-	}}
-    return {unbox}
+        return "(POINTER({}),{})".format(name, self.gen_type_string("", node.type))
 
-}}
-""".format(**stubs)
+
+    def _gen_table_struct(self, node, name):
+        return "class {}(Structure):\n\t__fields__ = [{}]\n".format(name.upper(),
+            ", ".join(map(
+                lambda t: "{}".format(self.gen_type_string(*t)),
+                node.elements.items())),
+            )
+    _gen_table = {
+        pdl.TypeNone : lambda s, no, na: "void ",
+        pdl.TypeInt8 : lambda s, no, na: "c_byte" if na=="" else "(c_byte, \"" + na  + "\")",
+        pdl.TypeInt16 : lambda s, no, na:"c_short" if na=="" else "(c_short,\"" + na + "\")",
+        pdl.TypeInt32 : lambda s, no, na: "c_int" if na=="" else "(c_int, \"" + na + "\")",
+        pdl.TypeInt64 : lambda s, no, na: "c_longlong" if na=="" else "(c_longlong, \"" + na + "\")",
+        pdl.TypeChar : lambda s, no, na: "char" if na=="" else "(c_char, \"" + na + "\")",
+        pdl.TypeUInt8 : lambda s, no, na: "c_ubyte" if na=="" else "(c_ubyte,\"" + na + "\")",
+        pdl.TypeUInt16 : lambda s, no, na: "c_ushort" if na=="" else "(c_ushort, \"" + na + "\")",
+        pdl.TypeUInt32 : lambda s, no, na: "c_uint" if na=="" else "(c_uint, \"" + na + "\")",
+        pdl.TypeUInt64 : lambda s, no, na: "c_ulonglong" if na=="" else "(c_ulonglong, \"" + na + "\")",
+        pdl.TypeFloat32 : lambda s, no, na: "c_float" if na=="" else "(c_float,\"" + na + "\")",
+        pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(c_double, \"" + na + "\")",
+        pdl.TypePointer : _gen_pointer,
+        pdl.NamedType : lambda s, no, na: no.symbol.upper() if na=="" else "({}, {})".format(no.symbol.upper(), na),
+        pdl.TypeStruct : _gen_table_struct,
+        pdl.TypeFunction : _gen_table_function,
+    }
+
+    def make_structs(self):
+        res = ""
+        for node in self.description.declarations():
+            if isinstance(node.type,pdl.TypeStruct):
+                res += self.gen_type_string(node.name, node.type)
 
         return res
+
+    def make_functions(self):
+        res =""
+        for node in self.description.declarations() + self.description.definitions():
+            if isinstance(node.type,pdl.TypeFunction):
+                res += self.gen_type_string(node.name, node.type) +"\n"
+
+        return res
+
+    def make_function_stubs(self):
+        res =""
+        for node in self.description.declarations() + self.description.definitions():
+            if isinstance(node.type,pdl.TypeFunction):
+                res += "def {}({}):\n\tpass".format(node.name, ", ".join(map(
+                         lambda t: "{}".format(t.name), node.type.args)) )
+
+        return res
+
+    def make_out_struct(self):
+        args ={
+           "name":"OUTSTRUCT" if self.namespace=="" else self._namespace_mangle(self.namespace).upper(),
+           "fields":""
+
+           }
+        res= \
+"""class {name}(STRUCTURE):
+    __fields__ = [{fields}]
+"""
+        for node in self.description.definitions():
+            if isinstance(node.type, pdl.TypeFunction):
+                args['fields'] += "({},\"{}\")".format(node.name.upper()+"FUNC",node.name)
+            else:
+                args['fields'] += self.gen_type_string(node.name, node.type) +","
+
+        return res.format(**args)
+
+    def make_function_callbacks(self):
+
+        res=""
+        for node in self.description.definitions():
+            if isinstance(node.type, pdl.TypeFunction):
+              res += "plugin.{} = {}FUNC({})\n".format(node.name,node.name.upper(), node.name)
+
+        return res
+
+    def make_module_hook(self):
+        res = "{varname} = {struct_type}.in_dll(shared_object, \"{cname}\")\n"
+        fragments ={
+                    "varname": "plugin" if self.namespace =="" else self._namespace_mangle(self.namespace) + "_plugin",
+                    "struct_type":"OUTSTRUCT" if self.namespace == "" else self._namespace_mangle(self.namespace).upper(),
+                    "cname":"___madz_OUTPUT" if self.namespace == "" else "___MADZ_IN_" + self._namespace_mangle(self.namespace)
+                    }
+
+        return res.format(**fragments)
+
 class WrapperGenerator(c_wrapgen.WrapperGenerator):
     def __init__(self, language):
         self.language = language
@@ -465,53 +149,71 @@ class WrapperGenerator(c_wrapgen.WrapperGenerator):
         """Returns a dependency object for this operation."""
         pass
 
-    header_file_template = \
-"""#include "Python.h"
-#include "structmember.h"
-#include "madz_c_to_python.h"
-""" + c_wrapgen.WrapperGenerator.header_file_template
+    py_template=\
+"""#madz.py
+#This is an autogenerated file.
+from ctypes import *
+#Dependency Function Declarations
+{imported_functions}
+#Dependency Structure Declarations
+{imported_structs}
+#Declarations
+{structs}
+#In_Structs
+{in_structs}
+#Functions
+{functions}
+#Exported Struct
+{out_structs}
+#Initilization Code
+def madz_init():
+    shared_object = cdll.LoadLibrary("{plugin_cname}")
+    #Fill In Dependency Modules
+    {module_hooks}
+    #Fill in plugin's function pointers with callbacks
+    {function_callbacks}
+    #Clean up
+    {cleanup_code}
+#Fill In These Functions
+{function_stubs}
+"""
+
     def generate(self):
+
+        py_gen =PythonGenerator([], "", self.plugin_stub.description)
+        code_fragments={
+                        "imported_functions":"",
+                        "imported_structs":"",
+                        "in_structs":"",
+                        "structs":py_gen.make_structs(),
+                        "functions":py_gen.make_functions(),
+                        "out_structs":py_gen.make_out_struct(),
+                        "plugin_cname":os.path.join(os.path.join(self.language.get_output_directory()), self.plugin_stub.id.namespace +".madz"),
+                        "function_callbacks":py_gen.make_function_callbacks(),
+                        "module_hooks":py_gen.make_module_hook(),
+                        "cleanup_code":"#TODO(MADZ) Box this into somthing nice",
+                        "function_stubs":py_gen.make_function_stubs()
+                        }
+
         self.prep()
-
-
         c_wrapgen.WrapperGenerator.generate(self)
 
-        #Write shit here.
-        gen = PythonGenerator([], "", self.plugin_stub.description)
-        # TODO(Clark) Implementation Order:
-        # Get Pyobject, alloc and deallocing working
-        # Get conversion functions generating
-
-        c_body ="#include \"madz.h\"\n"
-        head, body = gen.make_module_variable()
-        c_head = head
-        c_body += body
-
-        for node in gen.description.declarations():
-            if isinstance(node.type, pdl.TypeStruct):
-                c_body += gen.make_pyobject(node) +"\n"
-                c_body += gen.make_pyobject_type(node) + "\n"
-                c_body += gen.make_pyobject_new(node) + "\n"
-                c_body += gen.make_pyobject_dealloc(node) + "\n"
-                c_body += gen.make_pyobject_hidden_dealloc(node) + "\n"
-                c_body += gen.make_pyobject_to_c(node) + "\n"
-                c_body += gen.make_c_to_pyobject(node) + "\n"
-                c_body += gen.make_pyobject_init(node) + "\n"
-                c_body += gen.make_pyobject_method_table(node) + "\n"
-                c_body += gen.make_pyobject_member_table(node) + "\n"
-                c_body += gen.make_pyobject_getattr(node) + "\n"
-                c_body += gen.make_pyobject_setattr(node) + "\n"
-                c_body += gen.make_pyobject_type_table(node) + "\n"
-            elif isinstance(node.type,pdl.TypeFunction):
-                c_body += gen.make_function(node)
-        #print c_glue
-        for node in gen.description.definitions():
-            if isinstance(node.type, pdl.TypeFunction):
-                c_body += gen.make_function(node)
-        with open(self.language.get_c_header_filename(), "a") as f:
-            #f.write("#include <Python.h>\n")
-            f.write(c_head)
+        for dep in self.plugin_stub.gen_recursive_loaded_depends():
+            gen = PythonGenerator([], dep.id.namespace, dep.description)
+            code_fragments["imported_structs"] += gen.make_structs()
+            code_fragments["imported_functions"] += gen.make_functions()
+            code_fragments["in_structs"] += gen.make_out_struct()
+            code_fragments["module_hooks"] +="\t" +  gen.make_module_hook()
+        for imp in self.plugin_stub.loaded_imports:
+            print imp
+            gen = PythonGenerator([], imp.id.namespace, imp.description)
+            print gen.description.definitions()
+            code_fragments["imported_structs"] += gen.make_structs()
+            code_fragments["imported_functions"] += gen.make_functions()
+            code_fragments["in_structs"] += gen.make_out_struct()
+            code_fragments["module_hooks"] += "\t" + gen.make_module_hook()
 
 
-        with open(self.language.get_c_code_filename(), "w") as f:
-            f.write(c_body)
+        with open(self.language.get_python_code_filename(), "w") as f:
+            f.write(self.py_template.format(**code_fragments))
+
