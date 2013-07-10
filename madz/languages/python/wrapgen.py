@@ -21,15 +21,12 @@ class PythonGenerator(object):
         self.namespace = namespace
         self.description = description
         self.mangled_namespace = self._namespace_mangle(namespace)
-
+        self.python_mangle = "___madz_LANG_python"
 
     def _namespace_mangle(self, namespace):
         """Removes dots from namespace names, replaces them with ___"""
         return namespace.replace(".", "__")
 
-    def make_function_pointers(self):
-        #CFUNCTYPE(return_type, arg1_type, arg2_type)
-        pass
 
     def gen_type_string(self, name, node):
         """Given a name and a node, which is a type, generates a string for a variable of that type"""
@@ -46,30 +43,30 @@ class PythonGenerator(object):
 
     def _gen_pointer(self, node, name):
 
-        return "(POINTER({}),{})".format(name, self.gen_type_string("", node.type))
+        return "(\"{}\", POINTER({}))".format(name, self.gen_type_string("", node.type))
 
 
     def _gen_table_struct(self, node, name):
-        return "class {}(Structure):\n\t__fields__ = [{}]\n".format(name.upper(),
+        return "class {}(Structure):\n\t_fields_ = [{}]\n".format(name.upper(),
             ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string(*t)),
                 node.elements.items())),
             )
     _gen_table = {
-        pdl.TypeNone : lambda s, no, na: "void ",
-        pdl.TypeInt8 : lambda s, no, na: "c_byte" if na=="" else "(c_byte, \"" + na  + "\")",
-        pdl.TypeInt16 : lambda s, no, na:"c_short" if na=="" else "(c_short,\"" + na + "\")",
-        pdl.TypeInt32 : lambda s, no, na: "c_int" if na=="" else "(c_int, \"" + na + "\")",
-        pdl.TypeInt64 : lambda s, no, na: "c_longlong" if na=="" else "(c_longlong, \"" + na + "\")",
-        pdl.TypeChar : lambda s, no, na: "char" if na=="" else "(c_char, \"" + na + "\")",
-        pdl.TypeUInt8 : lambda s, no, na: "c_ubyte" if na=="" else "(c_ubyte,\"" + na + "\")",
-        pdl.TypeUInt16 : lambda s, no, na: "c_ushort" if na=="" else "(c_ushort, \"" + na + "\")",
-        pdl.TypeUInt32 : lambda s, no, na: "c_uint" if na=="" else "(c_uint, \"" + na + "\")",
-        pdl.TypeUInt64 : lambda s, no, na: "c_ulonglong" if na=="" else "(c_ulonglong, \"" + na + "\")",
-        pdl.TypeFloat32 : lambda s, no, na: "c_float" if na=="" else "(c_float,\"" + na + "\")",
-        pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(c_double, \"" + na + "\")",
+        pdl.TypeNone : lambda s, no, na: "None ",
+        pdl.TypeInt8 : lambda s, no, na: "c_byte" if na=="" else "(\"" + na  + "\" , c_byte)",
+        pdl.TypeInt16 : lambda s, no, na:"c_short" if na=="" else "(\"" + na + "\", c_short)",
+        pdl.TypeInt32 : lambda s, no, na: "c_int" if na=="" else "(\"" + na + "\", c_int)",
+        pdl.TypeInt64 : lambda s, no, na: "c_longlong" if na=="" else "(\"" + na + "\",c_longlong)",
+        pdl.TypeChar : lambda s, no, na: "char" if na=="" else "(\"" + na + "\", c_char)",
+        pdl.TypeUInt8 : lambda s, no, na: "c_ubyte" if na=="" else "(\"" + na + "\", c_ubyte)",
+        pdl.TypeUInt16 : lambda s, no, na: "c_ushort" if na=="" else "(\"" + na + "\", c_ushort)",
+        pdl.TypeUInt32 : lambda s, no, na: "c_uint" if na=="" else "(\"" + na + "\", c_uint)",
+        pdl.TypeUInt64 : lambda s, no, na: "c_ulonglong" if na=="" else "(\"" + na + "\", c_ulonglong)",
+        pdl.TypeFloat32 : lambda s, no, na: "c_float" if na=="" else "(\"" + na + "\", c_float)",
+        pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(\"" + na + "\", c_double)",
         pdl.TypePointer : _gen_pointer,
-        pdl.NamedType : lambda s, no, na: no.symbol.upper() if na =="" else "({}, {})".format(no.symbol.upper(), na),
+        pdl.NamedType : lambda s, no, na: no.symbol.upper() if na =="" else "(\"{}\", {})".format(na, no.symbol.upper()),
         pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
     }
@@ -94,7 +91,7 @@ class PythonGenerator(object):
         res =""
         for node in self.description.declarations() + self.description.definitions():
             if isinstance(node.type,pdl.TypeFunction):
-                res += "def {}({}):\n\tpass".format(node.name, ", ".join(map(
+                res += "def {}({}):\n    pass".format(node.name, ", ".join(map(
                          lambda t: "{}".format(t.name), node.type.args)) )
 
         return res
@@ -106,12 +103,12 @@ class PythonGenerator(object):
 
            }
         res= \
-"""class {name}(STRUCTURE):
-    __fields__ = [{fields}]
+"""class {name}(Structure):
+    _fields_ = [{fields}]
 """
         for node in self.description.definitions():
             if isinstance(node.type, pdl.TypeFunction):
-                args['fields'] += "({},\"{}\")".format(node.name.upper()+"FUNC",node.name)
+                args['fields'] += "(\"{}\" , {})".format(node.name, node.name.upper()+"FUNC")
             else:
                 args['fields'] += self.gen_type_string(node.name, node.type) +","
 
@@ -127,14 +124,43 @@ class PythonGenerator(object):
         return res
 
     def make_module_hook(self):
-        res = "{varname} = {struct_type}.in_dll(shared_object, \"{cname}\")\n"
+        res = \
+"""{fname} = shared_object.{fname}
+    {fname}.restype = POINTER({structname})
+    {varname} = {fname}()
+"""
         fragments ={
-                    "varname": "plugin" if self.namespace =="" else self._namespace_mangle(self.namespace) + "_plugin",
-                    "struct_type":"OUTSTRUCT" if self.namespace == "" else self._namespace_mangle(self.namespace).upper(),
-                    "cname":"___madz_OUTPUT" if self.namespace == "" else "___MADZ_IN_" + self._namespace_mangle(self.namespace)
+                    "varname": "plugin" if self.namespace == "" else self._namespace_mangle(self.namespace) + "_plugin",
+                    "fname":"___madz_LANG_python_get_out_struct" if self.namespace == "" else "___madz_LANG_python_get_"+self._namespace_mangle(self.namespace) + "_struct",
+                    "structname":"OUTSTRUCT" if self.namespace == "" else self._namespace_mangle(self.namespace).upper()
                     }
 
         return res.format(**fragments)
+
+
+    def make_get_in_struct(self):
+        """Makes Getter for in structs."""
+        res = \
+"""{rettype}* DLLEXPORT {prefix}_get_{name}_struct(){{
+    return ___madz_IN_{name};
+}}
+"""
+        fragments ={
+                    "rettype":"___madz_TYPE_" + self._namespace_mangle(self.namespace),
+                    "prefix":self.python_mangle,
+                    "name":self._namespace_mangle(self.namespace)
+                    }
+        return res.format(**fragments)
+    def make_get_out_struct(self):
+        """Creates Getter for This plugin's out struct."""
+        res = \
+"""___madz_TYPE_* DLLEXPORT {}_get_out_struct(){{
+    return &___madz_OUTPUT;
+
+}}
+
+"""
+        return res.format(self.python_mangle)
 
     def make_c_init(self):
         res = \
@@ -183,6 +209,9 @@ def madz_init():
     {cleanup_code}
 #Fill In These Functions
 {function_stubs}
+
+if __name__ =='__main__':
+    madz_init()
 """
     def _filter_code_fragments(self, code_fragments):
         code_fragments["out_struct_func_assigns"] = ""
@@ -199,7 +228,7 @@ def madz_init():
                         "structs":py_gen.make_structs(),
                         "functions":py_gen.make_functions(),
                         "out_structs":py_gen.make_out_struct(),
-                        "plugin_cname":os.path.join(os.path.join(self.language.get_output_directory()), self.plugin_stub.id.namespace +".madz"),
+                        "plugin_cname":os.path.join(os.path.join(self.language.get_output_directory()), self.plugin_stub.id.namespace +".madz").replace("\\","/"),
                         "function_callbacks":py_gen.make_function_callbacks(),
                         "module_hooks":py_gen.make_module_hook(),
                         "cleanup_code":"#TODO(MADZ) Box this into somthing nice",
@@ -209,13 +238,15 @@ def madz_init():
         self.prep()
         c_wrapgen.WrapperGenerator.generate(self)
         c_source = py_gen.make_c_init()
+        c_source += py_gen.make_get_out_struct()
 
         for dep in self.plugin_stub.gen_recursive_loaded_depends():
             gen = PythonGenerator([], dep.id.namespace, dep.description)
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
             code_fragments["in_structs"] += gen.make_out_struct()
-            code_fragments["module_hooks"] +="\t" +  gen.make_module_hook()
+            code_fragments["module_hooks"] +="    " +  gen.make_module_hook()
+            c_source += gen.make_get_in_struct()
         for imp in self.plugin_stub.loaded_imports:
             #print imp
             gen = PythonGenerator([], imp.id.namespace, imp.description)
@@ -223,7 +254,8 @@ def madz_init():
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
             code_fragments["in_structs"] += gen.make_out_struct()
-            code_fragments["module_hooks"] += "\t" + gen.make_module_hook()
+            code_fragments["module_hooks"] += "    " + gen.make_module_hook()
+            c_source += gen.make_get_in_struct()
 
 
         with open(self.language.get_c_code_filename(), "a") as f:
