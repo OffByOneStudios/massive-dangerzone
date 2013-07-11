@@ -23,3 +23,6 @@ class LoaderSystem(object):
         logger.info("Loading plugin: {}".format(plugin_stub))
         self._operating.load(plugin_stub)
 
+    def get_function(self, plugin_stub, name):
+        return self._operating.get_function(plugin_stub, name)
+

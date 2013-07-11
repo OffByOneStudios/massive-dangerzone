@@ -46,7 +46,6 @@ class PluginId(object):
         implname_string = None
         implname_start = relativestring.find('(')
         implname_end = relativestring.find(')')
-        print implname_start, implname_end
         if (implname_start == -1) ^ (implname_start == -1):
             raise NotAPluginIdString("Cannot contain ')' or '(' except as version delimiters.")
         elif implname_start != -1:

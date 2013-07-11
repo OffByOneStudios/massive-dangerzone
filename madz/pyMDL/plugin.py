@@ -72,6 +72,20 @@ class PluginDescription(object):
         self.ast = self.map_over(str_to_named)
         self.ast = ext_objects.expand(self.ast)
 
+        self.ast = sorted(self.ast, key=self.keyfunc)
+
+    @staticmethod
+    def keyfunc(node):
+        if node.node_type() == nodes.Declaration:
+            return (0, node.name)
+        else:
+            if node.type.node_type() == base_types.TypeFunction:
+                return (1, node.name)
+            elif node.type.node_type() == base_types.TypePointer:
+                return (2, node.name)
+            else:
+                return (3, node.name)
+
     @staticmethod
     def split_namespace(stringname):
         """Splits stringname into namespace,symbol pair

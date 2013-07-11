@@ -100,3 +100,19 @@ class UnixOperatingSystem(object):
 
         self.load_imports(plugin_stub)
 
+    def get_function(self, plugin_stub, name):
+        plugin_dll, plugin_pointer = self.loadedimports_plugins[plugin_stub]
+
+        func_loc = -1
+        for i, n in enumerate(plugin_stub.description.definitions()):
+            if n.name == name:
+                func_loc = i
+
+        if func_loc == -1:
+            raise KeyError("Function of name '{}' not found".format(name))
+
+        plugin_pointer_pointer_type = ctypes.POINTER(ctypes.c_void_p)
+
+        return ctypes.cast(plugin_pointer, plugin_pointer_pointer_type)[func_loc]
+
+
