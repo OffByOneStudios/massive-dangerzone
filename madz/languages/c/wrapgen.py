@@ -189,6 +189,8 @@ class WrapperGenerator(object):
         self.prep()
 
         code_fragments = {
+            "pre_header" : "",
+            "post_header" : "",
             "in_struct_defines" : "/* Definied structs for the incoming plugin variables */\n",
             "in_struct_declares" : "/* Declaring structs for the incoming plugin variables */\n",
             "out_struct_func_assigns" : "/* Assign functions in this plugin into the outgoing variables struct */\n",
@@ -243,7 +245,7 @@ class WrapperGenerator(object):
 """
 #ifndef MADZ_GAURD_WRAP_MADZ_H
 #define MADZ_GAURD_WRAP_MADZ_H
-
+{pre_header}
 #include <inttypes.h>
 
 #define MADZ(namespace) (*{madz_prefix}_IN_##namespace)
@@ -272,7 +274,7 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 
 {output_var_bindings}
 {output_var_func_declares}
-
+{post_header}
 #endif /* MADZ_GAURD_WRAP_MADZ_H */
 """
 

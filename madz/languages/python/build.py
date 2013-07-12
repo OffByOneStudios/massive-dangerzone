@@ -39,6 +39,10 @@ class Builder(c_build.Builder):
         if not (os.path.exists(self.language.get_output_directory())):
             os.makedirs(self.language.get_output_directory())
 
+        if not (os.path.exists(self.language.get_plugin_init())):
+            with open(self.language.get_plugin_init(), "w") as f:
+                f.write("""#Fill In Module Code in this File""")
+
     def get_dependency(self):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_output_file()]

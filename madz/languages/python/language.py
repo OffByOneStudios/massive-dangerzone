@@ -49,6 +49,12 @@ class LanguagePy(object):
             "compiler+windows": "mingw",
         }
 
+    def get_root_directory(self):
+        return self.plugin_stub.abs_directory
+
+    def get_plugin_init(self):
+        return os.path.join(self.plugin_stub.abs_directory, "__init__.py")
+
     def get_wrap_directory(self):
         return os.path.join(self.plugin_stub.abs_directory, ".wrap-c")
 
@@ -65,6 +71,9 @@ class LanguagePy(object):
         return os.path.join(self.get_wrap_directory(), "_madz.c")
 
     def get_python_code_filename(self):
+        return os.path.join(self.get_wrap_directory(), "_madz.py")
+
+    def get_python_outgoing_module(self):
         return os.path.join(self.get_wrap_directory(), "madz.py")
 
     def get_c_source_files(self):

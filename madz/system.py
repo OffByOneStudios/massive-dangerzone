@@ -3,8 +3,7 @@
 Code to create Plugin Systems
 """
 import logging
-
-from plugin import *
+from .plugin import *
 
 logger = logging.getLogger(__name__)
 
