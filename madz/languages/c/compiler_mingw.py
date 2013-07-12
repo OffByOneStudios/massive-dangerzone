@@ -12,7 +12,7 @@ class MinGWCompiler(object):
         return self.binary_name_compiler()
 
     def args_compile(self, source_files):
-        return [self.binary_name_compiler(), "-c", "-I"+self.language.get_wrap_directory()] + source_files
+        return [self.binary_name_compiler(), "-c", "-I"+self.language.get_wrap_directory()] + list(source_files)
 
     def args_link(self, object_files):
-        return [self.binary_name_linker(), "-shared", "-o", self.language.get_output_file()] + object_files
+        return [self.binary_name_linker(), "-shared", "-o", self.language.get_output_file()] + list(object_files)
