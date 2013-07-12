@@ -4,8 +4,8 @@ Code to generate inter-language wrapper files.
 """
 import logging
 
-import languages
-import plugin
+from . import languages
+from . import plugin
 
 logger = logging.getLogger(__name__)
 

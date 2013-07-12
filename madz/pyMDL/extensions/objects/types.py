@@ -33,7 +33,7 @@ class TypeClass(base_types.TypeTypeComplex):
     def __init__(self, parents=[], members=[]):
         self.parents = parents
         self.members = members
-        self._hash = hash((hash(tuple(sorted(members, key=lambda n: (n.__class__, n.name)))),
+        self._hash = hash((hash(tuple(sorted(members, key=lambda n: (hash(n.__class__), n.name)))),
                           hash(tuple(parents))))
         self._type_dict = dict(\
             map(lambda m: (m.name, m.type), 

@@ -10,11 +10,11 @@ def get_system():
     sysd = get_system_description()
 
     if sysd == "windows":
-        import windows
+        from . import windows
         return windows.WindowsOperatingSystem()
 
     elif sysd == "unix":
-        import unix
+        from . import unix
         return unix.UnixOperatingSystem()
 
     else:

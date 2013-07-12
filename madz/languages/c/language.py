@@ -7,10 +7,11 @@ import os
 import glob
 import re
 
-import clean
-import load
-import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
-import wrapgen
+
+from . import clean
+from . import load
+from . import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
+from . import wrapgen
 
 class LanguageC(object):
     def __init__(self, plugin_stub):

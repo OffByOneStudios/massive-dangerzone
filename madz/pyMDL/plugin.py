@@ -6,8 +6,8 @@ Code for plugin description objects
 import re
 import logging
 
-import nodes, base_types
-import extensions.objects.types as ext_objects
+from . import nodes, base_types
+from . extensions.objects import types as ext_objects
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class PluginDescription(object):
 
         def str_to_named(node, name=""):
             ret_node = node
-            if isinstance(node, basestring):
+            if isinstance(node, str):
                 ret_node = base_types.NamedType(node)
             if name:
                 return [(name, ret_node)]
@@ -102,11 +102,11 @@ class PluginDescription(object):
 
     def declarations(self):
         """Filters the root AST for nodes declaring new types or other information that arn't variables."""
-        return filter(lambda n: isinstance(n, nodes.Declaration), self.ast)
+        return list(filter(lambda n: isinstance(n, nodes.Declaration), self.ast))
 
     def definitions(self):
         """Filters the root AST for nodes defining new variables or other information that arn't declarations."""
-        return filter(lambda n: isinstance(n, nodes.Definition), self.ast)
+        return list(filter(lambda n: isinstance(n, nodes.Definition), self.ast))
 
     def get_context(self, namespace):
         if namespace == "":

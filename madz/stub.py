@@ -1,1 +1,1 @@
-from pyMDL import *
+from .pyMDL import *

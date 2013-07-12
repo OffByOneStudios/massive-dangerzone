@@ -5,8 +5,6 @@ Code to Build Python Plugins
 import os, sys, shutil, logging
 import subprocess
 
-import shared
-
 import madz.languages.c.build as c_build
 from madz.dependency import Dependency
 
@@ -18,7 +16,6 @@ class Builder(c_build.Builder):
     Attributes:
         plugin_stub madz.plugin.PythonPluginStub object
     """
-    lang = shared.LanguageShared
 
     def __init__(self, language):
         """Constructor for Python Builder.

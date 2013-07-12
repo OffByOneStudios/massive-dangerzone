@@ -7,8 +7,9 @@ import os, sys
 import imp
 import logging
 import traceback
+import functools
 
-import pyMDL.plugin
+from .pyMDL import plugin as pyMDL
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class PluginId(object):
 
     def compatible(self, other):
         return \
-            reduce(lambda a, i: a and i,
+            functools.reduce(lambda a, i: a and i,
                 map(lambda a, b: a == b or ((a is None) != (b is None)),
                     self.as_tuple(), other.as_tuple()))
 
@@ -77,8 +78,8 @@ class PluginId(object):
         return "PluginId{!r}".format(self.as_tuple())
 
 
-import languages
-import language_config
+from . import languages
+from . import language_config
 
 class PythonPluginStub(object):
     """An object representing a python plugin description.
@@ -177,7 +178,7 @@ class PythonPluginStub(object):
 
         self.loaded_requires = self.loaded_depends + self.loaded_imports
 
-        self.description = pyMDL.plugin.PluginDescription(self.get("description"), dict((d.id.namespace, d.description) for d in self.loaded_depends))
+        self.description = pyMDL.PluginDescription(self.get("description"), dict((d.id.namespace, d.description) for d in self.loaded_depends))
 
         return self.description.validate()
 

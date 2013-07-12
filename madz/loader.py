@@ -4,8 +4,8 @@ Code to load plugins into memory.
 """
 import logging
 
-import operating_systems
-import plugin
+from . import operating_systems
+from . import plugin
 
 logger = logging.getLogger(__name__)
 

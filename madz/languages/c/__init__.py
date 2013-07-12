@@ -1,3 +1,3 @@
-from language import LanguageC
+from .language import LanguageC
 
 Language = LanguageC

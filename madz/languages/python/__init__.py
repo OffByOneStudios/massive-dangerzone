@@ -1,3 +1,3 @@
-from language import LanguagePy
+from .language import LanguagePy
 
 Language = LanguagePy

@@ -47,9 +47,10 @@ class Builder(object):
         errput = compile_process.stderr.read() if not cpdone else ""
         while compile_process.returncode is None:
             tout, terr = compile_process.communicate()
+            tout, terr = (str(tout.decode("utf-8")), str(terr.decode("utf-8")))
             output += tout
             errput += terr
-            if tout == "" and terr == "":
+            if str(tout) == "" and str(terr) == "":
                 break
 
         retcode = compile_process.returncode

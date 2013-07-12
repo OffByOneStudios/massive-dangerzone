@@ -4,7 +4,7 @@ Code to generate inter language wraper files
 """
 import logging
 
-import plugin
+from . import plugin
 
 logger = logging.getLogger(__name__)
 

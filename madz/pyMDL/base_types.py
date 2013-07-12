@@ -3,7 +3,7 @@
 Base types of MDL. Everything should be able to work with this.
 """
 
-from nodes import *
+from .nodes import *
 
 TypeType.Pointer = lambda s: TypePointer(s)
 
@@ -160,7 +160,7 @@ class TypeStruct(TypeTypeComplex):
             elements: Dictionary mapping names in the struct to types
         """
         self.elements = elements
-        self._elements_hash = hash(tuple(sorted(elements.iteritems())))
+        self._elements_hash = hash(tuple(sorted(elements.items())))
         self.doc = doc
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.elements == other.elements
@@ -176,7 +176,7 @@ class TypeStruct(TypeTypeComplex):
 
     def map_over(self, map_func):
         new_elements = {}
-        for name, node in self.elements.iteritems():
+        for name, node in self.elements.items():
             new_subs = map_func(node, name=name)
             for new_sub_name, new_sub_node in new_subs:
                 if new_sub_name in new_elements:

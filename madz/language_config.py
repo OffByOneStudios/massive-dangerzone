@@ -3,7 +3,7 @@
 Manages the confiuration of plugin languages.
 """
 
-import operating_systems
+from . import operating_systems
 
 class LanguageConfig(object):
     def __init__(self, config, default_config):
