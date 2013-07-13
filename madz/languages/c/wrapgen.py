@@ -310,11 +310,15 @@ int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * depends, void * * output) {{
 
 \t/* Output this plugin's variable struct */
 \t(*output) = &{madz_prefix}_OUTPUT;
+
+\treturn 0;
 }}
 
 /* The external dll function, called by the madz plugin system, to provide imports */
 int DLLEXPORT {madz_prefix}_EXTERN_INITIMPORTS(void * * imports) {{
 \t{in_struct_imports_assigns}
+
+\treturn 0;
 }}
 
 """
