@@ -10,7 +10,7 @@ class InvalidTypeMDLError(MDLError): pass
 class SyntaxMDLError(MDLError): pass
 class MapOverMDLError: pass
 
-class Node(object):
+class BaseNode(object):
     "Base node type."
 
     __metaclass__ = abc.ABCMeta
@@ -41,6 +41,9 @@ class Node(object):
     def is_extension(self):
         return False
 
+    def is_attribute(self):
+        return False
+
     @staticmethod
     def _map_over_single_val(self, map_func, val):
         new_sub = map_func(val)
@@ -48,10 +51,47 @@ class Node(object):
             raise MapOverMDLError("Single val expected. Got instead: {}".format(new_sub))
         return new_sub[0].map_over(map_func)
 
+class Node(BaseNode):
+    def get_attribute(self, type):
+        if hasattr(self, "attributes"):
+            return self.attributes.get(type, None)
+        return None
 
-class NodeExtension(Node):
-    def is_extension(self):
+    def set_attribute(self, type, value):
+        if not hasattr(self, "attributes"):
+            self.attributes = {}
+        self.attributes[type] = value
+
+    def validate_attributes(self):
+        if not hasattr(self, "attributes"):
+            return True
+        for attr in self.attributes.items():
+            if not attr.validate():
+                return False
         return True
+
+
+class Attribute(BaseNode):
+    def is_attribute(self):
+        return True
+
+    def on_attach(self, node):
+        node.set_attribute(self.get_attr_type(), self)
+
+    def get_attr_type(self):
+        self.__class__
+
+    def __call__(self, node):
+        if (not isinstance(node, BaseNode)) and (not node.is_attribute()):
+            raise ValueError("Must be decorated on a node")
+        self.on_attach(node)
+        return node
+
+
+class DocumentationAttribute(Attribute):
+    def __init__(self, documentation):
+        self.documentation = documentation
+    
 
 
 class TypeType(Node):
@@ -96,10 +136,10 @@ class Declaration(RootNode):
 
 class TypeDeclaration(Declaration):
     """A declaration of a new type."""
-    def __init__(self, name, type, doc=""):
+    def __init__(self, name, type):
         self.name = name
         self.type = type
-        self.doc = doc
+
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and \
             self.name == other.name and \
@@ -125,10 +165,10 @@ class Definition(RootNode):
 
 class VariableDefinition(Definition):
     """A definition of a new variables."""
-    def __init__(self, name, type, doc=""):
+    def __init__(self, name, type):
         self.name = name
         self.type = type
-        self.doc = doc
+
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and \
             self.name == other.name and \

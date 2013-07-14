@@ -6,12 +6,13 @@ plugin = Plugin(
 
     language="python",
     description=[
-                 TypeDeclaration("Color",
+        TypeDeclaration("Color",
+            DocumentationAttribute("A Point in 3R")(
             TypeStruct({
                 "r" : TypeInt8,
                 "g" : TypeInt8,
                 "b" : TypeInt8
-            }), doc="A Color in 3R"),
+            }))),
         VariableDefinition("origin_distance",
             TypeFunction(
                 TypeFloat32,

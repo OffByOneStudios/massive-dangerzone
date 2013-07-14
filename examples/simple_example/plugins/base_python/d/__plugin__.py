@@ -10,12 +10,13 @@ plugin = Plugin(
 
     description=[
         TypeDeclaration("Point3d",
+            DocumentationAttribute("A Point in 3R")(
             TypeStruct({
                 "x" : TypeFloat32,
                 "y" : TypeFloat32,
                 "z" : TypeFloat32,
                 "foo" :TypePointer(TypeFloat32)
-            }), doc="A Point in 3R"),
+            }))),
         VariableDefinition("a_var", TypeInt32),
         VariableDefinition("a_uvar", TypeUInt32),
         VariableDefinition("origin", "Point3d"),
