@@ -18,6 +18,15 @@ class PythonGenerator(object):
     """Class to Generate C wrapper for python plugins."""
 
     def __init__(self, dependencies, namespace, description):
+        """Constructor for Python Source Generator/
+        Args:
+            dependencies:
+                List of Python Generators whose plugins this generator is dependant on
+            namespace:
+                String namespace for this plugin. Empty if this generator is generating it's own plugin
+            description:
+                Description object given declarations and definitions
+        """
         self.dependencies = dependencies
         self.namespace = namespace
         self.description = description
@@ -34,6 +43,16 @@ class PythonGenerator(object):
         return self._gen_table[node.node_type()](self, node, name)
 
     def _gen_table_function(self, node, name):
+        """Generate Python Function Declaration.
+        Args:
+            node:
+                AST Node object
+            name:
+                String function name
+
+        Returns:
+            String containing python code to generate function declaration
+        """
         pointer = "{}FUNC = CFUNCTYPE({}, {})".format(name.upper(), self.gen_type_string("", node.return_type),
                                                   ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string("", t.type)),
@@ -41,14 +60,34 @@ class PythonGenerator(object):
         return pointer
 
     def _gen_pointer(self, node, name):
+        """Generates a Python Ctypes Pointer declaration for a pointer AST node.
+        Args:
+            node:
+                AST Node object
+            name:
+                String pointer name
+        Returns:
+            String containing python code to generate pointer declaration
+        """
         return "(\"{}\", POINTER({}))".format(name, self.gen_type_string("", node.type))
 
     def _gen_table_struct(self, node, name):
+        """Generate Python structure definition
+
+        Args:
+            node:
+                AST Node object
+            name:
+                String struct name
+        Returns:
+            String containing python code to generate struct declaration
+        """
         return "class {}(Structure):\n\t_fields_ = [{}]\n".format(name.upper(),
             ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string(*t)),
                 node.elements.items())),
             )
+    """Function Table for generating ctypes code from AST"""
     _gen_table = {
         pdl.TypeNone : lambda s, no, na: "None ",
         pdl.TypeInt8 : lambda s, no, na: "c_byte" if na=="" else "(\"" + na  + "\" , c_byte)",
@@ -68,7 +107,15 @@ class PythonGenerator(object):
         pdl.TypeFunction : _gen_table_function,
     }
 
+
     def make_structs(self):
+        """Construct Python classes for each struct definition in AST.
+
+        Args:
+            None
+        Returns:
+            String containing python code to generate struct.
+        """
         res = ""
         for node in self.description.declarations():
             if isinstance(node.type,pdl.TypeStruct):
@@ -77,6 +124,13 @@ class PythonGenerator(object):
         return res
 
     def make_functions(self):
+        """Construct ctypes function definitions for each function in AST.
+
+        Args:
+            None
+        Returns:
+            String containing python code to generate function.
+        """
         res =""
         for node in self.description.declarations() + self.description.definitions():
             if isinstance(node.type,pdl.TypeFunction):
@@ -85,6 +139,10 @@ class PythonGenerator(object):
         return res
 
     def make_function_stubs(self):
+        """Creates Python source containing a stub for functions definied in AST
+
+        # Depreciated, no longer generating stubs for users.
+        """
         res =""
         for node in self.description.declarations() + self.description.definitions():
             if isinstance(node.type,pdl.TypeFunction):
@@ -94,6 +152,14 @@ class PythonGenerator(object):
         return res
 
     def make_function_callbacks(self):
+        """Constructs function callbacks to glue python functions to exported c dll functions.
+
+        Args:
+            None
+
+        Returns:
+            String to generate python source.
+        """
         res=""
         for node in self.description.definitions():
             if isinstance(node.type, pdl.TypeFunction):
@@ -102,6 +168,13 @@ class PythonGenerator(object):
         return res
 
     def make_module_hook(self):
+        """Hookup imported plugins so that they can be called from python
+
+        Args:
+            None
+        Returns:
+            String containing ctypes code to hook up plugins.
+        """
         res = \
 """{fname} = shared_object.{fname}
     {fname}.restype = POINTER({structname})
@@ -117,6 +190,13 @@ class PythonGenerator(object):
         return res.format(**fragments)
 
     def make_cleanup_code(self):
+        """Creates ease of use code for end user to access imported modules.
+
+        Args:
+            None
+        Returns:
+            String of python cleanup code
+        """
         res = \
 """outgoing_module.imports["{name}"] = {varname}
 """
@@ -128,6 +208,13 @@ class PythonGenerator(object):
 
     # C Header Generation
     def make_c_header(self):
+        """Declare interpreter threadstate and seperate struct for python function pointers.
+
+        While a madz plugin normally has one output struct representing the plugin's variables and functions
+        python plugins have two. The first contains function pointers to c functions. These functions
+        aquire the python GIL, swap execution to the sub interpreter, and then call the functions in the second output
+        struct. This second struct (declared below) is hooked to the python function pointers generated above.
+        """
         res = \
 """PyThreadState* python_thread_state;
 ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
@@ -150,6 +237,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
         return res.format(**fragments)
 
     def make_out_struct(self):
+        """Ctypes Struct representing each plugin's exported struct."""
         args ={
            "name":"OUTSTRUCT" if self.namespace=="" else self._namespace_mangle(self.namespace).upper(),
            "fields":""
@@ -168,7 +256,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
         return res.format(**args)
 
     def make_get_in_struct(self):
-        """Makes Getter for in structs."""
+        """Makes C function getters for in structs."""
         res = \
 """{rettype}* DLLEXPORT {prefix}_get_{name}_struct(){{
     return ___madz_IN_{name};
@@ -193,6 +281,14 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
         return res.format(self.python_mangle)
 
     def make_c_init(self, madz_path):
+        """Creates code to intialize this plugin's interpreter.
+
+        This code:
+            1)Confirms that the Python interpreter and Python Threads are intialized.
+            2)Creates thread state for the subinterpreter
+            3)Initalizes the subinterpter.
+            4)Calls this plugin's python madz_init function (defined above)
+        """
         res = \
 """void ___madz_init(){{
     PyObject *p, *name, *fn, *implib, *importer;
@@ -262,18 +358,23 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
         return res.format(**fragments)
 
     def make_c_function_stubs(self):
+        """Creates function stubs wrap calls into python code.
 
+        These functions:
+            1)Swap this subinterpeter's thread in.
+            2)Call into python
+            3)Revert thread swap
+            4)Return result
+        """
         fn =\
 """{rettype}{fnname}({args}){{
     {rettype}ret;
-    PyGILState_STATE gstate;
+    PyThreadState *tmp;
 
-    gstate = PyGILState_Ensure();
-    PyThreadState* tmp_thread = PyThreadState_Swap(python_thread_state);
+
+    tmp = PyThreadState_Swap(python_thread_state);
     ret = ___madz_LANG_python_OUTPUT.{fnname}({argnames});
-    PyThreadState_Swap(tmp_thread);
-
-    PyGILState_Release(gstate);
+    PyThreadState_Swap(tmp);
     return ret;
 }}
 
