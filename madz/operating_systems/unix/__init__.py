@@ -26,7 +26,7 @@ class UnixOperatingSystem(object):
         logger.debug("LOADING: Opening plugin DLL: {}".format(plugin_stub))
 
         plugin_dll = ctypes.cdll.LoadLibrary(self.output_file_location(plugin_stub))
-        
+
         madz_init = getattr(plugin_dll, "___madz_EXTERN_INIT")
         madz_init.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)]
 

@@ -28,7 +28,7 @@ class PythonGenerator(object):
         """Removes dots from namespace names, replaces them with ___"""
         return namespace.replace(".", "__")
 
-
+    #Python Source Generation
     def gen_type_string(self, name, node):
         """Given a name and a node, which is a type, generates a string for a variable of that type"""
         return self._gen_table[node.node_type()](self, node, name)
@@ -38,14 +38,10 @@ class PythonGenerator(object):
                                                   ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string("", t.type)),
                 node.args)))
-
-
         return pointer
 
     def _gen_pointer(self, node, name):
-
         return "(\"{}\", POINTER({}))".format(name, self.gen_type_string("", node.type))
-
 
     def _gen_table_struct(self, node, name):
         return "class {}(Structure):\n\t_fields_ = [{}]\n".format(name.upper(),
@@ -97,24 +93,6 @@ class PythonGenerator(object):
 
         return res
 
-    def make_out_struct(self):
-        args ={
-           "name":"OUTSTRUCT" if self.namespace=="" else self._namespace_mangle(self.namespace).upper(),
-           "fields":""
-
-           }
-        res= \
-"""class {name}(Structure):
-    _fields_ = [{fields}]
-"""
-        for node in self.description.definitions():
-            if isinstance(node.type, pdl.TypeFunction):
-                args['fields'] += "(\"{}\" , {}),".format(node.name, node.name.upper()+"FUNC")
-            else:
-                args['fields'] += self.gen_type_string(node.name, node.type) +","
-
-        return res.format(**args)
-
     def make_function_callbacks(self):
         res=""
         for node in self.description.definitions():
@@ -138,6 +116,56 @@ class PythonGenerator(object):
 
         return res.format(**fragments)
 
+    def make_cleanup_code(self):
+        res = \
+"""outgoing_module.imports["{name}"] = {varname}
+"""
+        fragments ={
+                "name":self.namespace,
+                "varname":self._namespace_mangle(self.namespace) + "_plugin"
+                }
+        return res.format(**fragments)
+
+    # C Header Generation
+    def make_c_header(self):
+        res = \
+"""PyThreadState* python_thread_state;
+___madz_TYPE_ ___madz_LANG_python_OUTPUT;
+{fn_dec}
+"""
+        c_gen = c_wrapgen.CGenerator([],"", self.description)
+        fragments ={"fn_dec" : ""}
+        fn = """{rettype}{fnname}({args});"""
+        for node in self.description.definitions():
+            if isinstance(node.type.get_type(), pdl.TypeFunction):
+                frg = {
+                             "rettype":c_gen.gen_type_string("", node.type.return_type),
+                             "fnname":node.name,
+                             "args":",".join(map(
+                                lambda a: c_gen.gen_type_string(a.name, a.type),
+                                node.type.args)),
+
+                             }
+                fragments["fn_dec"] += fn.format(**frg)
+        return res.format(**fragments)
+
+    def make_out_struct(self):
+        args ={
+           "name":"OUTSTRUCT" if self.namespace=="" else self._namespace_mangle(self.namespace).upper(),
+           "fields":""
+
+           }
+        res= \
+"""class {name}(Structure):
+    _fields_ = [{fields}]
+"""
+        for node in self.description.definitions():
+            if isinstance(node.type, pdl.TypeFunction):
+                args['fields'] += "(\"{}\" , {}),".format(node.name, node.name.upper()+"FUNC")
+            else:
+                args['fields'] += self.gen_type_string(node.name, node.type) +","
+
+        return res.format(**args)
 
     def make_get_in_struct(self):
         """Makes Getter for in structs."""
@@ -230,40 +258,6 @@ class PythonGenerator(object):
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 fragments["function_hooks"] +="    ___madz_OUTPUT." + node.name + " = " + node.name  +";"
-
-        return res.format(**fragments)
-
-    def make_cleanup_code(self):
-        res = \
-"""outgoing_module.imports["{name}"] = {varname}
-"""
-        fragments ={
-                "name":self.namespace,
-                "varname":self._namespace_mangle(self.namespace) + "_plugin"
-                }
-        return res.format(**fragments)
-
-    def make_c_header(self):
-        res = \
-"""PyThreadState* python_thread_state;
-___madz_TYPE_ ___madz_LANG_python_OUTPUT;
-{fn_dec}
-"""
-        c_gen = c_wrapgen.CGenerator([],"", self.description)
-        fragments ={"fn_dec" : ""}
-        fn = """{rettype}{fnname}({args});"""
-        for node in self.description.definitions():
-            if isinstance(node.type.get_type(), pdl.TypeFunction):
-                frg = {
-                             "rettype":c_gen.gen_type_string("", node.type.return_type),
-                             "fnname":node.name,
-                             "args":",".join(map(
-                                lambda a: c_gen.gen_type_string(a.name, a.type),
-                                node.type.args)),
-
-                             }
-                fragments["fn_dec"] += fn.format(**frg)
-
 
         return res.format(**fragments)
 
