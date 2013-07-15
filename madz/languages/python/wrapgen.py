@@ -71,6 +71,20 @@ class PythonGenerator(object):
         """
         return "(\"{}\", POINTER({}))".format(name, self.gen_type_string("", node.type))
 
+    def _gen_array(self, node, name):
+        """Generate Python Array Definition
+
+        Args:
+            node:
+                AST Node object
+            name:
+                String struct name
+        Returns:
+            String containing python code to generate struct declaration
+        """
+
+        res = name + "ArrayType = " + self.gen_type_string("", node.type) + "* " + str(node.length) + "\n"
+
     def _gen_table_struct(self, node, name):
         """Generate Python structure definition
 
@@ -102,11 +116,24 @@ class PythonGenerator(object):
         pdl.TypeFloat32 : lambda s, no, na: "c_float" if na=="" else "(\"" + na + "\", c_float)",
         pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(\"" + na + "\", c_double)",
         pdl.TypePointer : _gen_pointer,
+        pdl.TypeArray : _gen_array,
         pdl.NamedType : lambda s, no, na: no.symbol.upper() if na =="" else "(\"{}\", {})".format(na, no.symbol.upper()),
         pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
     }
 
+    def make_arrays(self):
+        """Construct Python Array Types for each array definition in AST/
+        Args:
+            None
+        Returns:
+            String containing python code to generate array.
+        """
+        res =""
+        for node in self.description.declarations():
+            if isinstance(node.type,pdl.TypeStruct):
+                res +=self.gen_type_string(node.name, node.type)
+        return res
 
     def make_structs(self):
         """Construct Python classes for each struct definition in AST.
@@ -120,7 +147,6 @@ class PythonGenerator(object):
         for node in self.description.declarations():
             if isinstance(node.type,pdl.TypeStruct):
                 res += self.gen_type_string(node.name, node.type)
-
         return res
 
     def make_functions(self):
@@ -446,7 +472,11 @@ from ctypes import *
 {imported_functions}
 #Dependency Structure Declarations
 {imported_structs}
+
 #Declarations
+#Array Declarations
+{arrays}
+#Struct Declarations
 {structs}
 #In_Structs
 {in_structs}
@@ -507,6 +537,7 @@ imports = {}
                         "imported_functions":"",
                         "imported_structs":"",
                         "in_structs":"",
+                        "arrays" : py_gen.make_arrays(),
                         "structs":py_gen.make_structs(),
                         "functions":py_gen.make_functions(),
                         "out_structs":py_gen.make_out_struct(),
