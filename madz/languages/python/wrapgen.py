@@ -189,6 +189,24 @@ class PythonGenerator(object):
 
         return res.format(**fragments)
 
+    def make_fix_plugin(self):
+        """Assigns plugin variable to point at OUTSTRUCT and not python_OUTSTRUCT"""
+
+        res = \
+"""{fname} = shared_object.{fname}
+    {fname}.restype = POINTER({structname})
+    {varname} = {fname}()
+
+"""
+        fragments ={
+                    "varname": "plugin",
+                    "fname":"___madz_TYPE_get_out_struct",
+                    "structname":"OUTSTRUCT"
+                    }
+
+        return res.format(**fragments)
+
+        return res
     def make_cleanup_code(self):
         """Creates ease of use code for end user to access imported modules.
 
@@ -269,16 +287,25 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
                     }
         return res.format(**fragments)
 
-    def make_get_out_struct(self):
-        """Creates Getter for This plugin's out struct."""
+    def make_get_python_out_struct(self):
+        """Creates Getter for This plugin's python out struct."""
         res = \
 """___madz_TYPE_* DLLEXPORT {}_get_out_struct(){{
     return &___madz_LANG_python_OUTPUT;
-
 }}
 
 """
         return res.format(self.python_mangle)
+
+    def make_get_out_struct(self):
+        """Creates Getter for This plugin's C out struct."""
+        res = \
+"""___madz_TYPE_* DLLEXPORT ___madz_TYPE_get_out_struct(){{
+    return &___madz_OUTPUT;
+}}
+
+"""
+        return res
 
     def make_c_init(self, madz_path):
         """Creates code to intialize this plugin's interpreter.
@@ -338,7 +365,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
 
 		return;
 	}}
-    printf("FOO\\n");
+
 {function_hooks}
 
 	if(PyObject_CallObject(fn, 0) == NULL){{
@@ -431,35 +458,28 @@ from ctypes import *
 def madz_init():
     incoming_module = None
     outgoing_module = None
-
     try:
-
         imp = importlib.machinery.SourceFileLoader("__init__", \"{init_path}\")
         incoming_module = imp.load_module("__init__")
-
     except Exception as e:
-        print("Unable to Load This Plugin's Python Functions. SegFault will occur at runtime")
+        print(e)
         return
-
     try:
         imp = importlib.machinery.SourceFileLoader("madz", \"{outgoing_module_path}\")
         outgoing_module = imp.load_module("madz")
-
     except Exception as e:
-        print("Generation Error: Unable to Find Outgoing Module file")
+        print(e)
         return
-
     shared_object = cdll.LoadLibrary("{plugin_cname}")
     #Fill In Dependency Modules
     {module_hooks}
     #Fill in plugin's function pointers with callbacks
     {function_callbacks}
+    #Reconfigure plugin to point at real output struct
+    {fix_plugin}
     #Clean up
     {cleanup_code}
 
-
-if __name__ =='__main__':
-    madz_init()
 """
 
     outgoing_module_template = \
@@ -482,6 +502,7 @@ imports = {}
         py_gen = PythonGenerator([], "", self.plugin_stub.description)
         code_fragments={
                         "outgoing_module_path":self.language.get_python_outgoing_module().replace("\\","/"),
+                        "fix_plugin" : py_gen.make_fix_plugin(),
                         "init_path":self.language.get_plugin_init().replace("\\","/"),
                         "imported_functions":"",
                         "imported_structs":"",
@@ -504,6 +525,7 @@ imports = {}
 
         c_source = py_gen.make_c_init(self.language.get_python_code_filename())
         c_source += py_gen.make_get_out_struct()
+        c_source += py_gen.make_get_python_out_struct()
         c_source += py_gen.make_c_function_stubs()
 
 
