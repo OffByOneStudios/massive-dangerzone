@@ -124,6 +124,19 @@ class PluginDescription(object):
         """
         return filter(lambda n: isinstance(n, nodes.TypeDeclaration) and n.type == the_type, self.ast)
 
+    def get_name_for_node(self, the_type):
+        """Searches Declarations for the name of given type.
+
+        Args:
+            the_type: Node to lookup
+        Returns:
+            String name of the_type, otherwise the empty string
+        """
+        for node in self.declarations():
+            if isinstance(node.type.get_type(), the_type.__class__):
+                return node.name
+        return ""
+
     def get_root_node(self, namespace, test_func):
         """Getter for type declarations.
 

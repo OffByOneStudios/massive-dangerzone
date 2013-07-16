@@ -53,8 +53,8 @@ class PythonGenerator(object):
         Returns:
             String containing python code to generate function declaration
         """
-        pointer = "{}FUNC = CFUNCTYPE({}, {})".format(name.upper(), self.gen_type_string("", node.return_type),
-                                                  ", ".join(map(
+
+        pointer = "{}FUNC = CFUNCTYPE({}{})".format(name.upper(), self.gen_type_string("", node.return_type).strip(), "" if node.args == [] else ", " + ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string("", t.type)),
                 node.args)))
         return pointer
@@ -71,9 +71,9 @@ class PythonGenerator(object):
         """
         return "(\"{}\", POINTER({}))".format(name, self.gen_type_string("", node.type))
 
-    def _gen_array(self, node, name):
+    def _gen_named(self, node, name):
         """Generate Python Array Definition
-
+        no.symbol.upper() if na =="" else "(\"{}\", {})".format(na, no.symbol.upper())
         Args:
             node:
                 AST Node object
@@ -83,8 +83,9 @@ class PythonGenerator(object):
             String containing python code to generate struct declaration
         """
 
-        res = name + "ArrayType = " + self.gen_type_string("", node.type) + "* " + str(node.length) + "\n"
+        res = "ANamedType"
 
+        return res
     def _gen_table_struct(self, node, name):
         """Generate Python structure definition
 
@@ -96,6 +97,7 @@ class PythonGenerator(object):
         Returns:
             String containing python code to generate struct declaration
         """
+
         return "class {}(Structure):\n\t_fields_ = [{}]\n".format(name.upper(),
             ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string(*t)),
@@ -103,7 +105,7 @@ class PythonGenerator(object):
             )
     """Function Table for generating ctypes code from AST"""
     _gen_table = {
-        pdl.TypeNone : lambda s, no, na: "None ",
+        pdl.TypeNone : lambda s, no, na: "None",
         pdl.TypeInt8 : lambda s, no, na: "c_byte" if na=="" else "(\"" + na  + "\" , c_byte)",
         pdl.TypeInt16 : lambda s, no, na:"c_short" if na=="" else "(\"" + na + "\", c_short)",
         pdl.TypeInt32 : lambda s, no, na: "c_int" if na=="" else "(\"" + na + "\", c_int)",
@@ -116,7 +118,7 @@ class PythonGenerator(object):
         pdl.TypeFloat32 : lambda s, no, na: "c_float" if na=="" else "(\"" + na + "\", c_float)",
         pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(\"" + na + "\", c_double)",
         pdl.TypePointer : _gen_pointer,
-        pdl.TypeArray : _gen_array,
+        pdl.TypeArray : lambda s, no, na: "{}ArrayType".format(s.description.get_name_for_node(no)) if na == "" else  "(\"{}\", {}ArrayType)".format(na, s.description.get_name_for_node(no)),
         pdl.NamedType : lambda s, no, na: no.symbol.upper() if na =="" else "(\"{}\", {})".format(na, no.symbol.upper()),
         pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
@@ -131,8 +133,8 @@ class PythonGenerator(object):
         """
         res =""
         for node in self.description.declarations():
-            if isinstance(node.type,pdl.TypeStruct):
-                res +=self.gen_type_string(node.name, node.type)
+            if isinstance(node.type, pdl.TypeArray):
+                res += node.name + "ArrayType = " + self.gen_type_string("", node.type.type) + "* " + str(node.type.length) + "\n"
         return res
 
     def make_structs(self):
@@ -144,8 +146,10 @@ class PythonGenerator(object):
             String containing python code to generate struct.
         """
         res = ""
+
+
         for node in self.description.declarations():
-            if isinstance(node.type,pdl.TypeStruct):
+            if isinstance(node.type, pdl.TypeStruct):
                 res += self.gen_type_string(node.name, node.type)
         return res
 
@@ -159,7 +163,7 @@ class PythonGenerator(object):
         """
         res =""
         for node in self.description.declarations() + self.description.definitions():
-            if isinstance(node.type,pdl.TypeFunction):
+            if isinstance(node.type, pdl.TypeFunction):
                 res += self.gen_type_string(node.name, node.type) +"\n"
 
         return res
@@ -189,7 +193,7 @@ class PythonGenerator(object):
         res=""
         for node in self.description.definitions():
             if isinstance(node.type, pdl.TypeFunction):
-              res += "plugin.{} = {}FUNC(incoming_module.{})\n".format(node.name,node.name.upper(), node.name)
+              res += "    plugin.{} = {}FUNC(incoming_module.{})\n".format(node.name,node.name.upper(), node.name)
 
         return res
 
@@ -504,7 +508,7 @@ def madz_init():
     #Fill In Dependency Modules
     {module_hooks}
     #Fill in plugin's function pointers with callbacks
-    {function_callbacks}
+{function_callbacks}
     #Reconfigure plugin to point at real output struct
     {fix_plugin}
     #Clean up
@@ -564,6 +568,7 @@ imports = {}
             gen = PythonGenerator([], dep.id.namespace, dep.description)
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
+            code_fragments["arrays"] += gen.make_arrays()
             code_fragments["in_structs"] += gen.make_out_struct()
             code_fragments["module_hooks"] +="    " + gen.make_module_hook()
             code_fragments["cleanup_code"] +="    " + gen.make_cleanup_code()
@@ -574,6 +579,7 @@ imports = {}
             #print gen.description.definitions()
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
+            code_fragments["arrays"] += gen.make_arrays()
             code_fragments["in_structs"] += gen.make_out_struct()
             code_fragments["module_hooks"] += "    " + gen.make_module_hook()
             code_fragments["cleanup_code"] +="    " + gen.make_cleanup_code()
