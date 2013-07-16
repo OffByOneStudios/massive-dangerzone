@@ -1,0 +1,1189 @@
+2013-07-15 15:00:54,691 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:00:54,696 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:00:54,701 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:07:26,798 - ERROR - madz.plugin
+	Plugin failed to load, ID per directory is 'PluginId('c.set0', '0.1.0', None)':
+	Traceback (most recent call last):
+	  File "../../madz\plugin.py", line 243, in _init_plugins
+	    stub = PythonPluginStub(root, file_pid)
+	  File "../../madz\plugin.py", line 112, in __init__
+	    self._init_required(plugin_id)
+	  File "../../madz\plugin.py", line 142, in _init_required
+	    self.language = languages.get_language(self._excepting_get("language")).Language(self)
+	  File "../../madz\languages\__init__.py", line 8, in get_language
+	    language_module = importlib.import_module("." + language, __name__)
+	  File "C:\anaconda\lib\importlib\__init__.py", line 37, in import_module
+	    __import__(name)
+	  File "../../madz\languages\c\__init__.py", line 1, in <module>
+	    from .language import LanguageC
+	  File "../../madz\languages\c\language.py", line 13, in <module>
+	    from . import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
+	  File "../../madz\languages\c\build.py", line 41
+	    compile_process = subprocess.Popen(
+	                                      ^
+	IndentationError: unindent does not match any outer indentation level
+	
+2013-07-15 15:07:26,802 - ERROR - madz.plugin
+	Plugin failed to load, ID per directory is 'PluginId('tester.', '0.1.0', 'lang_c')':
+	Traceback (most recent call last):
+	  File "../../madz\plugin.py", line 243, in _init_plugins
+	    stub = PythonPluginStub(root, file_pid)
+	  File "../../madz\plugin.py", line 112, in __init__
+	    self._init_required(plugin_id)
+	  File "../../madz\plugin.py", line 142, in _init_required
+	    self.language = languages.get_language(self._excepting_get("language")).Language(self)
+	  File "../../madz\languages\__init__.py", line 8, in get_language
+	    language_module = importlib.import_module("." + language, __name__)
+	  File "C:\anaconda\lib\importlib\__init__.py", line 37, in import_module
+	    __import__(name)
+	  File "../../madz\languages\c\__init__.py", line 1, in <module>
+	    from .language import LanguageC
+	  File "../../madz\languages\c\language.py", line 11, in <module>
+	    from . import clean
+	ImportError: cannot import name clean
+	
+2013-07-15 15:08:14,270 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:08:14,273 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:08:14,276 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:11:27,907 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:11:27,910 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:11:27,911 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:11:35,951 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:11:35,953 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:11:35,954 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:11:49,358 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:11:49,359 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:11:49,361 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:45:08,078 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:45:08,082 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:45:08,086 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:46:00,424 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:46:00,427 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:46:00,430 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:50:58,803 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:50:58,808 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:50:58,809 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:57:51,477 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 15:57:51,480 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 15:57:51,483 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:01:34,321 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:01:34,322 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 16:01:34,325 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:01:35,869 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 16:01:35,927 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function 'helper':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:11:55: error: expected expression before ')' token
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:41: error: 'TypeInt32' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:41: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:59: error: 'Value' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:65: error: expected ';' before numeric constant
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:23:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:24:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:26:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:27:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:28:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:29:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:31:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:32:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:34:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:36:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:37:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:41:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:45:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:52:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:54:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:55:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:60:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:66:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:68:9: error: stray '#' in program
+		
+2013-07-15 16:01:36,028 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 16:01:36,058 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:01:36,059 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:01:36,065 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:01:36,065 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:01:36,065 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 16:01:36,066 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 16:02:04,180 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:02:04,184 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 16:02:04,186 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:02:04,687 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 16:02:04,726 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function 'helper':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:11:55: error: expected expression before ')' token
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:41: error: 'TypeInt32' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:41: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:59: error: 'Value' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:65: error: expected ';' before numeric constant
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:23:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:24:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:26:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:27:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:28:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:29:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:31:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:32:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:34:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:36:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:37:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:41:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:45:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:52:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:54:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:55:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:60:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:66:9: error: stray '#' in program
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:68:9: error: stray '#' in program
+		
+2013-07-15 16:02:04,832 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 16:02:04,835 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:02:04,836 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:02:04,842 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:02:04,842 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 16:02:04,842 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 16:02:04,844 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:04:03,471 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:03,473 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:04:03,476 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:03,964 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:04:04,009 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function 'helper':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:13:9: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:47:5: error: expected ';' before 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:52:10: error: 'i' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:52:10: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:64:5: error: unknown type name 't_unit8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:69:5: error: too few arguments to function 'memcmp'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:71:9: warning: incompatible implicit declaration of built-in function 'exit' [enabled by default]
+		
+2013-07-15 17:04:04,078 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:04:04,082 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:04,084 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:04,085 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:04,086 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:04,086 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:04:04,088 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:04:59,476 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:59,479 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:04:59,482 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:04:59,970 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:05:00,016 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:48:5: error: expected ';' before 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: error: 'i' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:65:5: error: unknown type name 't_unit8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:70:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:05:00,082 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:05:00,086 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:00,088 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:00,089 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:00,091 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:00,092 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:05:00,092 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:05:39,634 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:39,635 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:05:39,637 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:40,085 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:05:40,130 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:44:45: error: invalid type argument of unary '*' (have 'float')
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:48:5: error: expected ';' before 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:51:49: error: invalid type argument of unary '*' (have 'int32_t')
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: error: 'i' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:65:5: error: unknown type name 't_unit8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:70:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:05:40,200 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:05:40,204 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:40,206 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:40,207 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:40,209 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:05:40,209 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:05:40,209 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:06:38,440 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:06:38,443 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:06:38,444 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:06:38,903 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:06:38,948 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:48:5: error: expected ';' before 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: error: 'i' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:65:5: error: unknown type name 't_unit8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:70:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:06:39,015 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:06:39,019 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:06:39,019 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:06:39,022 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:06:39,023 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:06:39,023 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:06:39,023 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:34,144 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:34,145 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:34,148 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:34,595 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:34,641 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:48:5: error: expected ';' before 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: error: 'i' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:65:5: error: unknown type name 't_unit8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:70:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:07:34,710 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:07:34,714 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:34,714 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:34,717 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:34,717 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:34,717 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:34,719 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:54,355 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:54,358 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:54,361 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:54,816 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:54,859 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: error: 'i' undeclared (first use in this function)
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:53:10: note: each undeclared identifier is reported only once for each function it appears in
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:65:5: error: unknown type name 't_unit8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:70:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:07:54,930 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:07:54,936 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:54,937 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:54,938 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:54,938 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:07:54,938 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:07:54,940 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:09,585 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:09,586 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:09,588 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:10,042 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:10,085 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:67:5: error: unknown type name 't_unit8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:72:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:08:10,153 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:08:10,157 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:10,157 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:10,160 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:10,161 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:10,161 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:10,161 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:29,036 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:29,039 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:29,040 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:29,490 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:29,536 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:67:5: error: unknown type name 't_uint8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:72:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:08:29,601 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:08:29,608 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:29,608 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:29,609 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:29,611 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:08:29,611 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:08:29,611 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:02,789 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:02,792 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:02,792 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:03,243 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:03,288 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:66:5: error: unknown type name 't_uint8'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:71:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:09:03,354 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:09:03,358 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:03,359 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:03,361 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:03,362 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:03,364 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:03,364 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:44,335 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:44,336 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:44,341 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:44,790 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:44,835 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:66:5: error: unknown type name 'unit8_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:71:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:09:44,901 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:09:44,907 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:44,907 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:44,908 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:44,910 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:09:44,910 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:09:44,911 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:00,095 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:00,098 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:00,101 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:00,599 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:00,645 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:66:5: error: unknown type name 'unit8_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:71:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:10:00,714 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:10:00,720 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:00,720 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:00,721 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:00,723 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:00,723 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:00,723 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:22,545 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:22,546 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:22,551 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:22,996 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:23,039 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:71:5: error: too few arguments to function 'memcmp'
+		
+2013-07-15 17:10:23,107 - ERROR - madz.languages.c.build
+	Build Phase (Link) Err:
+		gcc: error: test_c.o: No such file or directory
+		
+2013-07-15 17:10:23,111 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:23,111 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:23,114 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:23,115 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:10:23,115 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:10:23,115 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:11:29,362 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:11:29,367 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:11:29,368 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:11:29,822 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:11:30,013 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:11:30,013 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:11:30,015 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:11:30,016 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:11:30,016 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:11:30,016 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:11:30,019 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:11:30,019 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:15,213 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:15,214 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:15,217 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:15,673 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:15,720 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:79:1: error: '___madz_OUTPUTFUNC_test' declared as function returning a function
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:79:1: error: conflicting types for '___madz_OUTPUTFUNC_test'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:21:1: note: previous definition of '___madz_OUTPUTFUNC_test' was here
+		
+2013-07-15 17:13:15,835 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:15,835 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:15,836 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:15,838 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:15,838 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:15,838 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:15,838 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:15,838 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:46,928 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:46,930 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:46,933 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:47,390 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:47,451 - WARNING - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:79:1: warning: data definition has no type or storage class [enabled by default]
+		
+2013-07-15 17:13:47,569 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:47,569 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:47,575 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:47,576 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:13:47,576 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:47,578 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:47,578 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:13:47,579 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:22,533 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:22,536 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:22,539 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:23,028 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:23,250 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:23,250 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:23,252 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:23,253 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:23,253 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:23,253 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:23,255 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:23,256 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:41,167 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:41,170 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:41,173 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:41,658 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:41,834 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:41,835 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:41,835 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:41,836 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:17:41,836 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:41,836 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:41,838 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:17:41,851 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:20:49,151 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:20:49,153 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:20:49,154 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:20:49,602 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:20:49,776 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:20:49,776 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:20:49,779 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:20:49,780 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:20:49,780 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:20:49,782 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:20:49,782 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:20:49,782 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:22:37,233 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:22:37,236 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:22:37,237 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:22:37,700 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:22:37,880 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:22:37,881 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:22:37,882 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:22:37,882 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:22:37,884 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:22:37,884 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:22:37,885 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:22:37,885 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:25:36,357 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:25:36,358 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:25:36,361 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:25:36,813 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:25:36,989 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:25:36,990 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:25:36,990 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:25:36,993 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:25:36,993 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:25:36,993 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:25:36,994 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:25:36,994 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:26:08,221 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:26:08,223 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:26:08,224 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:26:08,680 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:26:08,854 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:26:08,855 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:26:08,855 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:26:08,855 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:26:08,855 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:26:08,855 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:26:08,858 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:26:08,858 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:22,480 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:22,482 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:22,483 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:22,963 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:23,144 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:23,144 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:23,147 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:23,147 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:23,148 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:23,148 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:23,150 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:23,150 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:27,724 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:27,726 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:27,729 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:28,180 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:28,358 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:28,358 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:28,365 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:28,365 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:28,367 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:28,367 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:28,368 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:28,368 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:49,526 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:49,528 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:49,529 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:49,979 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:50,160 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:50,161 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:50,163 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:50,163 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:27:50,164 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:50,164 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:50,165 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:27:50,165 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:29:42,125 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:29:42,127 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:29:42,128 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:29:42,586 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:29:42,769 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:29:42,770 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:29:42,773 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:29:42,773 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:29:42,773 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:29:42,775 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:29:42,775 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:29:42,775 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:06,299 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:06,301 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:06,302 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:06,749 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:06,792 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:24: error: expected ')' before 'char'
+		
+2013-07-15 17:31:06,908 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:06,908 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:06,911 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:06,911 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:06,911 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:06,911 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:06,913 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:06,914 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:21,331 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:21,332 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:21,334 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:21,798 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:21,855 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:24: error: expected ')' before 'char'
+		
+2013-07-15 17:31:21,970 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:21,970 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:21,971 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:21,973 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:31:21,973 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:21,974 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:21,976 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:31:21,976 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:13,542 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:13,545 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:13,549 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:13,994 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:14,038 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:59: error: expected declaration specifiers or '...' before ')' token
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:21:36: error: lvalue required as unary '&' operand
+		
+2013-07-15 17:37:14,154 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:14,154 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:14,155 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:14,157 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:14,157 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:14,157 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:14,158 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:14,158 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:35,221 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:35,223 - INFO - madz.wrapper
+	Wrapping plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:35,226 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:35,710 - INFO - madz.builder
+	Building plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:35,769 - ERROR - madz.languages.c.build
+	Build Phase (Compile: "C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c") Err:
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c: In function '___madz_OUTPUTFUNC_test':
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:21:36: error: lvalue required as unary '&' operand
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int32_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:22:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:23:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int16_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:23:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:23:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:23:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:24:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int8_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:24:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:24:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:24:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:25:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'uint64_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:25:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:25:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:25:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:26:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'uint32_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:26:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:26:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:26:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:27:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'uint16_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:27:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:27:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:27:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:28:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'uint8_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:28:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:28:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:28:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:29:5: error: incompatible type for argument 1 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'double'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:29:5: error: incompatible type for argument 2 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'double'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:29:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:29:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:30:5: error: incompatible type for argument 1 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'float'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:30:5: error: incompatible type for argument 2 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'double'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:30:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:30:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:31:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:31:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:32:5: error: incompatible type for argument 1 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'float'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:32:5: error: incompatible type for argument 2 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'double'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:32:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:32:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:36:5: error: incompatible type for argument 1 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'float'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:36:5: error: incompatible type for argument 2 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'double'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:36:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:36:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:37:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int32_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:37:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:37:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:37:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:38:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int32_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:38:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:38:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:38:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:39:5: error: incompatible type for argument 1 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'float'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:39:5: error: incompatible type for argument 2 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'double'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:39:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:39:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:40:5: error: incompatible type for argument 1 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'float'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:40:5: error: incompatible type for argument 2 of 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'double'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:40:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:40:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:41:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:41:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:45:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:45:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:46:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type '___madz_TYPE_c__set0_test4_type_simple'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:46:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:46:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:46:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:47:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int32_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:47:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:47:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:47:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:48:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:48:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:54:9: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int32_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:54:9: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'int'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:54:9: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:74:5: warning: passing argument 1 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'uint8_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:74:5: warning: passing argument 2 of 'helper' makes pointer from integer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'void *' but argument is of type 'uint8_t'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:74:5: warning: passing argument 3 of 'helper' makes integer from pointer without a cast [enabled by default]
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: expected 'size_t' but argument is of type 'char *'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:74:5: error: too few arguments to function 'helper'
+		C:\Users\Alexandros\Documents\massive-dangerzone\massive-dangerzone\examples\language_tests\plugins\tester\[0.1.0](lang_c)\test_c.c:10:5: note: declared here
+		
+2013-07-15 17:37:36,063 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:36,063 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:36,065 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:36,065 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('c.set0', '0.1.0', None)>
+2013-07-15 17:37:36,065 - INFO - madz.loader
+	Loading plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:36,066 - DEBUG - madz.operating_systems.unix
+	LOADING: Opening plugin DLL: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:36,069 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>
+2013-07-15 17:37:36,069 - DEBUG - madz.operating_systems.unix
+	LOADING: Initializing plugin imports: <PythonPluginStub: PluginId('tester.', '0.1.0', 'lang_c')>

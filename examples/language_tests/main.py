@@ -28,6 +28,12 @@ import madz.loader
 test_loader = madz.loader.LoaderSystem(test_plugin_system)
 test_loader.load()
 
+import ctypes
+
+ctest_plugin = test_plugin_system.get_plugin("tester.")
+func = test_loader.get_function(ctest_plugin, "test")
+ctypes.CFUNCTYPE(None)(func)()
+
 if len(sys.argv) > 1 and sys.argv[1] == "clean":
     import madz.cleaner
 
