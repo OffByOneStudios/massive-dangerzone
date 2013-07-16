@@ -53,6 +53,8 @@ class PluginId(object):
             implname_string = relativestring[implname_start+1:implname_end]
             relativestring = relativestring[:implname_start] + relativestring[implname_end+1:]
 
+        relativestring = relativestring.strip(".")
+
         return cls(relativestring, version_string, implname_string)
 
     def as_tuple(self):
