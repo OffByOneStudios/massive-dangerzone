@@ -82,7 +82,7 @@ class PythonGenerator(object):
         Returns:
             String containing python code to generate struct declaration
         """
-        print("\n\n\n",node.get_type())
+
         if isinstance(node.get_type(), pdl.TypeStruct):
             res = node.symbol.upper() if name == "" else "(\"{}\", {})".format(name, node.symbol.upper())
         elif isinstance(node.get_type(), pdl.TypeArray):
