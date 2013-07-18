@@ -90,7 +90,7 @@ class Builder(object):
 
         object_files = map(lambda c: os.path.basename(c)[:-2] + ".o", source_files)
 
-        self.run_subprocess(name="Link",
+        self.run_subprocess(name="Link: \"{}\"".format(self.language.get_output_file()),
             args=self.compiler.args_link(object_files),
             dir=self.language.get_build_directory())
 
