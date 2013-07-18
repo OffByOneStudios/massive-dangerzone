@@ -2,7 +2,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-
+/*
 MADZINIT {
 	
 }
@@ -72,4 +72,4 @@ MADZOUTFUNC_test {
     }
     
     helper(output.b, testb, "test5_struct.b");
-}
+}*/
