@@ -6,7 +6,7 @@ plugin = Plugin(
     language="c",
 
     imports=["c.set0"],
-
+    active = False
     description=[
         VariableDefinition("test",
             TypeFunction(

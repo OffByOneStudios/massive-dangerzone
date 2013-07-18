@@ -82,9 +82,14 @@ class PythonGenerator(object):
         Returns:
             String containing python code to generate struct declaration
         """
-
-        res = "ANamedType"
-
+        print("\n\n\n",node.get_type())
+        if isinstance(node.get_type(), pdl.TypeStruct):
+            res = node.symbol.upper() if name == "" else "(\"{}\", {})".format(name, node.symbol.upper())
+        elif isinstance(node.get_type(), pdl.TypeArray):
+            res = "{}ArrayType".format(self.description.get_name_for_node(node.get_type())) if name == "" else  "(\"{}\", {}ArrayType)".format(
+                                                                                                                                        name, self.description.get_name_for_node(node.get_type()))
+        else:
+            res = self.gen_type_string(name, node.get_type())
         return res
     def _gen_table_struct(self, node, name):
         """Generate Python structure definition
@@ -119,10 +124,24 @@ class PythonGenerator(object):
         pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(\"" + na + "\", c_double)",
         pdl.TypePointer : _gen_pointer,
         pdl.TypeArray : lambda s, no, na: "{}ArrayType".format(s.description.get_name_for_node(no)) if na == "" else  "(\"{}\", {}ArrayType)".format(na, s.description.get_name_for_node(no)),
-        pdl.NamedType : lambda s, no, na: no.symbol.upper() if na =="" else "(\"{}\", {})".format(na, no.symbol.upper()),
+        pdl.NamedType : _gen_named,
         pdl.TypeStruct : _gen_table_struct,
         pdl.TypeFunction : _gen_table_function,
     }
+
+    def make_typedefs(self):
+        """Sets up not struct/array typedefs as variable alias of primitive ctypes."""
+        res =""
+        for node in self.description.declarations():
+            if isinstance(node.type, pdl.TypeInt):
+                res += "{} = {}\n".format(node.name, self.gen_type_string("", node.type))
+            elif isinstance(node.type, pdl.TypeUInt):
+                res += "{} = {}\n".format(node.name, self.gen_type_string("", node.type))
+            elif isinstance(node.type, pdl.TypeFloat):
+                res += "{} = {}\n".format(node.name, self.gen_type_string("", node.type))
+
+        return res
+
 
     def make_arrays(self):
         """Construct Python Array Types for each array definition in AST/
@@ -267,10 +286,11 @@ class PythonGenerator(object):
 """PyThreadState* python_thread_state;
 ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
 {fn_dec}
+
 """
         c_gen = c_wrapgen.CGenerator([],"", self.description)
         fragments ={"fn_dec" : ""}
-        fn = """{rettype}{fnname}({args});"""
+        fn = """{rettype}{fnname}({args});\n"""
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 frg = {
@@ -410,7 +430,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
         fragments = {"function_hooks":"", "madzpath" : madz_path.replace("\\", "/")}
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
-                fragments["function_hooks"] +="    ___madz_OUTPUT." + node.name + " = " + node.name  +";"
+                fragments["function_hooks"] +="    ___madz_OUTPUT." + node.name + " = " + node.name  +";\n"
 
         return res.format(**fragments)
 
@@ -428,11 +448,21 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
     {rettype}ret;
     PyThreadState *tmp;
 
-
     tmp = PyThreadState_Swap(python_thread_state);
     ret = ___madz_LANG_python_OUTPUT.{fnname}({argnames});
     PyThreadState_Swap(tmp);
     return ret;
+}}
+
+"""
+        fn_no_return =\
+"""{rettype}{fnname}({args}){{
+    PyThreadState *tmp;
+
+    tmp = PyThreadState_Swap(python_thread_state);
+    ___madz_LANG_python_OUTPUT.{fnname}({argnames});
+    PyThreadState_Swap(tmp);
+    return;
 }}
 
 """
@@ -450,7 +480,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
                             lambda a: a.name,
                             node.type.args))
                          }
-                res += fn.format(**fragments)
+                res += fn.format(**fragments) if not isinstance(node.type.return_type, pdl.TypeTypeNone) else fn_no_return.format(**fragments)
         return res
 
 
@@ -478,6 +508,8 @@ from ctypes import *
 {imported_structs}
 
 #Declarations
+#Typedef Declarations
+{typedefs}
 #Array Declarations
 {arrays}
 #Struct Declarations
@@ -541,6 +573,7 @@ imports = {}
                         "imported_functions":"",
                         "imported_structs":"",
                         "in_structs":"",
+                        "typedefs":py_gen.make_typedefs(),
                         "arrays" : py_gen.make_arrays(),
                         "structs":py_gen.make_structs(),
                         "functions":py_gen.make_functions(),
@@ -568,6 +601,7 @@ imports = {}
             gen = PythonGenerator([], dep.id.namespace, dep.description)
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
+            code_fragments["typedefs"] += gen.make_typedefs()
             code_fragments["arrays"] += gen.make_arrays()
             code_fragments["in_structs"] += gen.make_out_struct()
             code_fragments["module_hooks"] +="    " + gen.make_module_hook()
@@ -579,6 +613,7 @@ imports = {}
             #print gen.description.definitions()
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
+            code_fragments["typedefs"] += gen.make_typedefs()
             code_fragments["arrays"] += gen.make_arrays()
             code_fragments["in_structs"] += gen.make_out_struct()
             code_fragments["module_hooks"] += "    " + gen.make_module_hook()

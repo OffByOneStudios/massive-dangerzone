@@ -39,7 +39,7 @@ class Plugin(object):
         self.implementation_name = init_get("implementation_name")
 
         self.language = init_get("language")
-
+        self.active = init_get("active", True)
         self.imports = init_get("imports",[])
         self.depends = init_get("depends",[])
 
