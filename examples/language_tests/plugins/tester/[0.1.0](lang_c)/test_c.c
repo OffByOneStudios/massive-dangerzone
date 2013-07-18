@@ -2,11 +2,12 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-/*
+
 MADZINIT {
 	
 }
 
+/*
 int helper(void* var1, void* var2, size_t size, char *str) {
 	if (var1 != var2) {
         printf("invalid value for %s", str);
@@ -16,8 +17,9 @@ int helper(void* var1, void* var2, size_t size, char *str) {
         return 0;
     }
 }
-
+*/
 MADZOUTFUNC_test {
+/*
 	helper(&MADZ(c__set0).test0_i64,  &1, sizeof(int64_t),  "test0_i64");
     helper(MADZ(c__set0).test0_i32,  2,   "test0_i32");
     helper(MADZ(c__set0).test0_i16,  3,   "test0_i16");
@@ -72,4 +74,4 @@ MADZOUTFUNC_test {
     }
     
     helper(output.b, testb, "test5_struct.b");
-}*/
+*/}
