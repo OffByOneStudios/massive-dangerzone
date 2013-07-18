@@ -39,6 +39,9 @@ class LanguageC(object):
 
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
+
+    def supported_extensions(self):
+        return []
     
     def get_default_language_config(self):
         return {
