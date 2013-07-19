@@ -47,7 +47,7 @@ plugin = Plugin(
 
         TypeDeclaration("test4_type_simple", TypeInt32),
         VariableDefinition("test4_var_simple", NamedType("test4_type_simple")), # Value 1
-        TypeDeclaration("test4_type_struct", 
+        TypeDeclaration("test4_type_struct",
             TypeStruct({
                 "var": TypeInt32,
                 "varp": TypeInt32.Pointer(),
@@ -56,7 +56,7 @@ plugin = Plugin(
         TypeDeclaration("test4_type_array", TypeArray(TypeInt32, 16)),
         VariableDefinition("test4_var_array", "test4_type_array"), # Array Value 1-16
 
-        TypeDeclaration("test5_struct", 
+        TypeDeclaration("test5_struct",
             TypeStruct({
                 "a": TypeArray(TypeInt32, 32),
                 "b": TypeUInt8,

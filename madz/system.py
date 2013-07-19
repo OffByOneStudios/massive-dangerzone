@@ -2,11 +2,83 @@
 @OffbyOneStudios 2013
 Code to create Plugin Systems
 """
-import logging
+import logging, copy
 
 from .plugin import *
 
 logger = logging.getLogger(__name__)
+
+class PluginFilter(object):
+    """Object which can filter a PluginResolvers namespaces"""
+
+    def filter(self, namespace, reverse = False):
+        pass
+
+
+class IdentityPluginFilter(PluginFilter):
+    """Performs default filtering"""
+    def filter(self, namespace, reverse = False):
+        return namespace if not reverse else return {}
+
+
+class PreferDirectory(PluginFilter):
+    """Filter Plugins Based off of a Directory"""
+    def __init__(self, directory):
+        self.directory = directory
+
+    def filter(self, namespace, reverse = False):
+        res = {}
+        for key, val in namespace.items():
+            if (val.directory == self.directory  and not reverse) or (val.directory != self.directory  and reverse):
+                if not (key in res):
+                    self.namespaces[namespace] = []
+                res[key].append(val)
+        return res
+
+
+class NamespaceFilter(PluginFilter):
+    """Filters Plugins Based off of Namespace Matching"""
+
+    def __init__(self, namespace):
+        self.namespace = namespace
+
+    def filter(self, namespace, reverse=False):
+        if not reverse:
+            return namespace[self.namespace]
+        else:
+            tmp = copy.copy(namespace)
+            del(tmp[self.namespace])
+            return tmp
+
+
+class VersionFilter(PluginFilter):
+    """Filter plugins based on version number"""
+    def __init__(self, version):
+        self.version = version
+
+    def filter(self, namespace, reverse = False):
+        res = {}
+        for key, val in namespace.items():
+            if (val.id.version == self.version  and not reverse) or (val.id.version != self.version  and reverse):
+                if not (key in res):
+                    self.namespaces[namespace] = []
+                res[key].append(val)
+        return res
+
+
+class ImplementationFilter(PluginFilter):
+    def __init__(self, implementation):
+        self.implementation = implementation
+
+    def filter(self, namespace, reverse = False):
+        res = {}
+        for key, val in namespace.items():
+            if (val.id.implementation_name == self.implementation  and not reverse) or (val.id.implementation_name != self.implementation and reverse):
+                if not (key in res):
+                    self.namespaces[namespace] = []
+                res[key].append(val)
+        return res
+
 
 class PluginResolver(object):
     """Class to lookup PluginSystems based on namespaces"""

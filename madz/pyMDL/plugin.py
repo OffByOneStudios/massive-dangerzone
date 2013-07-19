@@ -133,7 +133,7 @@ class PluginDescription(object):
             String name of the_type, otherwise the empty string
         """
         for node in self.declarations():
-            if isinstance(node.type.get_type(), the_type.__class__):
+            if node.type == the_type:
                 return node.name
         return ""
 
