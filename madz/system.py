@@ -29,10 +29,11 @@ class PreferDirectory(PluginFilter):
     def filter(self, namespace, reverse = False):
         res = {}
         for key, val in namespace.items():
-            if (val.directory == self.directory  and not reverse) or (val.directory != self.directory  and reverse):
-                if not (key in res):
-                    self.namespaces[namespace] = []
-                res[key].append(val)
+            for stub in val:
+                if (stub.directory == self.directory  and not reverse) or (stub.directory != self.directory  and reverse):
+                    if not (key in res):
+                        self.namespaces[key] = []
+                    res[key].append(stub)
         return res
 
 
@@ -59,10 +60,11 @@ class VersionFilter(PluginFilter):
     def filter(self, namespace, reverse = False):
         res = {}
         for key, val in namespace.items():
-            if (val.id.version == self.version  and not reverse) or (val.id.version != self.version  and reverse):
-                if not (key in res):
-                    self.namespaces[namespace] = []
-                res[key].append(val)
+            for stub in val:
+                if (stub.id.version == self.version  and not reverse) or (stub.id.version != self.version  and reverse):
+                    if not (key in res):
+                        self.namespaces[key] = []
+                    res[key].append(stub)
         return res
 
 
@@ -73,10 +75,11 @@ class ImplementationFilter(PluginFilter):
     def filter(self, namespace, reverse = False):
         res = {}
         for key, val in namespace.items():
-            if (val.id.implementation_name == self.implementation  and not reverse) or (val.id.implementation_name != self.implementation and reverse):
-                if not (key in res):
-                    self.namespaces[namespace] = []
-                res[key].append(val)
+            for stub in val:
+                if (stub.id.implementation_name == self.implementation  and not reverse) or (stub.id.implementation_name != self.implementation and reverse):
+                    if not (key in res):
+                        self.namespaces[key] = []
+                    res[key].append(stub)
         return res
 
 
@@ -110,6 +113,10 @@ class PluginResolver(object):
             plugin.PythonPluginStub object
         """
         return self.namespaces[namespace][0]
+
+    def get_plugin_with_filter(self, namespace, the_filter, reverse=False):
+        tmp = the_filter.filter(namespace, reverse)
+        return tmp[namespace][0]
 
 
 class PluginSystem(object):
