@@ -53,8 +53,11 @@ class PythonGenerator(object):
         Returns:
             String containing python code to generate function declaration
         """
-
-        pointer = "{}FUNC = CFUNCTYPE({}{})".format(name.upper(), self.gen_type_string("", node.return_type).strip(), "" if node.args == [] else ", " + ", ".join(map(
+        if isinstance(node.return_type.get_type(), pdl.TypeStruct):
+            ret = "c_void_p"
+        else:
+            ret = self.gen_type_string("", node.return_type).strip()
+        pointer = "{}FUNC = CFUNCTYPE({}{})".format(name.upper(), ret, "" if node.args == [] else ", " + ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string("", t.type)),
                 node.args)))
         return pointer
@@ -221,7 +224,15 @@ class PythonGenerator(object):
         res=""
         for node in self.description.definitions():
             if isinstance(node.type, pdl.TypeFunction):
-              res += "    plugin.{} = {}FUNC(incoming_module.{})\n".format(node.name,node.name.upper(), node.name)
+                frags={
+                    "name" : node.name,
+                    "nameupper" : node.name.upper(),
+                    "args":",".join([i.name for i in node.type.args])
+                }
+                if isinstance(node.type.return_type.get_type(),pdl.TypeStruct):
+                    res += "    plugin.{name} = {nameupper}FUNC(lambda {args}:cast(byref(incoming_module.{name}({args})), c_void_p))\n".format(**frags)
+                else:
+                    res += "    plugin.{name} = {nameupper}FUNC(incoming_module.{name})\n".format(**frags)
 
         return res
 
@@ -293,16 +304,22 @@ class PythonGenerator(object):
         """
         res = \
 """PyThreadState* python_thread_state;
-___madz_TYPE_ ___madz_LANG_python_OUTPUT;
+typedef struct{{
+{function_pointers}
+}}___madz_LANG_python_TYPE_;
+___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
 {fn_dec}
 
 """
         c_gen = c_wrapgen.CGenerator([],"", self.description)
-        fragments ={"fn_dec" : ""}
+        #TODO function_pointers, all same except
+        fragments ={"fn_dec" : "", "function_pointers" : ""}
         fn = """{rettype}{fnname}({args});\n"""
+        pointer = """    {prettype} (*{fnname})({args});\n"""
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 frg = {
+                             "prettype":"void*" if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else c_gen.gen_type_string("", node.type.return_type),
                              "rettype":c_gen.gen_type_string("", node.type.return_type),
                              "fnname":node.name,
                              "args":",".join(map(
@@ -311,6 +328,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
 
                              }
                 fragments["fn_dec"] += fn.format(**frg)
+                fragments["function_pointers"] += pointer.format(**frg)
         return res.format(**fragments)
 
     def make_out_struct(self):
@@ -349,7 +367,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
     def make_get_python_out_struct(self):
         """Creates Getter for This plugin's python out struct."""
         res = \
-"""___madz_TYPE_* DLLEXPORT {}_get_out_struct(){{
+"""___madz_LANG_python_TYPE_* DLLEXPORT {}_get_out_struct(){{
     return &___madz_LANG_python_OUTPUT;
 }}
 
@@ -463,7 +481,7 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
     PyThreadState *tmp;
 
     tmp = PyThreadState_Swap(python_thread_state);
-    ret = ___madz_LANG_python_OUTPUT.{fnname}({argnames});
+    ret = {cast_and_deref}___madz_LANG_python_OUTPUT.{fnname}({argnames});
     PyThreadState_Swap(tmp);
     return ret;
 }}
@@ -485,6 +503,8 @@ ___madz_TYPE_ ___madz_LANG_python_OUTPUT;
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 fragments = {
+                         "maybe_parentheses":")"  if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
+                         "cast_and_deref":"*({}*)".format(c_gen.gen_type_string("", node.type.return_type)) if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
                          "rettype":c_gen.gen_type_string("", node.type.return_type),
                          "fnname":node.name,
                          "args":",".join(map(

@@ -213,7 +213,7 @@ class TypeFunction(TypeTypeComplex):
 
     Attributes:
         return_type: Type object specifying the return type signiture of the function
-        args: Dict of (str,Type) tuples representing function arguements
+        args: list of TypeFunctionArgument objects
 
     """
     def __init__(self, return_type = TypeNone, args=[]):
