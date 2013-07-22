@@ -3,8 +3,8 @@
 #include "stdio.h"
 
 MADZINIT {
-    MADZOUT_origin = (MADZTYPE(base_c__a,Point2d)) { .x = 0.0, .y = 0.0 };
-
+    MADZOUT_origin.x = 0.0;
+	MADZOUT_origin.y = 0.0;
     printf("INIT B!\n");    
 }
 

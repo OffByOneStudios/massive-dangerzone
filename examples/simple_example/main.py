@@ -13,6 +13,12 @@ test_plugin_system.load_plugin_directory("plugins")
 
 test_plugin_system.init_plugins()
 
+if len(sys.argv) > 1 and sys.argv[1] == "clean":
+    import madz.cleaner
+
+    test_cleaner = madz.cleaner.CleanerSystem(test_plugin_system)
+    test_cleaner.clean()
+
 import madz.wrapper
 
 test_wrap_gen = madz.wrapper.WrapperSystem(test_plugin_system)
@@ -28,8 +34,4 @@ import madz.loader
 test_loader = madz.loader.LoaderSystem(test_plugin_system)
 test_loader.load()
 
-if len(sys.argv) > 1 and sys.argv[1] == "clean":
-    import madz.cleaner
 
-    test_cleaner = madz.cleaner.CleanerSystem(test_plugin_system)
-    test_cleaner.clean()

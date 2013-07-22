@@ -5,6 +5,9 @@ class ClangCompiler(object):
     def __init__(self, language):
         self.language = language
 
+    def object_file_extension(self):
+        return ".o"
+
     def binary_name_compiler(self):
         return "clang"
 

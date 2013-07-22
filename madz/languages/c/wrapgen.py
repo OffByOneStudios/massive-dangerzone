@@ -115,12 +115,17 @@ class CGenerator(object):
 
     def make_variables(self):
         """Constructs a struct holding variables for this namespace."""
+        definitions = self.description.definitions()
+        name = self.type_prefix + "_" + self.mangled_namespace
+
+        if len(definitions) == 0:
+            return "typedef void* {};\n".format(name)
 
         res = "typedef struct{\n"
         #TODO(Put everything not a typedef here)
-        for node in self.description.definitions():
+        for node in definitions:
             res += "\t" + self.gen_type_string(node.name, node.type) + ";\n"
-        res += "}" + self.type_prefix + "_" + self.mangled_namespace + ";\n"
+        res += "}" + name + ";\n"
 
         return res
 
@@ -247,6 +252,8 @@ class WrapperGenerator(object):
 #define MADZ_GAURD_WRAP_MADZ_H
 {pre_header}
 #ifdef _MSC_VER
+//windows.h for DLL entry point
+#include <windows.h>
 //Copied from libc stdint.h
 typedef signed char int8_t;
 typedef unsigned char   uint8_t;
@@ -333,4 +340,14 @@ int DLLEXPORT {madz_prefix}_EXTERN_INITIMPORTS(void * * imports) {{
 \treturn 0;
 }}
 
+#ifdef _MSC_VER
+BOOL WINAPI DllMain(
+    HINSTANCE hinstDLL,  // handle to DLL module
+    DWORD fdwReason,     // reason for calling function
+    LPVOID lpReserved )  // reserved
+{{
+
+   return TRUE;  // Successful DLL_PROCESS_ATTACH.
+}}
+#endif
 """

@@ -7,5 +7,8 @@ MADZINIT {
 }
 
 MADZOUTFUNC_origin_distance {
-	return MADZ(base_c__b).origin_distance((MADZTYPE(base_c__a,Point2d)) { .x = x, .y = y });
+	MADZTYPE(base_c__a,Point2d) ret;
+	ret.x = x;
+	ret.y = y;
+	return MADZ(base_c__b).origin_distance(ret);
 }

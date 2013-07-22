@@ -47,7 +47,7 @@ class LanguageC(object):
         return {
             "compiler": "gcc",
             "compiler+unix": "gcc",
-            "compiler+windows": "cl",
+            "compiler+windows": "mingw",
         }
 
     def get_wrap_directory(self):
