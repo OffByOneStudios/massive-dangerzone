@@ -42,12 +42,12 @@ class LanguageC(object):
 
     def supported_extensions(self):
         return []
-    
+
     def get_default_language_config(self):
         return {
             "compiler": "gcc",
             "compiler+unix": "gcc",
-            "compiler+windows": "mingw",
+            "compiler+windows": "cl",
         }
 
     def get_wrap_directory(self):

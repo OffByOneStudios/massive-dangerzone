@@ -59,17 +59,8 @@ class Builder(object):
         ferrput = "Build Phase ({}) Err:\n\t\t{}".format(
             name, "\n\t\t".join(errput.split("\n")))
 
-        if retcode != 0:
-            if output != "":
-                logger.error(foutput)
-            if errput != "":
-                logger.error(ferrput)
-        else:
-            if output != "":
-                logger.warning(foutput)
-            if errput != "":
-                logger.warning(ferrput)
-
+        #Ask compilers to determine whether output needs to be logged
+        self.compiler.log_output(logger, retcode, output, errput, foutput, ferrput)
 
     def build(self):
         """Compiles and links plugin.

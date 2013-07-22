@@ -246,7 +246,19 @@ class WrapperGenerator(object):
 #ifndef MADZ_GAURD_WRAP_MADZ_H
 #define MADZ_GAURD_WRAP_MADZ_H
 {pre_header}
-#include <inttypes.h>
+#ifdef _MSC_VER
+//Copied from libc stdint.h
+typedef signed char int8_t;
+typedef unsigned char   uint8_t;
+typedef short  int16_t;
+typedef unsigned short  uint16_t;
+typedef int  int32_t;
+typedef unsigned   uint32_t;
+typedef long long  int64_t;
+typedef unsigned long long   uint64_t;
+#else
+#include <stdint.h>
+#endif
 
 #define MADZ(namespace) (*{madz_prefix}_IN_##namespace)
 #define MADZTYPE(namespace,symbol) {type_prefix}_##namespace##_##symbol
@@ -285,11 +297,11 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 #include "madz.h"
 
 //Some defines for cross platform madz dlls
-#ifndef WIN32
+#ifndef _WIN32
 #define __stdcall
 #endif
-#ifdef WIN32
-#define DLLEXPORT __declspec(dllexport)
+#ifdef _WIN32
+#define DLLEXPORT __declspec( dllexport )
 #else
 #define DLLEXPORT __attribute__ ((visibility ("default")))
 #endif
@@ -301,9 +313,9 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 
 /* The external dll function, called by the madz plugin system, to intialize this plugin */
 int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * depends, void * * output) {{
-\t{out_struct_func_assigns}
-
 \t{in_struct_depends_assigns}
+
+\t{out_struct_func_assigns}
 
 \t/* Call this plugin's init function */
 \t{madz_prefix}_init();
