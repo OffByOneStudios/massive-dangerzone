@@ -1,5 +1,7 @@
 #include "madz.h"
-
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
 #include "math.h"
 #include "stdio.h"
 
@@ -21,4 +23,5 @@ MADZOUTFUNC_distance {
     ys = ys * ys;
 
 	return sqrtf(xs + ys);
+	
 }
