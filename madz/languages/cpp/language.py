@@ -7,13 +7,12 @@ import os
 import glob
 import re
 
-
 from . import clean
 from . import load
 from . import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
-class LanguageC(object):
+class LanguageCPP(object):
     def __init__(self, plugin_stub):
         self.plugin_stub = plugin_stub
 
@@ -51,25 +50,25 @@ class LanguageC(object):
         }
 
     def get_wrap_directory(self):
-        return os.path.join(self.plugin_stub.abs_directory, ".wrap-c")
+        return os.path.join(self.plugin_stub.abs_directory, ".wrap-cpp")
 
     def get_build_directory(self):
-        return os.path.join(self.plugin_stub.abs_directory, ".build-c")
+        return os.path.join(self.plugin_stub.abs_directory, ".build-cpp")
 
     def get_output_directory(self):
         return os.path.join(self.plugin_stub.abs_directory, ".output")
 
-    def get_c_header_filename(self):
+    def get_cpp_header_filename(self):
         return os.path.join(self.get_wrap_directory(), "madz.h")
 
-    def get_c_code_filename(self):
-        return os.path.join(self.get_wrap_directory(), "_madz.c")
+    def get_cpp_code_filename(self):
+        return os.path.join(self.get_wrap_directory(), "_madz.cpp")
 
     def get_internal_source_files(self):
-        return [self.get_c_code_filename()]
+        return [self.get_cpp_code_filename()]
 
     def get_source_files(self):
-        glob_pattern = os.path.join(self.plugin_stub.abs_directory, "*.c")
+        glob_pattern = os.path.join(self.plugin_stub.abs_directory, "*.cpp")
 
         # replace the left square bracket with [[]
         glob_pattern = re.sub(r'\[', '[[]', glob_pattern)

@@ -1,3 +1,3 @@
-from language import LanguageCPP
+from .language import LanguageCPP
 
 Language = LanguageCPP

@@ -71,15 +71,15 @@ class Builder(object):
         """
         self.prep()
 
-        source_files = self.language.get_c_source_files()
-        source_files.append(self.language.get_c_code_filename())
+        source_files = self.language.get_source_files()
+        source_files += self.language.get_internal_source_files()
 
         for sf in source_files:
             self.run_subprocess(name="Compile: \"{}\"".format(sf),
                 args=self.compiler.args_compile([sf]),
                 dir=self.language.get_build_directory())
 
-        object_files = map(lambda c: os.path.basename(c)[:-2] + self.compiler.object_file_extension(), source_files)
+        object_files = map(lambda c: (os.path.basename(c).split(".")[0]) + self.compiler.object_file_extension(), source_files)
 
         self.run_subprocess(name="Link: \"{}\"".format(self.language.get_output_file()),
             args=self.compiler.args_link(object_files),
@@ -88,7 +88,7 @@ class Builder(object):
     def get_dependency(self):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_output_file()]
-        dependencies = self.language.get_c_source_files()
-        dependencies.append(self.language.get_c_code_filename())
+        dependencies = self.language.get_source_files()
+        dependencies.append(self.language.get_internal_source_files())
         return Dependency(dependencies, targets)
 

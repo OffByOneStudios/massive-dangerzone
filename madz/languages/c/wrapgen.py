@@ -250,7 +250,9 @@ class WrapperGenerator(object):
 """
 #ifndef MADZ_GAURD_WRAP_MADZ_H
 #define MADZ_GAURD_WRAP_MADZ_H
+
 {pre_header}
+
 #ifdef _MSC_VER
 //windows.h for DLL entry point
 #include <windows.h>
@@ -299,7 +301,7 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 
     code_file_template = \
 """
-#include<stdlib.h>
+#include <stdlib.h>
 
 #include "madz.h"
 

@@ -100,7 +100,6 @@ class PythonGenerator(object):
         if typename !="":
             return  "{}ArrayType".format(typename) if name == "" else  "(\"{}\", {}ArrayType)".format(name, typename)
         else:
-            print(node.type, node.length, name)
             return "{} * {}".format(self.gen_type_string("", node.type), node.length) if name =="" else  "(\"{}\", {} * {})".format(name, self.gen_type_string("", node.type), node.length)
 
     def _gen_table_struct(self, node, name):
@@ -642,9 +641,9 @@ imports = {}
             code_fragments["cleanup_code"] +="    " + gen.make_cleanup_code()
             c_source += gen.make_get_in_struct()
         for imp in self.plugin_stub.loaded_imports:
-            #print imp
+
             gen = PythonGenerator([], imp.id.namespace, imp.description)
-            #print gen.description.definitions()
+
             code_fragments["imported_structs"] += gen.make_structs()
             code_fragments["imported_functions"] += gen.make_functions()
             code_fragments["typedefs"] += gen.make_typedefs()
