@@ -18,7 +18,7 @@ class MinGWCompiler(object):
         return [self.binary_name_compiler(), "-c", "-I"+self.language.get_wrap_directory()] + list(source_files)
 
     def args_link(self, object_files):
-        return [self.binary_name_linker(), "-shared", "-o", self.language.get_output_file()] + list(object_files)
+        return [self.binary_name_linker(), "-shared", "-o", self.language.get_output_file()] + list(object_files) + ['-llibpthreadGC2'] #T
 
     def log_output(self, logger, retcode, output, errput, foutput, ferrput):
         if retcode != 0:
