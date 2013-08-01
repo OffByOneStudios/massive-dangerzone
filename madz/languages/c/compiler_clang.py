@@ -15,10 +15,10 @@ class ClangCompiler(object):
         return self.binary_name_compiler()
 
     def args_compile(self, source_files):
-        return [self.binary_name_compiler(), "-c", "-I"+self.language.get_wrap_directory(), "fpic"] + source_files
+        return [self.binary_name_compiler(), "-c", "-I"+self.language.get_wrap_directory(), "-fPIC"] + list(source_files)
 
     def args_link(self, object_files):
-        return [self.binary_name_linker(), "-shared", "-o", self.language.get_output_file()] + object_files
+        return [self.binary_name_linker(), "-shared", "-o", self.language.get_output_file()] + list(object_files)
 
     def log_output(self, logger, retcode, output, errput, foutput, ferrput):
 

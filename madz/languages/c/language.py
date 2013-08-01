@@ -48,6 +48,7 @@ class LanguageC(object):
             "compiler": "gcc",
             "compiler+unix": "gcc",
             "compiler+windows": "mingw",
+            "compiler+osx" : "clang"
         }
 
     def get_wrap_directory(self):
