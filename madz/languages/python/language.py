@@ -9,7 +9,7 @@ import glob
 
 from . import clean
 from . import load
-from . import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
+from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
 class LanguagePy(object):
@@ -28,7 +28,7 @@ class LanguagePy(object):
 
     def get_compiler(self):
         compiler_config_list = self.plugin_stub.language_config.get_config_list("compiler")
-        return self.compilers[compiler_config_list[0]](self)
+        return self.compilers[compiler_config_list[0]](self, {})
 
     def make_cleaner(self):
         return clean.Cleaner(self)
@@ -37,7 +37,7 @@ class LanguagePy(object):
         return load.Loader(self)
 
     def make_builder(self):
-        return build.Builder(language=self)
+        return self.get_compiler()
 
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
@@ -73,13 +73,16 @@ class LanguagePy(object):
     def get_c_code_filename(self):
         return os.path.join(self.get_wrap_directory(), "_madz.c")
 
+    def get_internal_source_files(self):
+        return [self.get_c_code_filename()]
+
     def get_python_code_filename(self):
         return os.path.join(self.get_wrap_directory(), "_madz.py")
 
     def get_python_outgoing_module(self):
         return os.path.join(self.get_wrap_directory(), "madz.py")
 
-    def get_c_source_files(self):
+    def get_source_files(self):
         return glob.glob(os.path.join(self.plugin_stub.abs_directory, "*.c"))
 
     def get_output_file(self):

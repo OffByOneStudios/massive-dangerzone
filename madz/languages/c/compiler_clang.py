@@ -1,34 +1,21 @@
 
 import os
 
-class ClangCompiler(object):
-    def __init__(self, language):
-        self.language = language
+from .compiler_gcc import GCCCompiler
 
-    def object_file_extension(self):
-        return ".o"
+class ClangCompiler(GCCCompiler):
+    def __init__(self, language, compiler_config):
+        GCCCompiler.__init__(self, language, compiler_config)
 
-    def binary_name_compiler(self):
+    def binary_name_binary_compiler(self):
         return "clang"
 
-    def binary_name_linker(self):
-        return self.binary_name_compiler()
+    def _gcc_visibility(self):
+        return ["-fvisibility=hidden"]
 
-    def args_compile(self, source_files):
-        return [self.binary_name_compiler(), "-c", "-I"+self.language.get_wrap_directory(), "-fPIC"] + list(source_files)
+    def _gcc_shared_codegen(self):
+        return ["-fPIC"]
 
-    def args_link(self, object_files):
-        return [self.binary_name_linker(), "-shared", "-o", self.language.get_output_file()] + list(object_files)
+    def _gcc_warn_unresolved(self):
+        return ["-Wl,--warn-unresolved-symbols"]
 
-    def log_output(self, logger, retcode, output, errput, foutput, ferrput):
-
-        if retcode != 0:
-            if output != "":
-                logger.error(foutput)
-            if errput != "":
-                logger.error(ferrput)
-        else:
-            if output != "":
-                logger.warning(foutput)
-            if errput != "":
-                logger.warning(ferrput)

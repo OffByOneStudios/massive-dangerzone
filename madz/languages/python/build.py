@@ -5,12 +5,11 @@ Code to Build Python Plugins
 import os, sys, shutil, logging
 import subprocess
 
-import madz.languages.c.build as c_build
 from madz.dependency import Dependency
 
 logger = logging.getLogger(__name__)
 
-class Builder(c_build.Builder):
+class Builder():
     """Object Which can build Python plugins.
 
     Attributes:

@@ -9,7 +9,7 @@ import re
 
 from . import clean
 from . import load
-from . import build, compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
+from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
 class LanguageCPP(object):
@@ -25,7 +25,7 @@ class LanguageCPP(object):
 
     def get_compiler(self):
         compiler_config_list = self.plugin_stub.language_config.get_config_list("compiler")
-        return self.compilers[compiler_config_list[0]](self)
+        return self.compilers[compiler_config_list[0]](self, {})
 
     def make_cleaner(self):
         return clean.Cleaner(self)
@@ -34,7 +34,7 @@ class LanguageCPP(object):
         return load.Loader(self)
 
     def make_builder(self):
-        return build.Builder(self)
+        return self.get_compiler()
 
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
@@ -47,6 +47,7 @@ class LanguageCPP(object):
             "compiler": "gcc",
             "compiler+unix": "gcc",
             "compiler+windows": "mingw",
+            "libs": [],
         }
 
     def get_wrap_directory(self):

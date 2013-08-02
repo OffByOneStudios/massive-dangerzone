@@ -1,27 +1,31 @@
 
 import os
+import logging
 
-class MSCLCompiler(object):
-    def __init__(self, language):
-        self.language = language
+from .._base import subproc_compiler as base
 
-    def object_file_extension(self):
+logger = logging.getLogger(__name__)
+
+class MSCLCompiler(base.SubprocCompilerBase):
+    def __init__(self, language, compiler_config):
+        base.SubprocCompilerBase.__init__(self, language, compiler_config)
+
+    def file_extension_binary_object(self):
         return ".obj"
 
-    def binary_name_compiler(self):
+    def binary_name_binary_compiler(self):
         return "cl"
 
-    def binary_name_linker(self):
+    def binary_name_shared_linker(self):
         return "LINK"
 
-    def args_compile(self, source_files):
-        #print ([self.binary_name_compiler(), "/c", "/I"+self.language.get_wrap_directory(),] + list(source_files))
-        return [self.binary_name_compiler(), "/c", "/I"+self.language.get_wrap_directory(),] + list(source_files)# +["/link /out:"+self.language.get_output_file()]
+    def args_binary_compile(self, source_files):
+        return [self.binary_name_compiler(), "/c", "/I"+self.language.get_wrap_directory(),] + list(source_files)
 
-    def args_link(self, object_files):
+    def args_shared_link(self, object_files):
         return [self.binary_name_linker(), "/DLL ", "/OUT:"+self.language.get_output_file()] + list(object_files)
 
-    def log_output(self, logger, retcode, output, errput, foutput, ferrput):
+    def log_output(self, retcode, output, errput, foutput, ferrput):
 
         if output.find("error") != -1:
             logger.error(foutput)

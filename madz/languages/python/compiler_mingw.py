@@ -1,4 +1,4 @@
-import madz.languages.c.compiler_mingw as c_mingw
+from ..c import compiler_mingw as c_mingw
 
 
 class MinGWCompiler(c_mingw.MinGWCompiler):
