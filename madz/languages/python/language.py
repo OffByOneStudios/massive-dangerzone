@@ -7,15 +7,13 @@ The language object pulling togeather all of the pieces needed for a plugin of t
 import os
 import glob
 
+from .._base import language
 from . import clean
 from . import load
 from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
-class LanguagePy(object):
-    def __init__(self, plugin_stub):
-        self.plugin_stub = plugin_stub
-
+class LanguagePy(language.BaseLanguage):
     compilers = {
         "gcc": compiler_gcc.GCCCompiler,
         "mingw": compiler_mingw.MinGWCompiler,
@@ -42,9 +40,6 @@ class LanguagePy(object):
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
 
-    def supported_extensions(self):
-        return []
-
     def get_default_language_config(self):
         return {
             "compiler": "gcc",
@@ -64,9 +59,6 @@ class LanguagePy(object):
     def get_build_directory(self):
         return os.path.join(self.plugin_stub.abs_directory, ".build-c")
 
-    def get_output_directory(self):
-        return os.path.join(self.plugin_stub.abs_directory, ".output")
-
     def get_c_header_filename(self):
         return os.path.join(self.get_wrap_directory(), "madz.h")
 
@@ -85,5 +77,3 @@ class LanguagePy(object):
     def get_source_files(self):
         return glob.glob(os.path.join(self.plugin_stub.abs_directory, "*.c"))
 
-    def get_output_file(self):
-        return os.path.join(self.get_output_directory(), self.plugin_stub.id.namespace + ".madz")

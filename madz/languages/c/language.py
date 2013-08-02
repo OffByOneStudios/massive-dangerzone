@@ -7,16 +7,13 @@ import os
 import glob
 import re
 
-
+from .._base import language
 from . import clean
 from . import load
 from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
-class LanguageC(object):
-    def __init__(self, plugin_stub):
-        self.plugin_stub = plugin_stub
-
+class LanguageC(language.BaseLanguage):
     compilers = {
         "gcc": compiler_gcc.GCCCompiler,
         "mingw": compiler_mingw.MinGWCompiler,
@@ -40,9 +37,6 @@ class LanguageC(object):
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
 
-    def supported_extensions(self):
-        return []
-
     def get_default_language_config(self):
         return {
             "compiler": "gcc",
@@ -56,9 +50,6 @@ class LanguageC(object):
 
     def get_build_directory(self):
         return os.path.join(self.plugin_stub.abs_directory, ".build-c")
-
-    def get_output_directory(self):
-        return os.path.join(self.plugin_stub.abs_directory, ".output")
 
     def get_c_header_filename(self):
         return os.path.join(self.get_wrap_directory(), "madz.h")
@@ -79,7 +70,4 @@ class LanguageC(object):
         glob_pattern = re.sub(r'(?<!\[)\]', '[]]', glob_pattern)
 
         return glob.glob(glob_pattern)
-
-    def get_output_file(self):
-        return os.path.join(self.get_output_directory(), self.plugin_stub.id.namespace + ".madz")
 

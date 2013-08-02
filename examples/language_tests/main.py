@@ -34,7 +34,7 @@ test_loader.load()
 
 import ctypes
 
-ctest_plugin = test_plugin_system.get_plugin("tester.")
+ctest_plugin = test_plugin_system.get_plugin("tester")
 func = test_loader.get_function(ctest_plugin, "test")
 ctypes.CFUNCTYPE(None)(func)()
 
