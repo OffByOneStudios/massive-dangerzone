@@ -5,6 +5,7 @@ Code to generate inter language wraper files
 import logging
 
 from . import plugin
+from . import system_config
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class BuilderSystem(object):
         language = plugin_stub.language
         builder = language.make_builder()
 
-        if True or not builder.get_dependency():
+        if self.system.config[system_config.OptionSkipDependencies] or not builder.get_dependency():
             logger.info("Building plugin: {}".format(plugin_stub))
             builder.build()
 

@@ -28,6 +28,9 @@ class BaseLanguage(object):
     def supported_extensions(self):
         return []
 
+    def get_plugin_filename(self):
+        return self.plugin_stub._py_module_filename
+
     def get_output_directory(self):
         return os.path.join(self.plugin_stub.abs_directory, ".output")
 

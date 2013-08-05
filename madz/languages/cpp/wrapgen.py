@@ -234,9 +234,9 @@ class WrapperGenerator(object):
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""
-        targets = [self.language.get_c_code_filename(),
-                   self.language.get_c_header_filename()]
-        dependencies = self.language.get_c_files_from()
+        targets = [self.language.get_cpp_code_filename(),
+                   self.language.get_cpp_header_filename()]
+        dependencies = [self.language.get_plugin_filename()]
         return Dependency(dependencies, targets)
 
     prefix = "___madz"

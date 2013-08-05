@@ -6,6 +6,7 @@ import logging
 
 from . import languages
 from . import plugin
+from . import system_config
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ class CleanerSystem(object):
         language = plugin_stub.language
         cleaner = language.make_cleaner()
 
-        if True or not cleaner.get_dependency():
+        if self.system.config[system_config.OptionSkipDependencies] or not cleaner.get_dependency():
             logger.info("Cleaning plugin: {}".format(plugin_stub))
             cleaner.clean()
 

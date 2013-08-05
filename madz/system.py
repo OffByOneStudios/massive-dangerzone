@@ -4,6 +4,7 @@ Code to create Plugin Systems
 """
 import logging, copy
 
+from . import system_config
 from .plugin import *
 
 logger = logging.getLogger(__name__)
@@ -199,7 +200,7 @@ class PluginSystem(object):
         directories List of directories attached to plugin
         pluginstubs List of plugin.PythonPluginStub objects
     """
-    def __init__(self, rootname):
+    def __init__(self, rootname, config=None):
         """Constructor for PluginSystem.
 
         Args:
@@ -208,6 +209,10 @@ class PluginSystem(object):
         self.rootname = rootname
         self.directories = []
         self.plugin_stubs = []
+
+        self.config = system_config.SystemConfig()
+        if not (config is None):
+            self.config.extend(config)
 
         self.plugin_resolver = PluginResolver()
 

@@ -3,6 +3,7 @@ import os
 import subprocess
 
 from . import compiler
+from ...dependency import Dependency
 
 class SubprocCompilerBase(compiler.BaseCompiler):
 
@@ -112,7 +113,7 @@ class SubprocCompilerBase(compiler.BaseCompiler):
     def get_dependency(self):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_output_file()]
-        dependencies = self.language.get_source_files()
-        dependencies.append(self.language.get_internal_source_files())
+        dependencies = list(self.language.get_source_files())
+        dependencies.extend(self.language.get_internal_source_files())
         return Dependency(dependencies, targets)
 

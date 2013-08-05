@@ -6,14 +6,18 @@ import madz
 madz.logging_add_console()
 madz.logging_add_file(os.path.join(os.path.dirname(__file__), "madz_test.log"))
 
+import madz.system_config
+our_sys_config = madz.system_config.SystemConfig([
+    madz.system_config.OptionSkipDependencies(True)
+])
+
 import madz.system
 
 name_filter = madz.system.NamespaceFilter("madz.languages.c.build", reverse=True)
-test_plugin_system = madz.system.PluginSystem("madztests")
+
+test_plugin_system = madz.system.PluginSystem("madztests", config=our_sys_config)
 test_plugin_system.plugin_resolver.add_filter(name_filter)
 test_plugin_system.load_plugin_directory("plugins")
-
-
 
 test_plugin_system.init_plugins()
 
