@@ -3,8 +3,6 @@
 Code to provide helper types in the configuration of the system.
 """
 
-import abc
-
 class BaseOption(object):
 
     @classmethod
@@ -18,6 +16,8 @@ class BaseOption(object):
     def get_value(self):
         return self.value
 
+    def overwrite(self, other_option):
+        self.value = other_option.value
 
 class BaseConfig(object):
     def __init__(self, options=None):
@@ -43,7 +43,10 @@ class BaseConfig(object):
         return self.get_option(key).value
 
     def add_option(self, option):
-        self._opt_dict[option.get_key()] = option
+        if option.get_key() in self._opt_dict:
+            self._opt_dict[option.get_key()].overwrite(option)
+        else:
+            self._opt_dict[option.get_key()] = option
 
     def all_options(self):
         return self._opt_dict.values()

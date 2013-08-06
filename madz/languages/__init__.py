@@ -1,14 +1,23 @@
+import os
 import importlib
+import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 class LanguageError(Exception): pass
 class LanguageDoesNotExistError(LanguageError): pass
 
 def get_language(language):
-    #try:
-    language_module = importlib.import_module("." + language, __name__)
-    #except ImportError:
-    # TODO(Mason) log import errors for debugging purposes
-    #    raise LanguageDoesNotExistError("Language does not exist: '{}'".format(language))
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), language)):
+         LanguageDoesNotExistError("Could not find folder for language: {}".format(language))
+        
+    try:
+        language_module = importlib.import_module("." + language, __name__)
+    except ImportError:
+        tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+        logger.error("Failed to load language '{}':\n\t{}".format(langauge, tb_string))
+        raise LanguageError()
     
     return language_module
 

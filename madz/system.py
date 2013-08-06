@@ -2,9 +2,12 @@
 @OffbyOneStudios 2013
 Code to create Plugin Systems
 """
-import logging, copy
+import logging
+import copy
+import os
 
 from . import system_config
+from . import config_loader
 from .plugin import *
 
 logger = logging.getLogger(__name__)
@@ -211,6 +214,7 @@ class PluginSystem(object):
         self.plugin_stubs = []
 
         self.config = system_config.SystemConfig()
+        self._load_user_config()
         if not (config is None):
             self.config.extend(config)
 
@@ -271,6 +275,13 @@ class PluginSystem(object):
             if not plugin.init_requires(resolve_func):
                 logger.error("Plugin {} failed to load.".format(plugin.id))
             plugin.inited = True
+
+    def _load_user_config(self, env_var="MADZ_USER_CONFIG"):
+        filename = os.environ.get(env_var)
+        if (not (filename is None)) and os.path.exists(filename):
+            config = config_loader.load_config_from_file(filename)
+            if not (config is None):
+                self.config.extend(config)
 
     def init_plugins(self):
         """Initilize Plugins."""

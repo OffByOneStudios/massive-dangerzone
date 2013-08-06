@@ -8,7 +8,6 @@ madz.logging_add_file(os.path.join(os.path.dirname(__file__), "madz_test.log"))
 
 import madz.system_config
 our_sys_config = madz.system_config.SystemConfig([
-    madz.system_config.OptionSkipDependencies(True)
 ])
 
 import madz.system
