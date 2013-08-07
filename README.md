@@ -36,7 +36,7 @@ __Madz is still in development, features described below are likely subject to c
 
 Plugin Directories
 ------------------
-Plugins are stored in directories. Most plugin metadata related to resolution may be stored in it's path.
+Plugins are stored in directories. A plugin system, can have multiple directories. Most plugin metadata related to resolution may be stored in it's path.
 
 
     the.namespace.of.plugin[1.0.2-alpha+42](an implementation name)
@@ -45,8 +45,8 @@ Plugins are stored in directories. Most plugin metadata related to resolution ma
 The above is a folder name for a plugin with the following metadata:
 
 
-    name                = "c.set0"
-    version             = "0.1.0"
+    name                = "the.namespace.of.plugin0"
+    version             = "1.0.2-alpha+42"
     implementation_name = "an_implementation_name"
 
 
@@ -55,6 +55,8 @@ The following are equivelent folder layouts (where '/' represents a folder seper
 
     the/namespace.of/plugin/[1.0.2-alpha+42]/(an_implementation_name)
     the.namespace.of.plugin/[1.0.2-alpha+42](an_implementation_name)
+
+Metadata in folder paths must always match the metadata given in plugin stubs.
 
 
 Plugin Stubs
@@ -77,7 +79,7 @@ TODO: Write information on these.
 
 Configuration
 ------------------
-Madz has 3 layers of configuration, applied in the following order (i.e. the later ones overwrite the previous ones):
+Madz has 3 layers of user configuration, applied in the following order (i.e. the later ones overwrite the previous ones):
 
 * __Default__ - The default configurations. A psuedo layer since users can't really change it.
 * __User__ - A per machine configuration primarily for providing locations on the system for libraries, headers, compilers, ect. Set via environment variable.
@@ -94,4 +96,37 @@ Configurations are also full python files, allowing for, theoretically, arbitrar
 * User defined commands (e.g. "build", "clean", "wrap", "check", "package", "run" (many of these may have drop in default versions availble))
 
 TODO: Link the above to wiki.
+
+
+Plugin Resolution
+------------------
+
+TODO: Describe this.
+
+
+MDL
+------------------
+The __M__adz __D__escription __L__anguage. For the time being this is used as a raw abstract syntax tree definied using python objects.
+
+TODO: Finish describing this.
+
+
+Madz Library
+------------------
+
+TODO: Describe this.
+
+
+Madz Runtime
+------------------
+
+TODO: Describe this.
+
+
+MIP
+------------------
+The __M__adz __I__nter-plugin __P__rotocol. This is the protocol observed by madz plugins. If a dynamic object follows this protocol it can be used as a madz plugin. This description is meant more for language wrapper implementors, working within the existing Madz infrastructure.
+
+TODO: Finish describing this.
+
 
