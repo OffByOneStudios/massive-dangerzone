@@ -39,7 +39,7 @@ Plugin Directories
 Plugins are stored in directories. A plugin system, can have multiple directories. Most plugin metadata related to resolution may be stored in it's path.
 
 
-    the.namespace.of.plugin[1.0.2-alpha+42](an implementation name)
+    the.namespace.of.plugin[1.0.2-alpha+42](an_implementation_name)
 
 
 The above is a folder name for a plugin with the following metadata:
