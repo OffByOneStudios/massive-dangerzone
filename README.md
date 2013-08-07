@@ -45,7 +45,7 @@ Plugins are stored in directories. A plugin system, can have multiple directorie
 The above is a folder name for a plugin with the following metadata:
 
 
-    name                = "the.namespace.of.plugin0"
+    name                = "the.namespace.of.plugin"
     version             = "1.0.2-alpha+42"
     implementation_name = "an_implementation_name"
 
