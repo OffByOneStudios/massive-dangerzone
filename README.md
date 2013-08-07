@@ -19,7 +19,7 @@ Planed languages:
 * Haskell
 * JVM/Java (Although any java language would likely work well through their java compatability interface).
 
-Better Management:
+Other features:
 * Development Modes
 * Custom Commands
 * Packaging
