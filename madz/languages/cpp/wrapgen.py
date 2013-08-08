@@ -218,7 +218,9 @@ namespace {func_namespace} {{
             if isinstance(actual_type, pdl.TypeFunction):
                 code_fragments["out_struct_func_assigns"] += \
                     "\t{} = &(MADZOUT::{func_namespace}::{});\n".format(self.gen.gen_func_actual(self.namespace, var.name, self.is_current), var.name, func_namespace=self.gen.func_namespace)
-        
+
+    def in_struct_assign_var(self):
+        return self.gen.gen_ns_name("{}.{}".format(self.namespace, self.gen.struct_var_name));
         
 
 class WrapperGenerator(object):
@@ -265,22 +267,15 @@ class WrapperGenerator(object):
         }
 
         def make_in_struct(gen, is_dep):
-            name = "___madz_IN_{namespace}".format(namespace=namespace)
-            type_and_name = \
-                "{type_prefix}_{namespace} * {name};\n".format(
-                    type_prefix = self.type_prefix,
-                    namespace = namespace,
-                    name = name)
-            code_fragments["in_struct_declares"] += "extern " + type_and_name
-            code_fragments["in_struct_defines"] += type_and_name
             code_fragments["in_struct_depends_assigns" if is_dep else "in_struct_imports_assigns"] += \
-                "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=name,
+                "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=gen.in_struct_assign_var(),
                     require_type="depends" if is_dep else "imports")
 
         for dep in self.plugin_stub.gen_recursive_loaded_depends():
             gen = CppNamespaceGenerator(cpp_gen, dep.id.namespace, dep.description)
             code_fragments["depends_declares_vars"] += gen.make()
             make_in_struct(gen, True)
+            print("BIRDS")
 
         for imp in self.plugin_stub.loaded_imports:
             gen = CppNamespaceGenerator(cpp_gen, imp.id.namespace, imp.description)

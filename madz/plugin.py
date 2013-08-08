@@ -108,7 +108,7 @@ class PythonPluginStub(object):
         # TODO(Mason): Exception for plugin file not found
         self.directory = directory
         self.abs_directory = os.path.abspath(directory)
-        self._py_module_filename = os.path.join(directory, "__plugin__.py")
+        self._py_module_filename = os.path.join(self.abs_directory, "__plugin__.py")
 
         self._init_module()
         self._init_required(plugin_id)
