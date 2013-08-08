@@ -7,3 +7,4 @@ class MSCLCompiler(CMSCLCompiler):
     def binary_name_compiler(self):
         return "cl"
 
+

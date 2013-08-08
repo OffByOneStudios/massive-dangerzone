@@ -23,7 +23,7 @@ class MSCLCompiler(base.SubprocCompilerBase):
         return [self.binary_name_compiler(), "/c", "/I"+self.language.get_wrap_directory(),] + list(source_files)
 
     def args_shared_link(self, object_files):
-        return [self.binary_name_linker(), "/DLL ", "/OUT:"+self.language.get_output_file()] + list(object_files)
+        return [self.binary_name_shared_linker(), "/DLL ", "/OUT:"+self.language.get_output_file()] + list(object_files)
 
     def log_output(self, retcode, output, errput, foutput, ferrput):
 

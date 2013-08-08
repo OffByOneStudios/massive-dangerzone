@@ -41,7 +41,7 @@ class LanguageCPP(language.BaseLanguage):
         return {
             "compiler": "gcc",
             "compiler+unix": "gcc",
-            "compiler+windows": "mingw",
+            "compiler+windows": "cl",
             "libs": [],
         }
 
