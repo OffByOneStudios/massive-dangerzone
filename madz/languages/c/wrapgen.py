@@ -306,9 +306,6 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 #include "madz.h"
 
 //Some defines for cross platform madz dlls
-#ifndef _WIN32
-#define __stdcall
-#endif
 #ifdef _WIN32
 #define DLLEXPORT __declspec( dllexport )
 #else
@@ -341,15 +338,4 @@ int DLLEXPORT {madz_prefix}_EXTERN_INITIMPORTS(void * * imports) {{
 
 \treturn 0;
 }}
-
-#ifdef _MSC_VER
-BOOL WINAPI DllMain(
-    HINSTANCE hinstDLL,  // handle to DLL module
-    DWORD fdwReason,     // reason for calling function
-    LPVOID lpReserved )  // reserved
-{{
-
-   return TRUE;  // Successful DLL_PROCESS_ATTACH.
-}}
-#endif
 """

@@ -4,6 +4,7 @@ Code To generated C Headers from Madz Plugin Descriptions.
 """
 import os
 import logging
+import contextlib
 
 import madz.pyMDL as pdl
 from madz.dependency import Dependency
@@ -17,6 +18,21 @@ class CppCodeGenerator(object):
         self.func_namespace = kwargs.get("func_namespace", "_f")
         self.struct_type_name = kwargs.get("struct_type_name", "_")
         self.struct_var_name = kwargs.get("struct_var_name", "_")
+
+        self.in_type = False
+        self.in_func = False
+        self.in_namespace = ""
+
+    @contextlib.contextmanager
+    def in_namespace(namespace, is_type=False, is_func=False):
+        old = (self.in_namespace, self.in_type, self.in_func)
+        self.in_namespace = namespace
+        self.in_type = is_type
+        self.in_func = is_func
+
+        yield
+
+        self.in_namespace, self.in_type, self.in_func = old
 
     def _gen_table_struct(self, node, name):
         return "struct {{\n{}\n}} {}".format(
@@ -63,15 +79,19 @@ class CppCodeGenerator(object):
     def gen_name(self, name):
         return name
 
-    def gen_ns_name(self, name, is_type=False, is_func=False, current_namespace=""):
+    def gen_ns_name(self, name, is_type=False, is_func=False):
         ns_list = name.split(".")
         name = ns_list[-1]
         target_namespace_list = ns_list[:-1]
-        current_namespace_list = current_namespace.split(".") #TODO, use this
+
+        if len(ns_list) == 1 :
+            return "::".join(
+                ([self.type_namespace] if (is_type and (not self.in_type)) else []) +
+                [name])
 
         gend_name = "::".join(
-            [self.root_namespace] + 
-            target_namespace_list + 
+            [self.root_namespace] +
+            target_namespace_list +
             ([self.type_namespace] if is_type else []) +
             ([self.func_namespace] if is_func else []) +
             [name])
@@ -138,12 +158,13 @@ class CppNamespaceGenerator(object):
         ))
 
     def _make_variables_struct(self):
-        return "typedef struct{{\n\t{};\n}} {};\n".format(
-            ";\n\t".join(map(
-                lambda node: self.gen.gen_node(node.name, node.type),
-                self.description.definitions()
-            )),
-            self.gen.struct_type_name)
+        #with self.gen.in_namespace("", is_type=True):
+            return "typedef struct{{\n\t{};\n}} {};\n".format(
+                ";\n\t".join(map(
+                    lambda node: self.gen.gen_node(node.name, node.type),
+                    self.description.definitions()
+                )),
+                self.gen.struct_type_name)
 
     def _make_variables_helpers(self):
         return "\t{};".format(
@@ -157,7 +178,7 @@ class CppNamespaceGenerator(object):
     def _make_current_helpers(self):
         return "\t{};".format(
             ";\n\t".join(map(
-                lambda node: 
+                lambda node:
                     "_MADZEXTERND({},{})".format(
                         self.gen.gen_node(node.name, self.gen.TypeRef(node.type)),
                         self.gen.gen_var_actual(self.namespace, node.name, True)),
@@ -167,7 +188,7 @@ class CppNamespaceGenerator(object):
     def _make_current_actual_funcs(self):
         return "\t{};".format(
             ";\n\t".join(map(
-                lambda node: 
+                lambda node:
                     "{}".format(self.gen.gen_actual_function(node.name, node.type)),
                 filter(lambda node: isinstance(node.type, pdl.TypeFunction), self.description.definitions())
             )))
@@ -203,8 +224,8 @@ namespace {func_namespace} {{
     vs_name=self.gen.struct_var_name,
     extern="" if self.is_current else "*",
     namespaces=self._make_namespaces(),
-    decls=self._make_declarations(), 
-    var_struct=self._make_variables_struct(), 
+    decls=self._make_declarations(),
+    var_struct=self._make_variables_struct(),
     helpers=self._make_variables_helpers(),
     init_if_current="\n/* INIT */\nvoid _init();\n" if self.is_current else "",
     funcactual=(self._make_current_actual_funcs() if self.is_current else ""),
@@ -221,7 +242,7 @@ namespace {func_namespace} {{
 
     def in_struct_assign_var(self):
         return self.gen.gen_ns_name("{}.{}".format(self.namespace, self.gen.struct_var_name));
-        
+
 
 class WrapperGenerator(object):
     """Responsible for driving the generation of wrapper files for C code."""
@@ -268,14 +289,15 @@ class WrapperGenerator(object):
 
         def make_in_struct(gen, is_dep):
             code_fragments["in_struct_depends_assigns" if is_dep else "in_struct_imports_assigns"] += \
-                "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=gen.in_struct_assign_var(),
+                "\t{name} = ({type}*){require_type}[in_req]; in_req += 1;\n".format(
+                    name=gen.in_struct_assign_var(),
+                    type=gen.gen.gen_ns_name("{}.{}".format(gen.namespace, gen.gen.struct_type_name), is_type=True),
                     require_type="depends" if is_dep else "imports")
 
         for dep in self.plugin_stub.gen_recursive_loaded_depends():
             gen = CppNamespaceGenerator(cpp_gen, dep.id.namespace, dep.description)
             code_fragments["depends_declares_vars"] += gen.make()
             make_in_struct(gen, True)
-            print("BIRDS")
 
         for imp in self.plugin_stub.loaded_imports:
             gen = CppNamespaceGenerator(cpp_gen, imp.id.namespace, imp.description)
@@ -341,10 +363,7 @@ namespace {root_namespace} {{
 #include "madz.h"
 
 //Some defines for cross platform madz dlls
-#ifndef WIN32
-#define __stdcall
-#endif
-#ifdef WIN32
+#ifdef _WIN32
 #define DLLEXPORT __declspec(dllexport)
 #else
 #define DLLEXPORT __attribute__ ((visibility ("default")))
@@ -362,11 +381,15 @@ int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * depends, void * * output) {{
 
 \t/* Output this plugin's variable struct */
 \t(*output) = &(MADZOUT::_);
+
+\treturn 0;
 }}
 
 /* The external dll function, called by the madz plugin system, to provide imports */
 int DLLEXPORT {madz_prefix}_EXTERN_INITIMPORTS(void * * imports) {{
 \t{in_struct_imports_assigns}
+
+\treturn 0;
 }}
 }}
 """
