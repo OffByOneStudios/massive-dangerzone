@@ -11,14 +11,15 @@ class Dependency(object):
     def __init__(self, dependencies, targets):
         self.dependencies = dependencies
         self.targets = targets
+        self._has_checked = False
 
     def check(self):
         """Checks that there are no targets which are older than the dependencies."""
-        newest_dependency = time.ctime(0)
+        newest_dependency = 0
 
         #Find the newest dependency
         for d in self.dependencies:
-            temp = time.ctime(os.path.getmtime(d))
+            temp = os.path.getmtime(d)
             if temp > newest_dependency:
                 newest_dependency = temp
 
@@ -28,14 +29,17 @@ class Dependency(object):
         #which are older than their dependences to the unsatisfied_targets list
         for t in self.targets:
             if os.path.isfile(t):
-                if time.ctime(os.path.getmtime(t)) >= newest_dependency:
+                if os.path.getmtime(t) <= newest_dependency:
                     unsatisfied_targets.append(t)
             else:
                 unsatisfied_targets.append(t)
         self._unsatisfied_targets = unsatisfied_targets
 
+        self._has_checked = True
+
     def __bool__(self):
-        self.check()
+        if not self._has_checked:
+            self.check()
         if len(self._unsatisfied_targets) == 0:
             return True
         else:
@@ -44,6 +48,8 @@ class Dependency(object):
     __nonzero__ = __bool__
 
     def get_unsatisfied_targets(self):
+        if not self._has_checked:
+            self.check()
         return self._unsatisfied_targets
 
 """
