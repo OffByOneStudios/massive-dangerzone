@@ -6,6 +6,7 @@ Code for plugin description objects
 import re
 import logging
 
+from .. import plugin_config # ONLY For defaults in Plugin
 from . import nodes, base_types
 from . extensions.objects import types as ext_objects
 
@@ -23,6 +24,7 @@ class Plugin(object):
         version: Version of plugin
         implementation_name: String name of particular implementation of plugin interface
         language: langauge that implementation is written in
+        config: Config objects.
         imports: Plugins that this plugin makes use of
         depends: Plugins that this plugin require, usually providing some functionality on said plugins
         declarations: Dict of Type and Function declarations associated with this plugin
@@ -39,6 +41,9 @@ class Plugin(object):
         self.implementation_name = init_get("implementation_name")
 
         self.language = init_get("language")
+
+        self.config = init_get("config", plugin_config.PluginConfig())
+
         self.active = init_get("active", True)
         self.imports = init_get("imports",[])
         self.depends = init_get("depends",[])

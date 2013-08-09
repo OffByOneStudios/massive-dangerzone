@@ -9,10 +9,20 @@ class SystemConfig(config.BaseConfig):
             OptionSkipDependencies(),
         ]
 
+    def get_default_language_config(self, language_name):
+        res = list(filter(
+            lambda opt: 
+                isinstance(opt, BaseLanguageDefaultConfig) and 
+                opt.get_language_name() == language_name,
+            self._opt_dict))
+        if len(res) > 1:
+            #TODO, specific exception
+            raise ValueError
+        return res[0] if len(res) != 0 else None
+
 class OptionSkipDependencies(config.BaseOption):
     """This option determines if the system uses dependencies or not to prune what to build."""
-    def __init__(self, value=False):
-        self.value = value
+    default_value = False
 
 class BaseLanguageDefaultConfig(config.BaseOption):
     @classmethod

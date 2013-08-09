@@ -1,10 +1,19 @@
 from madz.stub import *
+from madz.languages.python.config import *
+from madz.plugin_config import *
 
 plugin = Plugin(
     name="python.set0",
     version="0.1.0",
 
     language="python",
+
+    config=PluginConfig([
+        OptionLanguageConfig(
+            Config([
+                OptionHeaderSearchPaths(["/usr/include/python2.7/"])
+            ])),
+    ]),
 
     description=[
         VariableDefinition("test0_i64", TypeInt64),     # Value 1

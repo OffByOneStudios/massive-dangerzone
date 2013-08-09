@@ -10,6 +10,8 @@ import traceback
 import functools
 
 from .pyMDL import plugin as pyMDL
+from . import config
+from . import plugin_config
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +105,10 @@ class PythonPluginStub(object):
         description: Contains a PluginDescription object wrapping the MDL for this plugin. (Monkeypatched by init_requires)
         language_config: A processed language config ready for consumption.
     """
-    def __init__(self, directory, plugin_id):
+    def __init__(self, system, directory, plugin_id):
         """Attempts to load a python description from the directory given."""
         # TODO(Mason): Exception for plugin file not found
+        self.system = system
         self.directory = directory
         self.abs_directory = os.path.abspath(directory)
         self._py_module_filename = os.path.join(self.abs_directory, "__plugin__.py")
@@ -135,38 +138,54 @@ class PythonPluginStub(object):
     class PluginDescriptionKeyError(PluginDescriptionError): pass
 
     def _init_required(self, file_pid):
+        # Determine the plugin id from the description file:
         desc_pid = PluginId(self.get("namespace"), self.get("version"), self.get("implementation_name"))
+
+        # Verify the plugin id from the file name and description file are compatiable
         if not desc_pid.compatible(file_pid):
             raise PluginDescriptionError("Plugin location name and plugin description do not match.")
 
+        # Save the merged plugin id
         self.id = desc_pid.merge(file_pid)
 
-        self.language = languages.get_language(self._excepting_get("language")).Language(self)
+        # Get language stuff:
+        self.language_name = self._excepting_get("language")
+        self.language_module = languages.get_language(self.language_name)
 
+        # Save the plugin specific configs
+        # These merges must obey config load order:
+        # * Default language config base incase no other config is availble
+        # * System config contains the correct order for: Default -> User -> System
+        # * Plugin config is the config from the plugin descriptions
+        self.config = self.get("config")
+        self.language_config = config.merge_configs(
+            self.system.config.get_default_language_config(self.language_name),
+            self.config.get(plugin_config.OptionLanguageConfig),
+            base_config = self.language_module.Config())
+
+        # Build and save the language object for the plugin
+        self.language = self.language_module.Language(self, self.language_config)
+
+        # Initialize depends names:
         depends = self.get("depends")
         self.depends = []
-
         for dep in depends:
             try:
                 self.depends.append(PluginId.parse(dep))
             except PluginId.NotAPluginIdString:
                 pass # TODO(Mason): Resuming error messages
 
+        # Initialize imports names:
         imports = self.get("imports")
         self.imports = []
-
         for imp in imports:
             try:
                 self.imports.append(PluginId.parse(imp))
-
             except PluginId.NotAPluginIdString:
                 pass # TODO(Mason): Resuming error messages
 
+        # Build requirements names
         self.requires = self.depends + self.imports
-
-        self.language_config = language_config.LanguageConfig(
-            self.get("language_config", {}),
-            self.language.get_default_language_config())
 
     def init_requires(self, lookup_func):
         self.loaded_depends = []
@@ -203,9 +222,9 @@ class PythonPluginStub(object):
             raise PluginDescriptionKeyError()
         return v
 
-    def get(self, name, default_value=None):
+    def get(self, name):
         """Gets an arbitrary value from the loaded plugin file."""
-        return (getattr(self._plugin, name) if hasattr(self._plugin, name) else default_value)
+        return (getattr(self._plugin, name) if hasattr(self._plugin, name) else None)
 
     def get_plugin_id(self):
         """Returns the PluginId described by the description file."""
@@ -242,7 +261,7 @@ class PluginDirectory(object):
             if PythonPluginStub.contains_stub_file(root):
                 try:
                     file_pid = PluginId.parse(".".join(splitrelroot))
-                    stub = PythonPluginStub(root, file_pid)
+                    stub = PythonPluginStub(self.system, root, file_pid)
 
                     self._add_plugin_stub(stub)
                 except:

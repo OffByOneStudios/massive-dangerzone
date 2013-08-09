@@ -1,9 +1,12 @@
 import abc
 import os
 import subprocess
+import logging
 
 from . import compiler
 from ...dependency import Dependency
+
+logger = logging.getLogger(__name__)
 
 class SubprocCompilerBase(compiler.BaseCompiler):
 
@@ -60,6 +63,8 @@ class SubprocCompilerBase(compiler.BaseCompiler):
             os.makedirs(self.language.get_output_directory())
 
     def _run_subprocess(self, name, dir, args):
+        logger.info("Running command:\n\t\t{}".format(" ".join(args)))
+
         compile_process = subprocess.Popen(
             args,
             cwd=dir,

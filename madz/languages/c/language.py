@@ -22,8 +22,7 @@ class LanguageC(language.BaseLanguage):
     }
 
     def get_compiler(self):
-        compiler_config_list = self.plugin_stub.language_config.get_config_list("compiler")
-        return self.compilers[compiler_config_list[0]](self, {})
+        return self.compilers["gcc"](self, {})
 
     def make_cleaner(self):
         return clean.Cleaner(self)
@@ -36,14 +35,6 @@ class LanguageC(language.BaseLanguage):
 
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
-
-    def get_default_language_config(self):
-        return {
-            "compiler": "gcc",
-            "compiler+unix": "gcc",
-            "compiler+windows": "mingw",
-            "compiler+osx" : "clang"
-        }
 
     def get_wrap_directory(self):
         return os.path.join(self.plugin_stub.abs_directory, ".wrap-c")

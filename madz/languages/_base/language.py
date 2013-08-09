@@ -6,8 +6,9 @@ class BaseLanguage(object):
     """Base language object."""
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, plugin_stub):
+    def __init__(self, plugin_stub, language_config):
         self.plugin_stub = plugin_stub
+        self.config = language_config
 
     @abc.abstractmethod
     def make_cleaner(self):

@@ -2,6 +2,7 @@ import os
 import logging
 
 from .._base import subproc_compiler as base
+from . import config
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,15 @@ class GCCCompiler(base.SubprocCompilerBase):
     def binary_name_shared_linker(self):
         return self.binary_name_binary_compiler()
 
+    def _gen_header_include_dirs(self):
+        return map(lambda d: "-I{}".format(d), self.language.config.get(config.OptionHeaderSearchPaths, []))
+
+    def _gen_link_library_dirs(self):
+        return map(lambda d: "-L{}".format(d), self.language.config.get(config.OptionLibrarySearchPaths, []))
+
+    def _gen_link_library_statics(self):
+        return map(lambda d: "-l{}".format(d), self.language.config.get(config.OptionLibraryStaticLinks, []))
+
     def _gcc_visibility(self):
         return ["-fvisibility=hidden"]
 
@@ -29,12 +39,15 @@ class GCCCompiler(base.SubprocCompilerBase):
 
     def args_binary_compile(self, source_file):
         return [self.binary_name_binary_compiler(), "-c", "-I"+self.language.get_wrap_directory()] + \
+            list(self._gen_header_include_dirs()) + \
             list(self._gcc_visibility()) + \
             list(self._gcc_shared_codegen()) + \
             list(source_file)
 
     def args_shared_link(self, object_files):
         return [self.binary_name_shared_linker(), "-shared", "-o", self.language.get_output_file()] + \
+            list(self._gen_link_library_dirs()) + \
+            list(self._gen_link_library_statics()) + \
             list(self._gcc_warn_unresolved()) + \
             list(object_files)
 
@@ -49,3 +62,4 @@ class GCCCompiler(base.SubprocCompilerBase):
                 logger.warning(foutput)
             if errput != "":
                 logger.warning(ferrput)
+

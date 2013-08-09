@@ -25,8 +25,7 @@ class LanguagePy(language.BaseLanguage):
         return os.path.dirname(__file__)
 
     def get_compiler(self):
-        compiler_config_list = self.plugin_stub.language_config.get_config_list("compiler")
-        return self.compilers[compiler_config_list[0]](self, {})
+        return self.compilers["gcc"](self, {})
 
     def make_cleaner(self):
         return clean.Cleaner(self)
@@ -39,13 +38,6 @@ class LanguagePy(language.BaseLanguage):
 
     def make_wraper(self):
         return wrapgen.WrapperGenerator(self)
-
-    def get_default_language_config(self):
-        return {
-            "compiler": "gcc",
-            "compiler+unix": "gcc",
-            "compiler+windows": "mingw",
-        }
 
     def get_root_directory(self):
         return self.plugin_stub.abs_directory
