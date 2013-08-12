@@ -9,8 +9,9 @@ from .base import *
 #
 
 class SystemConfig(BaseConfig):
-    """Configuration for the whole system.
+    """An unlabeled config applied by the system.
 
+    This represents the information provided by the start script for the project.
     """
     pass
 
@@ -28,11 +29,11 @@ class OptionSystemSkipDependencies(BaseOption):
 # Default Options
 #
 
-from .command import *
+from . import command
 
 SystemConfig.default_options = [
         OptionSystemSkipDependencies(),
-        CommandConfig("main", [
-            OptionCommandActions(["wrap", "build", "load", "execute"]),
+        command.CommandConfig("main", [
+            command.OptionCommandActions(["wrap", "build", "load", "execute"]),
         ])
     ]

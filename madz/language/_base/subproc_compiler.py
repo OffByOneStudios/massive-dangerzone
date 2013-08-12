@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 class SubprocCompilerBase(compiler.BaseCompiler):
 
-    def __init__(self, language, compiler_config):
-        compiler.BaseCompiler.__init__(self, language, compiler_config)
+    def __init__(self, language):
+        compiler.BaseCompiler.__init__(self, language)
 
     class OperationType():
         Compile = 0

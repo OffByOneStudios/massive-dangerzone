@@ -7,6 +7,7 @@ The language object pulling togeather all of the pieces needed for a plugin of t
 import os
 import glob
 
+from ...config import *
 from .._base import language
 from . import clean
 from . import load
@@ -28,7 +29,7 @@ class LanguagePy(language.BaseLanguage):
         return os.path.dirname(__file__)
 
     def get_compiler(self):
-        return self.compilers["gcc"](self, {})
+        return self.compilers[config.get(OptionLanguageCompilerPreference, "gcc")](self)
 
     def make_cleaner(self):
         return clean.Cleaner(self)

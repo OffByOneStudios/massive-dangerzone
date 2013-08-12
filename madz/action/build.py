@@ -5,7 +5,6 @@ Action for building plugin source code into binaries.
 import logging
 
 from ..config import *
-from ..config import system as system_config
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ class BuildAction(object):
         language = plugin_stub.language
         builder = language.make_builder()
 
-        if global_config.compute([system_config.OptionSystemSkipDependencies]) or not builder.get_dependency():
+        if config.get(OptionSystemSkipDependencies) or not builder.get_dependency():
             logger.info("Building plugin: {}".format(plugin_stub))
             builder.build()
 

@@ -178,7 +178,7 @@ class BaseConfig(object):
     def __init__(self, options=[]):
         self._opt_dict = dict()
 
-        options = self.get_default_options() + options
+        options = self.get_default_options() + list(options)
         for opt in options:
             self.apply_option(opt)
 
@@ -197,11 +197,14 @@ class BaseConfig(object):
         return cls()
 
     @classmethod
-    def make(cls, value):
-        return cls(value)
+    def make(cls, *args):
+        return cls(*args)
+
+    def _copy_options(self):
+        return list(map(lambda o: o.copy(), self.get_options()))
 
     def copy(self):
-        return self.make(map(lambda o: o.copy(), self.get_options()))
+        return self.make(self._copy_options())
 
     def get_option(self, key, default=None):
         """Gets the option object sharing a key with the given type parameter, may return a default option."""
@@ -227,23 +230,23 @@ class BaseConfig(object):
         else:
             self._opt_dict[option.get_key()] = option
 
-    def _merge_test(self, other_option):
-        return self.get_key() != other_option.get_key()
+    def _merge_test(self, other):
+        return self.get_key() == other.get_key()
 
-    def _merge_check(self, other_option):
-        if self._merge_test(other_option):
+    def _merge_check(self, other):
+        if not self._merge_test(other):
             raise ConfigMergeError(
                 "Config keys (self='{}', other='{}') do not match, cannot merge.".format(
                     self.get_key(),
                     other.get_key()))
 
-    def apply(self, other_config):
-        self._merge_check(other_option)
-        for opt in other_config.all_options():
+    def apply(self, other):
+        self._merge_check(other)
+        for opt in other.get_options():
             self.apply_option(opt)
 
     def merge(self, other_config):
-        self._merge_check(other_option)
+        self._merge_check(other_config)
         new_config = self.copy()
         new_config.apply(other_config)
         return new_config
@@ -258,6 +261,34 @@ class BaseConfig(object):
                 lambda o: "\n\t".join(str(o).split("\n")),
                 self.get_options())))
 
+
+#
+# Useful Config Types
+#
+
+class MergedConfig(BaseConfig):
+    """Provides a base for holding a mass merged config."""
+    def _merge_test(self, other):
+        return isinstance(other, BaseConfig)
+
+
+class BaseLabeledConfig(BaseConfig):
+    def __init__(self, label, options=[]):
+        BaseConfig.__init__(self, options)
+        self.label = label
+
+    def copy(self):
+        return self.make(self.label, self._copy_options())
+
+    @classmethod
+    def make_key(cls, label):
+        return (cls, label)
+
+    def get_key(self):
+        return self.make_key(self.label)
+
+    def _str_view(self):
+        return "{} Config for '{}'".format(self.__class__.__name__, self.label)
 
 #
 # Helpers

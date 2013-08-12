@@ -22,7 +22,7 @@ class CleanAction(object):
         language = plugin_stub.language
         cleaner = language.make_cleaner()
 
-        if global_config.compute([system_config.OptionSystemSkipDependencies]) or not cleaner.get_dependency():
+        if config.get(OptionSystemSkipDependencies) or not cleaner.get_dependency():
             logger.info("Cleaning plugin: {}".format(plugin_stub))
             cleaner.clean()
 

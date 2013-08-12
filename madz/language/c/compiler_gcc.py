@@ -1,14 +1,14 @@
 import os
 import logging
 
+from ...config import *
 from .._base import subproc_compiler as base
-from . import config
 
 logger = logging.getLogger(__name__)
 
 class GCCCompiler(base.SubprocCompilerBase):
-    def __init__(self, language, compiler_config):
-        base.SubprocCompilerBase.__init__(self, language, compiler_config)
+    def __init__(self, language):
+        base.SubprocCompilerBase.__init__(self, language)
 
     def file_extension_binary_object(self):
         return ".o"
@@ -20,13 +20,13 @@ class GCCCompiler(base.SubprocCompilerBase):
         return self.binary_name_binary_compiler()
 
     def _gen_header_include_dirs(self):
-        return map(lambda d: "-I{}".format(d), self.language.config.get(config.OptionHeaderSearchPaths, []))
+        return map(lambda d: "-I{}".format(d), self.config.get(OptionHeaderSearchPaths, []))
 
     def _gen_link_library_dirs(self):
-        return map(lambda d: "-L{}".format(d), self.language.config.get(config.OptionLibrarySearchPaths, []))
+        return map(lambda d: "-L{}".format(d), self.config.get(OptionLibrarySearchPaths, []))
 
     def _gen_link_library_statics(self):
-        return map(lambda d: "-l{}".format(d), self.language.config.get(config.OptionLibraryStaticLinks, []))
+        return map(lambda d: "-l{}".format(d), self.config.get(OptionLibraryStaticLinks, []))
 
     def _gcc_visibility(self):
         return ["-fvisibility=hidden"]

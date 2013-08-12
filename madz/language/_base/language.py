@@ -15,8 +15,6 @@ class BaseLanguage(object):
 
     def __init__(self, plugin_stub):
         self.plugin_stub = plugin_stub
-        self.config = global_config.compute([LanguageConfig.make_key(self.get_language_name)],
-            default=LanguageConfig(self.get_language_name, []))
 
     @abc.abstractmethod
     def make_cleaner(self):

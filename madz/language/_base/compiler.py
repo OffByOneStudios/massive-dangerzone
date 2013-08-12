@@ -1,12 +1,14 @@
 import abc
 
+from ...config import *
+
 class BaseCompiler(object):
     """The base compiler object."""
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, language, compiler_config):
+    def __init__(self, language):
         self.language = language
-        self.config = compiler_config
+        self.config = config.save()
 
     class BuildType():
         DynamicPlugin = 0

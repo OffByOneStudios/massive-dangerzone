@@ -9,8 +9,9 @@ from .base import *
 #
 
 class PluginConfig(BaseConfig):
-    """Configuration for a specific plugin.
+    """An unlabeled config applied by plugin objects.
 
+    This represents the config information found in plugin descriptions and that are part of plugin stubs.
     """
     pass
 

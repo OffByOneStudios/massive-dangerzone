@@ -88,6 +88,7 @@ The following are equivalent folder layouts (where '/' represents a folder separ
     the.namespace.of.plugin/[1.0.2-alpha+42](an_implementation_name)
     the.namespace.of/[1.0.2-alpha+42]plugin/(an_implementation_name)
     (an_implementation_name)the.namespace.of.plugin/[1.0.2-alpha+42]
+    the.namespace.[1.0.2-alpha+42]of.plugin(an_implementation_name)/
 
 Metadata in folder paths must always match the metadata given in plugin descriptions.
 

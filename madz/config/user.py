@@ -16,8 +16,9 @@ logger = logging.getLogger(__name__)
 class UserConfigNotFoundError(ConfigError): pass
 
 class UserConfig(BaseConfig):
-    """Configuration of the system for the user.
+    """An unlabled config applied by the user.
 
+    This represents the information provided by the user prior to use of the a madz project.
     """
 
     @classmethod
@@ -49,8 +50,4 @@ class UserConfig(BaseConfig):
 #
 # Options
 #
-
-class OptionSkipDependencies(BaseOption):
-    """This option determines if the system uses dependencies or not to prune what to build."""
-    default_value = False
 

@@ -8,15 +8,14 @@ from .helper import logging_setup as logging
 
 # config namespace
 class config:
-    from .config.user import UserConfig
-    from .config.current import global_config
+    from .config import UserConfig, config
 
     def bind_user_config(env_var, hardcode=None):
         if not (hardcode is None):
             user_config = config.UserConfig.load_from_filename(hardcode)
         else:
             user_config = config.UserConfig.load_from_env_var(env_var)
-        config.global_config.set_user_config(user_config)
+        config.config.add(user_config)
 
 # core namespace
 class core:

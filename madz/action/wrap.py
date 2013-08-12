@@ -24,7 +24,7 @@ class WrapAction(object):
         language = plugin_stub.language
         wrapper = language.make_wraper()
 
-        if global_config.compute([system_config.OptionSystemSkipDependencies]) or (not wrapper.get_dependency()):
+        if config.get(OptionSystemSkipDependencies) or (not wrapper.get_dependency()):
             logger.info("Wrapping plugin: {}".format(plugin_stub))
             wrapper.generate()
 

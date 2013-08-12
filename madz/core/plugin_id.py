@@ -12,12 +12,12 @@ class PluginId(object):
     Attributes:
         namespace: The dotted namespace.
         version: The semver version.
-        implementation_name: A string representing the unique implementation name.
+        implementation: A string representing the unique implementation name.
     """
-    def __init__(self, namespace, version, implementation_name="default"):
+    def __init__(self, namespace, version, implementation="default"):
         self.namespace = namespace
         self.version = version
-        self.implementation_name = implementation_name
+        self.implementation = implementation
 
     class PluginIdParseError(Exception): pass
 
@@ -53,7 +53,7 @@ class PluginId(object):
 
     def as_tuple(self):
         """Returns a tuple for uniquely indentifying the PluginIndex"""
-        return (self.namespace, self.version, self.implementation_name)
+        return (self.namespace, self.version, self.implementation)
 
     def __hash__(self):
         return hash(self.as_tuple())

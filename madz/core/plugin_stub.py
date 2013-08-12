@@ -9,9 +9,7 @@ import logging
 import traceback
 
 from .plugin_id import *
-from .. import config
-from ..config import plugin as plugin_config
-from ..config import language as language_config
+from ..config import *
 
 from .. import language
 
@@ -96,7 +94,7 @@ class PluginStub(object):
         self.config = self._try_get("config")
 
         # Build and save the language object for the plugin
-        with config.global_config.and_plugin_config(self.config):
+        with config.and_merge(self.config):
             self.language = self.language_module.Language(self)
 
         # Initialize depends names:
@@ -138,7 +136,7 @@ class PluginStub(object):
         self.loaded_requires = self.loaded_depends + self.loaded_imports
 
         # Build and save the plugin's MDL:
-        with config.global_config.and_plugin_config(self.config):
+        with config.and_merge(self.config):
             ast = self._try_get("description")
             ast = pyMDL.MDLDescription.transform_ast_user_convenience(ast)
             self.description = pyMDL.MDLDescription(ast, 

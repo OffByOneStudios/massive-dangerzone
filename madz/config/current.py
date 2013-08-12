@@ -7,53 +7,46 @@ import contextlib
 
 from .base import *
 
-class CurrentConfigObject(object):
-    def __init__(self, target_platform=None, source_platform=None, user_config=None, system_config=None, plugin_config=None):
-        self.target_platform = target_platform
-        self.source_platform = source_platform
-        self.user_config = user_config
-        self.system_config = system_config
-        self.plugin_config = plugin_config
+class ConfigWorld(object):
+    def __init__(self, config_list=[]):
+        self.config_list = config_list
 
-    def copy(self):
-        return self.__class__(
-            self.target_platform,
-            self.source_platform,
-            self.user_config,
-            self.system_config,
-            self.plugin_config
-        )
+    def copy_state(self):
+        return list(self.config_list)
 
-    def compute_option(self, keys):
-        merge_list = []
-        for config in filter(lambda c: not (c is None), [self.user_config, self.system_config, self.plugin_config]):
-            merge_list.extend(filter(lambda c: not (c is None), map(config.get_option, keys)))
-        return merge(*merge_list)
+    def set_state(self, state_list):
+        self.config_list = state_list
 
-    def compute(self, keys, default=None):
-        option = self.compute_option(keys)
+    def save(self):
+        return self.get_merged_config()
+
+    def get_merged_config(self):
+        return merge(MergedConfig(), *self.config_list)
+
+    def get_option(self, key):
+        return self.get_merged_config().get_option(key)
+
+    def get(self, key, default=None):
+        option = self.get_option(key)
         return option.get_value() if not (option is None) else default
 
-    def set_user_config(self, config):
-        self.user_config = config
+    def add(self, config):
+        self.config_list.append(config)
 
-    def set_system_config(self, config):
-        self.system_config = config
+    def pop(self):
+        return self.config_list.pop()
 
-    @contextlib.contextmanager
-    def and_system_config(self, config):
-        old = self.system_config
-        self.system_config = config
-        yield
-        self.system_config = old
+    def remove(self, config_key):
+        self.config_list = list(filter(lambda c: c.get_key() != config_key, self.config_list))
 
     @contextlib.contextmanager
-    def and_plugin_config(self, config):
-        old = self.plugin_config
-        self.plugin_config = config
-        yield
-        self.plugin_config = old
+    def and_merge(self, config):
+        old_state = self.copy_state()
+        self.add(config)
+        try:
+            yield
+        finally:
+            self.set_state(old_state)
 
 
-global_config = CurrentConfigObject()
-
+config = ConfigWorld()
