@@ -4,8 +4,8 @@ import os
 from .compiler_gcc import GCCCompiler
 
 class ClangCompiler(GCCCompiler):
-    def __init__(self, language, compiler_config):
-        GCCCompiler.__init__(self, language, compiler_config)
+    def __init__(self, language):
+        GCCCompiler.__init__(self, language)
 
     def binary_name_binary_compiler(self):
         return "clang"

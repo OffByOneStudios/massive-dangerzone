@@ -57,8 +57,8 @@ class Dependency(object):
 
 Dep = Dependency(["loader.py"],["builder.py"])
 
-print Dep.get_unsatisfied_targets()
+print(Dep.get_unsatisfied_targets())
 
 if Dep:
-    print "hi"
+    print("hi")
 """

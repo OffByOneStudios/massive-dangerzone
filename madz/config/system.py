@@ -30,10 +30,3 @@ class OptionSystemSkipDependencies(BaseOption):
 #
 
 from . import command
-
-SystemConfig.default_options = [
-        OptionSystemSkipDependencies(),
-        command.CommandConfig("main", [
-            command.OptionCommandActions(["wrap", "build", "load", "execute"]),
-        ])
-    ]

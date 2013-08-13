@@ -7,7 +7,7 @@ import os, sys, shutil
 import logging
 import subprocess
 
-from madz.dependency import Dependency
+from ...core.dependency import Dependency
 
 logger = logging.getLogger(__name__)
 

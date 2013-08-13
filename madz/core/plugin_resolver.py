@@ -1,3 +1,10 @@
+"""core/plugin_resolver.py
+@OffbyOne Studios 2013
+Manages plugin resolution.
+"""
+import logging
+
+logger = logging.getLogger(__name__)
 
 class PluginFilter(object):
     """Object which can filter a PluginResolvers namespaces"""
@@ -136,9 +143,9 @@ class PluginResolver(object):
                 return self.namespaces[namespace]
             elif isinstance(self.namespaces[namespace], str):
                 return self.namespaces[self.namespaces[namespace]]
-        except KeyError:
+        except KeyError as exc:
             logger.error("Namespace:{} not found.".format(namespace))
-            raise PluginResolverException("Namespace:{} not found.".format(namespace))
+            raise PluginResolverException("Namespace:{} not found.".format(namespace)) from exc
 
     def add_plugin_stub(self, plugin_stub):
         """Add Plugin Stub to system.

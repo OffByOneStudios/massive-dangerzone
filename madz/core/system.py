@@ -2,9 +2,11 @@
 @OffbyOneStudios 2013
 Code to create Plugin Systems
 """
-import logging
-import copy
 import os
+import sys
+import copy
+import logging
+import traceback
 
 from ..config import system
 from .plugin_stub import *
@@ -48,6 +50,7 @@ class PluginSystem(object):
             plugin_stub: the PluginStub object to add
         """
         self._plugin_stubs.append((plugin_stub, directory))
+        self.plugin_resolver.add_plugin_stub(plugin_stub)
 
     def resolve(self, string):
         """Retrieve plugin by namespace.
@@ -58,7 +61,7 @@ class PluginSystem(object):
         Returns:
             The PluginStub that is best associated with the given PartialPluginId.
         """
-        return self.plugin_resolver.get_plugin_from_string(string)
+        return self.plugin_resolver.get_plugin(string)
 
     def all_plugins(self):
         return map(lambda p: p[0], self._plugin_stubs)
@@ -76,10 +79,17 @@ class PluginSystem(object):
 
     def index(self):
         """Searches all PluginDirectory objects for plugins and indexs them into the universe."""
-        for (directory, partial_root) in self.directories:
+        for directory, partial_root in self.directories:
+            logger.debug("Indexing plugins from '{}' into '{}'".format(directory, partial_root))
             directory.index_plugins(self, partial_root)
 
-        for (plugin_stub, directory) in self._plugin_stubs:
-            self._init_plugin(plugin_stub)
+        for plugin_stub, directory in self._plugin_stubs:
+            logger.debug("Initializing plugin '{}'".format(plugin_stub))
+            try:
+                self._init_plugin(plugin_stub)
+            except:
+                tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+                logger.error("Plugin failed to init: '{}':\n\t{}".format(plugin_stub, tb_string))
+
 
 

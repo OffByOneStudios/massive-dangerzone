@@ -7,6 +7,7 @@ import os
 import glob
 import re
 
+from ...config import *
 from .._base import language
 from . import clean
 from . import load
@@ -25,7 +26,7 @@ class LanguageC(language.BaseLanguage):
         return "c"
 
     def get_compiler(self):
-        return self.compilers["gcc"](self, {})
+        return self.compilers[config.get(OptionLanguageCompilerPreference, "gcc")](self)
 
     def make_cleaner(self):
         return clean.Cleaner(self)

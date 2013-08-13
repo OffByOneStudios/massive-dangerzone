@@ -21,9 +21,11 @@ class SemanticVersion(object):
     @classmethod
     def parse(cls, string):
         """Parses a string to return its SemVer object."""
-        if isinstance(string, cls):
+        if string is None:
+            return None
+        elif isinstance(string, cls):
             return string
-        if not isinstance(string, str):
+        elif not isinstance(string, str):
             raise TypeError("Provided input is not a string")
 
         optargs = {}
@@ -32,25 +34,25 @@ class SemanticVersion(object):
         data = string.split('+')
 
         if len(data) > 2:
-            raise SemanticVersionParseError("Incorrect formatting of metadata")
+            raise cls.SemanticVersionParseError("Incorrect formatting of metadata")
         elif len(data) == 2:
             if '-' in data[1]:
-                raise SemanticVersionParseError("Incorrect formatting of metadata, metadata contains a hyphen")
+                raise cls.SemanticVersionParseError("Incorrect formatting of metadata, metadata contains a hyphen")
             optargs["metadata"] = data[1]
 
         # Extract the prerelease
         data = data[0].split('-')
 
         if len(data) > 2:
-            raise SemanticVersionParseError("Incorrect formatting of prerelease")
+            raise cls.SemanticVersionParseError("Incorrect formatting of prerelease")
         elif len(data) == 2:
-            optargs["SemanticVersionParseError"] = data[1]
+            optargs["prerelease"] = data[1]
 
         # Extract the version data
         data = data[0].split('.')
 
         if len(data) != 3:
-            raise SemanticVersionParseError("Incorrect formatting of version numbers")
+            raise cls.SemanticVersionParseError("Incorrect formatting of version numbers: {}".format(data))
 
         return cls(*data,**optargs)
 

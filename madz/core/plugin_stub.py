@@ -44,10 +44,14 @@ class PluginStub(object):
         self.system = system
         self.directory = plugin_description_loader.get_directory()
         self._plugin = plugin_description_loader.get_plugin_description()
+        self._plugin_loader_files = plugin_description_loader.get_plugin_loader_files()
 
         self._init_description(plugin_id)
 
         self.inited = False
+
+    def __str__(self):
+        return "<PluginStub: {!s}>".format(self.id)
 
     def __repr__(self):
         return "<PluginStub: {!r}>".format(self.id)

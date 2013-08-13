@@ -139,7 +139,7 @@ class CppNamespaceGenerator(object):
                 return [(name, ret_node)]
             return [ret_node]
 
-        self.description.ast = self.description.map_over(map_func)
+        self.description.ast = self.description.map_over(self.description.ast, map_func)
 
     def _make_namespaces(self):
         return "".join(map(
@@ -259,7 +259,7 @@ class WrapperGenerator(object):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_cpp_code_filename(),
                    self.language.get_cpp_header_filename()]
-        dependencies = [self.language.get_plugin_filename()]
+        dependencies = self.language.get_plugin_description_files()
         return Dependency(dependencies, targets)
 
     prefix = "___madz"

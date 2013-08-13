@@ -49,7 +49,10 @@ class PluginId(object):
 
         relativestring = relativestring.strip(".")
 
-        return cls(relativestring, SemanticVersion.parse(version_string), implname_string)
+        return cls(
+            relativestring,
+            SemanticVersion.parse(version_string),
+            implname_string)
 
     def as_tuple(self):
         """Returns a tuple for uniquely indentifying the PluginIndex"""
@@ -61,7 +64,7 @@ class PluginId(object):
     def compatible(self, other):
         return \
             functools.reduce(lambda a, i: a and i,
-                map(lambda a, b: a == b or ((a is None) != (b is None)),
+                map(lambda a, b: ((a is None) != (b is None)) or a == b,
                     self.as_tuple(), other.as_tuple()))
 
     def merge(self, other):
@@ -69,6 +72,12 @@ class PluginId(object):
 
     def __eq__(self, other):
         return self.as_tuple() == other.as_tuple()
+
+    def __str__(self):
+        return "{}{}{}".format(
+            self.namespace,
+            "[{!s}]".format(self.version) if not (self.version is None) else "",
+            "({})".format(self.implementation) if not (self.implementation is None) else "")
 
     def __repr__(self):
         return "PluginId{!r}".format(self.as_tuple())

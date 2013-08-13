@@ -180,7 +180,7 @@ class WrapperGenerator(object):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_c_code_filename(),
                    self.language.get_c_header_filename()]
-        dependencies = [self.language.get_plugin_filename()]
+        dependencies = self.language.get_plugin_description_files()
         return Dependency(dependencies, targets)
 
     prefix = "___madz"

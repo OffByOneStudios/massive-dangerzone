@@ -2,7 +2,9 @@
 @OffbyOne Studios 2013
 Action for building wrapper files.
 """
+import sys
 import logging
+import traceback
 
 from ..config import *
 from ..config import system as system_config
@@ -26,5 +28,9 @@ class WrapAction(object):
 
         if config.get(OptionSystemSkipDependencies) or (not wrapper.get_dependency()):
             logger.info("Wrapping plugin: {}".format(plugin_stub))
-            wrapper.generate()
+            try:
+                wrapper.generate()
+            except Exception as e:
+                tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+                logger.error("Failed to load plugin '.madz' for '{}':\n\t{}".format(plugin_stub, tb_string))
 

@@ -31,3 +31,6 @@ class PythonPluginStubFile(object):
 
     def get_plugin_description(self):
         return self._plugin
+
+    def get_plugin_loader_files(self):
+        return [self._py_module_filename]

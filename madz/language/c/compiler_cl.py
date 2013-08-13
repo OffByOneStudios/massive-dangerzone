@@ -7,8 +7,8 @@ from .._base import subproc_compiler as base
 logger = logging.getLogger(__name__)
 
 class MSCLCompiler(base.SubprocCompilerBase):
-    def __init__(self, language, compiler_config):
-        base.SubprocCompilerBase.__init__(self, language, compiler_config)
+    def __init__(self, language):
+        base.SubprocCompilerBase.__init__(self, language)
 
     def file_extension_binary_object(self):
         return ".obj"

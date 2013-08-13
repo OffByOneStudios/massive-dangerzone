@@ -26,7 +26,7 @@ class PluginDirectory(object):
             directory: Pathname of the directory.
             partial_root: String prepended to plugin id strings before parsing. Used to place plugins in a specific subnamespace area.
         """
-        self.directory = directory
+        self.directory = os.path.abspath(directory)
 
         self._plugin_stubs = {}
 
@@ -50,9 +50,12 @@ class PluginDirectory(object):
                     continue
 
             if PythonPluginStubFile.can_load_directory(root):
+                file_pid = None
                 try:
                     # Generate PluginID for directory
                     file_pid = PluginId.parse(".".join([partial_root] + splitrelroot))
+
+                    logger.debug("Indexing plugin with file_pid '{}'".format(file_pid))
 
                     # Generate description object
                     plugin_description = PythonPluginStubFile(root)
