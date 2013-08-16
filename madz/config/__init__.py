@@ -12,6 +12,7 @@ from .system import *
 from .plugin import *
 
 from .command import *
+from .mode import *
 from .library import *
 from .language import *
 from .compiler import *

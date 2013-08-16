@@ -3,16 +3,4 @@
 Basic helper functions for working with plugin systems.
 """
 
-from ..config import *
-
-from ..action import actions
-
-def execute_args_across(argv, system, user_config):
-    parsed_command = argv[1]
-
-    with config.and_merge(system.config):
-        with config.and_merge(user_config):
-            with config.and_merge(config.get(CommandConfig.make_key(parsed_command))):
-                for action in config.get(OptionCommandActions):
-                    actions[action](system).do()
-
+from .arg_parser import execute_args_across

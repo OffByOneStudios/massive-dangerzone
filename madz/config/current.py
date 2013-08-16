@@ -26,6 +26,14 @@ class ConfigWorld(object):
     def get_option(self, key):
         return self.get_merged_config().get_option(key)
 
+    def get_option_type(self, key):
+        return \
+            map(lambda t: t[1],
+                filter(lambda k: k[0] == key,
+                    map(lambda c: (c.__class__, c), 
+                        self.get_merged_config().get_options())))
+            
+
     def get(self, key, default=None):
         option = self.get_option(key)
         return option.get_value() if not (option is None) else default
