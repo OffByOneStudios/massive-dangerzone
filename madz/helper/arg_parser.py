@@ -9,6 +9,8 @@ import logging
 from ..config import *
 from ..action import actions
 
+from . import logging_setup
+
 logger = logging.getLogger(__name__)
 
 def generate_parser(valid_commands):
@@ -25,7 +27,10 @@ def generate_parser(valid_commands):
         nargs='*',
         help="The modes to apply to the system before executing it."
         )
-    parser.add_argument("-l", "--log-level")
+    parser.add_argument("-l", "--log-level",
+        action='store',
+        default="info",
+        choices=["debug", "info", "warning", "error"])
     parser.add_argument("-p", "--plugins")
 
     return parser
@@ -40,6 +45,9 @@ def execute_args_across(argv, system, user_config):
 
             # Parse the arguments
             args = generate_parser(valid_commands).parse_args(argv[1:])
+
+            if not (logging_setup._log_ch is None):
+                logging_setup._log_ch.setLevel(logging_setup._log_level_name_index[args.log_level])
 
             # Expand out the parsed arguments
             parsed_commands = args.commands
