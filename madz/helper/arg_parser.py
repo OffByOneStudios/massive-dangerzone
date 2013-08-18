@@ -45,8 +45,6 @@ def execute_args_across(argv, system, user_config):
             parsed_commands = args.commands
             parsed_modes = args.modes
 
-            print(args)
-
             # Apply Commands
             for parsed_command in parsed_commands:
                 logger.debug("Starting command '{}'".format(parsed_command))

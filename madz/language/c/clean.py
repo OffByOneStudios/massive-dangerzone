@@ -44,3 +44,4 @@ class Cleaner(object):
         targets = ["fake"]
         return Dependency([], targets)
 
+    do = clean

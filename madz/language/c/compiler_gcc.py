@@ -47,9 +47,10 @@ class GCCCompiler(base.SubprocCompilerBase):
     def args_shared_link(self, object_files):
         return [self.binary_name_shared_linker(), "-shared", "-o", self.language.get_output_file()] + \
             list(self._gen_link_library_dirs()) + \
-            list(self._gen_link_library_statics()) + \
             list(self._gcc_warn_unresolved()) + \
-            list(object_files)
+            list(object_files) + \
+            list(self._gen_link_library_statics()) + \
+            []
 
     def log_output(self, retcode, output, errput, foutput, ferrput):
         if retcode != 0:

@@ -245,6 +245,8 @@ class WrapperGenerator(object):
         with open(self.language.get_c_code_filename(), "w") as f:
             f.write(self.code_file_template.format(**code_fragments))
 
+    do = generate
+
     header_file_template = \
 """
 #ifndef MADZ_GAURD_WRAP_MADZ_H

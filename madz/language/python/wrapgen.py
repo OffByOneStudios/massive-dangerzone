@@ -665,3 +665,4 @@ imports = {}
         with open(self.language.get_python_code_filename(), "w") as f:
             f.write(self.py_template.format(**code_fragments))
 
+    do = generate

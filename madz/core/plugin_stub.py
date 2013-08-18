@@ -7,6 +7,7 @@ import os, sys
 import imp
 import logging
 import traceback
+import contextlib
 
 from .plugin_id import *
 from ..config import *
@@ -90,6 +91,8 @@ class PluginStub(object):
         self.language_name = self._get("language")
         self.language_module = language.get_language(self.language_name)
 
+        self.libraries = self._get("libraries")
+
         # Save the plugin specific configs
         # These merges must obey config load order:
         # * Default language config base incase no other config is availble
@@ -148,6 +151,27 @@ class PluginStub(object):
 
         # Validate the plugin description, and use it's return as whether we succeded or not.
         return self.description.validate()
+
+    @contextlib.contextmanager
+    def and_configs(self):
+        # Copy state to restore later
+        old_state = config.copy_state()
+
+        # Merge in this plugin's config
+        with config.and_merge(self.config):
+            # Generate the config to pull the lib configs from (speed and safety)
+            config_for_libs = config.get_merged_config()
+
+            # Add the library configs
+            for library in self.libraries:
+                config.add(config_for_libs.get_option(LibraryConfig.make_key(library)))
+
+            # Merge in the language's config
+            with config.and_merge(config.get_option(LanguageConfig.make_key(self.language_name))):
+                yield
+
+        # Safely restore the config object
+        config.set_state(old_state)
 
     def gen_recursive_loaded_depends(self):
         """Generates a list of all dependencies. In """

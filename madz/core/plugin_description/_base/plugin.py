@@ -15,6 +15,7 @@ class PluginDescription(object):
         version: String or SemanticVersion representing  version of plugin
         implementation: String representing the name of the particular implementation of the plugin
         language: String representing the language the plugin is written in.
+        libraries: List of libraries used by the plugin.
         config: A PluginConfig object representing the configuration for the plugin.
         imports: Strings or [Partial]PluginIds representing the plugins that this plugin makes use of.
         depends: Strings or [Partial]PluginIds representing the plugins that this plugin uses in it's description as well as potential makes use of.
@@ -33,6 +34,7 @@ class PluginDescription(object):
         self.implementation = init_get("implementation")
 
         self.language = init_get("language")
+        self.libraries = init_get("libraries", [])
 
         self.config = init_get("config", plugin_config.PluginConfig())
 

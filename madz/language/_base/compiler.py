@@ -15,11 +15,14 @@ class BaseCompiler(object):
         StaticPlugin = 1
 
     @abc.abstractmethod
-    def build(self, type):
+    def build(self, type=BuildType.DynamicPlugin):
         """Builds a plugin of the given type."""
         pass
 
     @abc.abstractmethod
     def get_dependency(self):
         """Returns a dependency object for this operation."""
-        tpass
+        pass
+
+    def do(self):
+        self.build()

@@ -32,4 +32,4 @@ class Cleaner(c_clean.Cleaner):
         """Cleans a plugin."""
         c_clean.Cleaner.clean(self)
 
-
+    do = clean

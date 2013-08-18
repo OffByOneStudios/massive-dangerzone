@@ -5,23 +5,17 @@ Action for building plugin source code into binaries.
 import logging
 
 from ..config import *
+from .base import *
 
 logger = logging.getLogger(__name__)
 
-class BuildAction(object):
+class BuildAction(BaseAction):
     """Builds plugin source code into binaries."""
+    action_name = "build"
+
     def __init__(self, system):
         self.system = system
 
-    def do(self):
-        for plugin in self.system.all_plugins():
-            self.build_plugin(plugin)
-
-    def build_plugin(self, plugin_stub):
-        language = plugin_stub.language
-        builder = language.make_builder()
-
-        if config.get(OptionSystemSkipDependencies) or not builder.get_dependency():
-            logger.info("Building plugin: {}".format(plugin_stub))
-            builder.build()
+    def _get_provider(self, language):
+        return language.make_builder()
 

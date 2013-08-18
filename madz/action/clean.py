@@ -5,24 +5,17 @@ Action to clean temporary files in plugins.
 import logging
 
 from ..config import *
-from ..config import system as system_config
+from .base import *
 
 logger = logging.getLogger(__name__)
 
-class CleanAction(object):
+class CleanAction(BaseAction):
     """Manages the cleaning of temporary, and other, files from plugins."""
+    action_name = "clean"
+
     def __init__(self, system):
         self.system = system
 
-    def do(self):
-        for plugin in self.system.all_plugins():
-            self.clean_plugin(plugin)
-
-    def clean_plugin(self, plugin_stub):
-        language = plugin_stub.language
-        cleaner = language.make_cleaner()
-
-        if config.get(OptionSystemSkipDependencies) or not cleaner.get_dependency():
-            logger.info("Cleaning plugin: {}".format(plugin_stub))
-            cleaner.clean()
+    def _get_provider(self, language):
+        return language.make_cleaner()
 

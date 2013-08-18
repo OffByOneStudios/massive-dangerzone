@@ -17,7 +17,9 @@ plugin = Plugin(
     ## This just chooses the language. The language can be configured by
     ## the plugins configuration object.
     # The string representing the language to use:
-    language="python",
+    language="c",
+    # The list of libraries to use, the math library is configured in the system_config:
+    libraries=["math"],
 
     #### Configuration:
     ## This describes the configuration to take effect while processing this
@@ -37,5 +39,10 @@ plugin = Plugin(
         VariableDefinition("print_global", 
             # The function doesn't return anything or take any arguments.
             TypeFunction(TypeNone, [])),
+
+        # A function provided by the plugin that preturns a float.
+        VariableDefinition("do_math_on_global", 
+            # The function returns a 32 bit float.
+            TypeFunction(TypeFloat32, [])),
     ],
 )

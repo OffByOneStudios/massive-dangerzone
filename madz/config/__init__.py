@@ -23,6 +23,9 @@ class DefaultConfig(BaseConfig):
 DefaultConfig.default_options = [
 		OptionSystemSkipDependencies(),
         command.CommandConfig("all", [
+            command.OptionCommandActions(["wrap", "build", "load", "execute", "clean"]),
+        ]),
+        command.CommandConfig("main", [
             command.OptionCommandActions(["wrap", "build", "load", "execute"]),
         ]),
 
@@ -35,11 +38,17 @@ DefaultConfig.default_options = [
         command.CommandConfig("build", [
             command.OptionCommandActions(["build"]),
         ]),
+        command.CommandConfig("make", [
+            command.OptionCommandActions(["wrap", "build"]),
+        ]),
         command.CommandConfig("load", [
             command.OptionCommandActions(["load"]),
         ]),
         command.CommandConfig("execute", [
             command.OptionCommandActions(["load", "execute"]),
+        ]),
+        command.CommandConfig("clean", [
+            command.OptionCommandActions(["clean"]),
         ]),
     ]
 

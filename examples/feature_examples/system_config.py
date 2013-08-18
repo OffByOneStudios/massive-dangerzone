@@ -3,5 +3,8 @@
 from madz.system_config import *
 
 config = SystemConfig([
-
+	# An example library config for the cmath library.
+	LibraryConfig("math", [
+		OptionLibraryStaticLinks("m")
+	]),
 ])

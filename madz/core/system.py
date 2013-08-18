@@ -66,6 +66,9 @@ class PluginSystem(object):
     def all_plugins(self):
         return map(lambda p: p[0], self._plugin_stubs)
 
+    def active_plugins(self):
+        return self.all_plugins()
+
     def _init_plugin(self, plugin):
         resolve_func = lambda id: self.plugin_resolver.get_plugin(id.namespace)
 
