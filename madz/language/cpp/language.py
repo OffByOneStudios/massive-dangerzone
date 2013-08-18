@@ -37,7 +37,7 @@ class LanguageCPP(language.BaseLanguage):
     def make_builder(self):
         return self.get_compiler()
 
-    def make_wraper(self):
+    def make_wrapper(self):
         return wrapgen.WrapperGenerator(self)
 
     def get_wrap_directory(self):
