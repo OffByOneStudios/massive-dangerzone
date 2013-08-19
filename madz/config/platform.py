@@ -67,10 +67,10 @@ def PlatformCheckSkip(target_platform):
     return False
 
 def PlatformCheckWindows(target_platform):
-    return config_target.get(OptionPlatformOperatingSystem) == "windows"
+    return target_platform.get(OptionPlatformOperatingSystem) == "windows"
 
 def PlatformCheckOSX(target_platform):
-    return config_target.get(OptionPlatformOperatingSystem) == "osx"
+    return target_platform.get(OptionPlatformOperatingSystem) == "osx"
 
 def PlatformCheckUnix(target_platform):
-    return config_target.get(OptionPlatformOperatingSystem) == "unix"
+    return target_platform.get(OptionPlatformOperatingSystem) == "unix"
