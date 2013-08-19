@@ -16,10 +16,9 @@ class ConfigError(Exception): pass
 #
 # Options
 #
-
 class BaseOptionError(ConfigError): pass
 
-class OptionInvalidValueError(BaseOptionError): pass
+class OptionOptionInvalidValueError(BaseOptionError): pass
 class OptionMergeError(BaseOptionError): pass
 class OptionCoerceError(BaseOptionError): pass
 
@@ -45,7 +44,7 @@ class BaseOption(object):
         value = (value if not (value is None) else self.get_default_value())
         value = self._try_coerce_value(value)
         if not self._validate_value(value):
-            raise InvalidValueError("Value '{}' is not valid, cannot __init__.".format(value))
+            raise OptionInvalidValueError("Value '{}' is not valid, cannot __init__.".format(value))
         self._value = value
 
     @classmethod
@@ -100,7 +99,7 @@ class BaseOption(object):
         new_value = self._try_coerce_value(new_value)
 
         if not self._validate_value(new_value):
-            raise InvalidValueError("Value '{}' is not valid, cannot __init__.".format(value))
+            raise OptionInvalidValueError("Value '{}' is not valid, cannot __init__.".format(value))
 
         return new_value
 
