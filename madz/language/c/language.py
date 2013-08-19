@@ -21,12 +21,10 @@ class LanguageC(language.BaseLanguage):
         "clang": compiler_clang.ClangCompiler,
         "cl": compiler_cl.MSCLCompiler,
     }
+    default_compiler = "gcc"
 
     def get_language_name(self):
         return "c"
-
-    def get_compiler(self):
-        return self.compilers[config.get(OptionLanguageCompilerPreference, "gcc")](self)
 
     def make_cleaner(self):
         return clean.Cleaner(self)

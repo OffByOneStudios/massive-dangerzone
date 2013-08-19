@@ -150,15 +150,25 @@ class BaseChooseOption(BaseOption):
         return (value in cls.possible_values)
 
 
+# TODO: Build a new base option for complex merge types.
 class BaseSetOption(BaseOption):
     default_value=[]
 
+    def _compute_set(self):
+        return set(self._positive) - set(self._negative)
+
+    def __init__(self, positive, negative):
+        self._positive = positive
+        self._negative = negative
+        value = self._compute_set(self)
+        BaseOption(self, value)
+
     @classmethod
     def _coerce_value(cls, value):
-        return list(value)
+        return set(value)
 
     def _compute_merge_value(self, other_option):
-        #TODO set union/subtractions
+        # TODO
         pass
 
 
@@ -235,6 +245,7 @@ class BaseConfig(object):
 
     def _merge_check(self, other):
         if not self._merge_test(other):
+            print(self.get_key(), other)
             raise ConfigMergeError(
                 "Config keys (self='{}', other='{}') do not match, cannot merge.".format(
                     self.get_key(),
@@ -329,20 +340,20 @@ class OptionImposter(BaseOption):
     def get_key(self):
         return self._gen_func().get_key()
 
-    def make_default(cls):
+    def make_default(self):
         return self._gen_func().__class__()
 
-    def make(cls, value):
+    def make(self, value):
         return self._gen_func().__class__(value)
 
     def copy(self):
-        return self.make(self._gen_func)
+        return self.__class__(self._gen_func)
 
     def get_value(self):
         return self._gen_func().get_value()
 
     def merge(self, other_option):
-        self._merge_check(other_option)
+        self._gen_func()._merge_check(other_option)
         return self.make(self._gen_func()._get_merge_value(other_option))
 
     def apply(self, other_option):

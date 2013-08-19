@@ -25,13 +25,17 @@ def generate_parser(valid_commands):
         action='append',
         default=[],
         nargs='*',
-        help="The modes to apply to the system before executing it."
-        )
+        help="The modes to apply to the system before executing it.")
     parser.add_argument("-l", "--log-level",
         action='store',
         default="info",
-        choices=["debug", "info", "warning", "error"])
-    parser.add_argument("-p", "--plugins")
+        choices=["debug", "info", "warning", "error"],
+        help="The log level to use for this execution.")
+    parser.add_argument("-p", "--plugins",
+        action='append',
+        default=None,
+        nargs='*',
+        help="The plugins to perform the action on, not recommended for some actions.")
 
     return parser
 
@@ -46,8 +50,14 @@ def execute_args_across(argv, system, user_config):
             # Parse the arguments
             args = generate_parser(valid_commands).parse_args(argv[1:])
 
+            # Setup logging level
             if not (logging_setup._log_ch is None):
                 logging_setup._log_ch.setLevel(logging_setup._log_level_name_index[args.log_level])
+
+            # Setup active plugins
+            if not (args.plugins is None):
+                # TODO: Use resolver
+                system.active_plugins = (lambda: args.plugins)
 
             # Expand out the parsed arguments
             parsed_commands = args.commands

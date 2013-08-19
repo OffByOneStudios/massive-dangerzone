@@ -16,6 +16,9 @@ class CompilerConfig(BaseLabeledConfig):
 # Options
 #
 
+# Compiler prefrence
+class OptionCompilerPreference(BaseOption): pass
+
 # Binary Libraries
 
 class OptionLibrarySearchPaths(BaseAppendOption): pass

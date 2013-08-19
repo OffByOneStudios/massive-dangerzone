@@ -15,6 +15,3 @@ class MinGWCompiler(GCCCompiler):
 
     def _gcc_warn_unresolved(self):
         return []
-
-    def args_link(self, object_files):
-        return GCCCompiler.args_link(self, object_files) + ['-llibpthreadGC2'] #TODO, fix hack

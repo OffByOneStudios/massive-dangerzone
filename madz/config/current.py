@@ -6,6 +6,7 @@ A system for managing current config information.
 import contextlib
 
 from .base import *
+from .platform import *
 
 class ConfigWorld(object):
     def __init__(self, config_list=[]):
@@ -58,3 +59,5 @@ class ConfigWorld(object):
 
 
 config = ConfigWorld()
+config_target = ConfigWorld([PlatformConfig.make_default()])
+config_source = ConfigWorld([PlatformConfig.make_default()])

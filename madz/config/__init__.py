@@ -21,35 +21,47 @@ class DefaultConfig(BaseConfig):
 	pass
 
 DefaultConfig.default_options = [
-		OptionSystemSkipDependencies(),
-        command.CommandConfig("all", [
-            command.OptionCommandActions(["wrap", "build", "load", "execute", "clean"]),
-        ]),
-        command.CommandConfig("main", [
-            command.OptionCommandActions(["wrap", "build", "load", "execute"]),
-        ]),
+    ## System options
+    OptionSystemSkipDependencies(),
 
-        command.CommandConfig("init", [
-            command.OptionCommandActions([]),
-        ]),
-        command.CommandConfig("wrap", [
-            command.OptionCommandActions(["wrap"]),
-        ]),
-        command.CommandConfig("build", [
-            command.OptionCommandActions(["build"]),
-        ]),
-        command.CommandConfig("make", [
-            command.OptionCommandActions(["wrap", "build"]),
-        ]),
-        command.CommandConfig("load", [
-            command.OptionCommandActions(["load"]),
-        ]),
-        command.CommandConfig("execute", [
-            command.OptionCommandActions(["load", "execute"]),
-        ]),
-        command.CommandConfig("clean", [
-            command.OptionCommandActions(["clean"]),
-        ]),
-    ]
+    ## Compiler defaults
+    OptionImposter(lambda: {
+        "windows": OptionCompilerPreference("cl"),
+        "unix": OptionCompilerPreference("gcc"),
+        "osx": OptionCompilerPreference("clang")
+        }[config_source.get(OptionPlatformOperatingSystem)]),
+
+    ## Commands
+    # Main commands
+    command.CommandConfig("all", [
+        command.OptionCommandActions(["wrap", "build", "load", "execute", "clean"]),
+    ]),
+    command.CommandConfig("main", [
+        command.OptionCommandActions(["wrap", "build", "load", "execute"]),
+    ]),
+
+    # Piecemeal commands
+    command.CommandConfig("init", [
+        command.OptionCommandActions([]),
+    ]),
+    command.CommandConfig("wrap", [
+        command.OptionCommandActions(["wrap"]),
+    ]),
+    command.CommandConfig("build", [
+        command.OptionCommandActions(["build"]),
+    ]),
+    command.CommandConfig("make", [
+        command.OptionCommandActions(["wrap", "build"]),
+    ]),
+    command.CommandConfig("load", [
+        command.OptionCommandActions(["load"]),
+    ]),
+    command.CommandConfig("execute", [
+        command.OptionCommandActions(["load", "execute"]),
+    ]),
+    command.CommandConfig("clean", [
+        command.OptionCommandActions(["clean"]),
+    ]),
+]
 
 config.add(DefaultConfig())

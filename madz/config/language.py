@@ -18,4 +18,3 @@ class LanguageConfig(BaseLabeledConfig):
 # Options
 #
 
-class OptionLanguageCompilerPreference(BaseOption): pass

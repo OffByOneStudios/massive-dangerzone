@@ -16,6 +16,14 @@ class BaseLanguage(object):
     def __init__(self, plugin_stub):
         self.plugin_stub = plugin_stub
 
+    def get_compiler_name(self, default):
+        return config.get(OptionCompilerPreference, default)
+
+    def get_compiler(self):
+        compiler_name = self.get_compiler_name(self.default_compiler)
+        with config.and_merge(config.get_option(CompilerConfig.make_key(compiler_name))):
+            return self.compilers[compiler_name](self)
+
     @abc.abstractmethod
     def make_cleaner(self):
         pass
