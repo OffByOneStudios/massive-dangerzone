@@ -38,7 +38,7 @@ class OptionPlatformProcessorFamily(BaseChooseOption):
 
     @classmethod
     def get_default_value(cls):
-        return platform.machine()
+        return platform.machine().replace("AMD64","x86_64") # AWWWH YEAH
 PlatformConfig.add_platform_option_type(OptionPlatformProcessorFamily)
 
 class OptionPlatformOperatingSystem(BaseChooseOption):
