@@ -18,7 +18,7 @@ class ConfigError(Exception): pass
 #
 class BaseOptionError(ConfigError): pass
 
-class OptionOptionInvalidValueError(BaseOptionError): pass
+class OptionInvalidValueError(BaseOptionError): pass
 class OptionMergeError(BaseOptionError): pass
 class OptionCoerceError(BaseOptionError): pass
 
