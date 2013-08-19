@@ -18,7 +18,8 @@ plugin = Plugin(
     ## the plugins configuration object.
     # The string representing the language to use:
     language="c",
-    # The list of libraries to use, the math library is configured in the system_config:
+    # The list of libraries to use, the math library is configured in 
+    # the system_config:
     libraries=["math"],
 
     #### Configuration:
@@ -40,7 +41,8 @@ plugin = Plugin(
             # The function doesn't return anything or take any arguments.
             TypeFunction(TypeNone, [])),
 
-        # A function provided by the plugin that preturns a float.
+        # A function provided by the plugin that returns a float based off of
+        # the global variable. Uses the math library.
         VariableDefinition("do_math_on_global", 
             # The function returns a 32 bit float.
             TypeFunction(TypeFloat32, [])),

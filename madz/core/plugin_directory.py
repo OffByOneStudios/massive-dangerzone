@@ -7,6 +7,8 @@ import sys
 import traceback
 import logging
 
+from ..config import *
+
 from .plugin_id import *
 from .plugin_stub import PluginStub
 
@@ -63,8 +65,12 @@ class PluginDirectory(object):
                     # Make the stub
                     stub = PluginStub(system, plugin_description, file_pid)
 
-                    # Add stub to directory (and system)
-                    self._add_plugin_stub(system, stub)
+                    # Check platform to make sure the plugin is valid for the target:
+                    if stub.check_platform(config_target):
+                        # Add stub to directory (and system)
+                        self._add_plugin_stub(system, stub)
+                    else:
+                        logger.debug("Plugin failed platform check '{}'".format(stub.id))
                 except:
                     # TODO(Mason): More specific exceptions
                     tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))

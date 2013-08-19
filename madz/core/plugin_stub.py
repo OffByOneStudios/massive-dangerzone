@@ -125,6 +125,10 @@ class PluginStub(object):
         # Build requirements names
         self.requires = self.depends + self.imports
 
+    def check_platform(self, target_platform):
+        # Call the check platform function, if it doesn't have one assume it's false.
+        return self._try_get("platform_check", lambda p: False)(target_platform)
+
     def init_requires(self, lookup_func):
         """This initalizes the requires into *_loaded variables by finding the concrete PluginStub objects. Also validates the MDL.
 

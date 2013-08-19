@@ -36,6 +36,8 @@ class PluginDescription(object):
         self.language = init_get("language")
         self.libraries = init_get("libraries", [])
 
+        self.platform_check = init_get("platform_check", lambda p: True)
+
         self.config = init_get("config", plugin_config.PluginConfig())
 
         self.active = init_get("active", True)

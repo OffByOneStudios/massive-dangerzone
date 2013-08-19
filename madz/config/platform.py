@@ -57,3 +57,20 @@ class OptionPlatformOperatingSystem(BaseChooseOption):
             return "unix"
 PlatformConfig.add_platform_option_type(OptionPlatformOperatingSystem)
 
+#
+# platform_check helpers
+#
+
+from .current import *
+
+def PlatformCheckSkip(target_platform):
+    return False
+
+def PlatformCheckWindows(target_platform):
+    return config_target.get(OptionPlatformOperatingSystem) == "windows"
+
+def PlatformCheckOSX(target_platform):
+    return config_target.get(OptionPlatformOperatingSystem) == "osx"
+
+def PlatformCheckUnix(target_platform):
+    return config_target.get(OptionPlatformOperatingSystem) == "unix"
