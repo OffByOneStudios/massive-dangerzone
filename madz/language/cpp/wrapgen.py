@@ -37,8 +37,8 @@ class CppCodeGenerator(object):
     def _gen_table_struct(self, node, name):
         return "struct {{\n{}\n}} {}".format(
             "\n".join(map(
-                lambda t: "\t{};".format(self.gen_node(*t)),
-                node.elements.items())),
+                lambda t: "\t{};".format(self.gen_node(t.name, t.type)),
+                node.elements)),
             name)
 
     def _gen_table_function(self, node, name):

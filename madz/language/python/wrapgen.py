@@ -116,8 +116,8 @@ class PythonGenerator(object):
 
         return "class {}(Structure):\n\t_fields_ = [{}]\n".format(name.upper(),
             ", ".join(map(
-                lambda t: "{}".format(self.gen_type_string(*t)),
-                node.elements.items())),
+                lambda t: "{}".format(self.gen_type_string(t.name, t.type)),
+                node.elements)),
             )
     """Function Table for generating ctypes code from AST"""
     _gen_table = {

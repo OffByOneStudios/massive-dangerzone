@@ -148,6 +148,9 @@ class TypeDeclaration(Declaration):
     def __hash__(self):
         return hash((self.__class__, self.name, self.type))
 
+    def __repr__(self):
+        return "TypeDeclaration({!r}, {!r})".format(self.name, self.type)
+
     def validate(self, context):
         return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context, namedonly_ok=True)
 
@@ -176,6 +179,9 @@ class VariableDefinition(Definition):
 
     def __hash__(self):
         return hash((self.__class__, self.name, self.type))
+
+    def __repr__(self):
+        return "TypeDeclaration({!r}, {!r})".format(self.name, self.type)
 
     def validate(self, context):
         return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context)

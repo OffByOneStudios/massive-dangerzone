@@ -2,8 +2,11 @@
 @OffbyOne Studios
 Base types of MDL. All wrappers should be able to work with these types.
 """
+import logging
 
 from .nodes import *
+
+logger = logging.getLogger(__name__)
 
 TypeType.Pointer = lambda s: TypePointer(s)
 
@@ -20,7 +23,9 @@ class TypeTypeSimple(TypeType):
 
 class TypeTypeNone(TypeTypeSimple):
     """Void, as in No Return Type"""
-    pass
+
+    def __repr__(self):
+        return "TypeNone"
 
 TypeNone = TypeTypeNone()
 
@@ -60,6 +65,9 @@ class TypeInt(TypeTypeWidth):
     """Object Representing Machine Integers, and their varius widths."""
     _valid_widths = [8, 16, 32, 64]
 
+    def __repr__(self):
+        return "TypeInt{}".format(self.width)
+
 TypeInt8 = TypeInt(8)
 TypeInt16 = TypeInt(16)
 TypeInt32 = TypeInt(32)
@@ -68,6 +76,9 @@ TypeInt64 = TypeInt(64)
 class TypeUInt(TypeTypeWidth):
     """Object Representing Machine Unsigned Integers, and their varius widths."""
     _valid_widths = [8, 16, 32, 64]
+
+    def __repr__(self):
+        return "TypeUInt{}".format(self.width)
 
 TypeUInt8 = TypeUInt(8)
 TypeUInt16 = TypeUInt(16)
@@ -79,6 +90,9 @@ TypeChar = TypeUInt(8)
 class TypeFloat(TypeTypeWidth):
     """Object Representing Machine Floating Point Values, and their varius widths."""
     _valid_widths = [32, 64, 128, 256]
+
+    def __repr__(self):
+        return "TypeFloat{}".format(self.width)
 
 TypeFloat32 = TypeFloat(32)
 TypeFloat64 = TypeFloat(64)
@@ -104,6 +118,9 @@ class TypePointer(TypeTypeComplex):
 
     def __hash__(self):
         return hash((self.__class__, self.type))
+
+    def __repr__(self):
+        return "TypePointer({!r})".format(self.type)
 
     def validate(self, context):
         return TypeType.type_validate(self.type, context)
@@ -134,6 +151,9 @@ class TypeArray(TypeTypeComplex):
     def __hash__(self):
         return hash((self.__class__, self.type, self.length))
 
+    def __repr__(self):
+        return "TypeArray({!r}, {!r})".format(self.type, self.length)
+
     def validate(self, context):
         try:
             foo = int(self.length)
@@ -143,6 +163,32 @@ class TypeArray(TypeTypeComplex):
 
     def map_over(self, map_func):
         return self.__class__(self._map_over_single_val(self, map_func, self.type), self.length)
+
+
+class TypeStructElement(TypeTypeComplex):
+    def __init__(self, name, type):
+        self.name = name
+        self.type = type
+
+    def is_general_type(self):
+        return False
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and \
+            self.type == other.type and \
+            self.name == other.name
+
+    def __hash__(self):
+        return hash((self.__class__, self.name, self.type))
+
+    def __repr__(self):
+        return "TypeStructMember({!r}, {!r})".format(self.name, self.type)
+
+    def validate(self, context):
+        return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context)
+
+    def map_over(self, map_func):
+        return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
 
 
 class TypeStruct(TypeTypeComplex):
@@ -159,8 +205,16 @@ class TypeStruct(TypeTypeComplex):
         Args:
             elements: Dictionary mapping names in the struct to types
         """
+        try:
+            temp_elements = dict(elements)
+            elements = map(lambda kv: TypeStructElement(kv[0], kv[1]), temp_elements.items())
+            self.elements = list(elements)
+            logger.warning("Dict based structs are depreciated, instead of:\n\t\tTypeStruct({!r})\n\tUse:\n\t\t{!r}".format(temp_elements, self))
+        except ValueError:
+            pass
+
         self.elements = elements
-        self._elements_hash = hash(tuple(sorted(elements.items())))
+        self._elements_hash = hash(tuple(elements))
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__) and self.elements == other.elements
@@ -168,20 +222,24 @@ class TypeStruct(TypeTypeComplex):
     def __hash__(self):
         return hash((self.__class__, self._elements_hash))
 
+    def __repr__(self):
+        return "TypeStruct({!r})".format(self.elements)
+
     def validate(self, context):
-        for key, val in self.elements.items():
-            if not (context.is_valid_symbol(key) and TypeType.type_validate(val, context)):
+        for element in self.elements:
+            if not (
+                isinstance(element, TypeStructElement) and \
+                element.validate(context)):
                 return False
+
         return True
 
     def map_over(self, map_func):
-        new_elements = {}
-        for name, node in self.elements.items():
-            new_subs = map_func(node, name=name)
-            for new_sub_name, new_sub_node in new_subs:
-                if new_sub_name in new_elements:
-                    raise InvalidTypeMDLError("Struct can not have multiple new elements with the same name: {}".format(new_sub_name))
-                new_elements[new_sub_name] = new_sub_node.map_over(map_func)
+        new_elements = []
+        for node in self.elements:
+            new_subs = map_func(node)
+            for new_sub_node in new_subs:
+                new_elements.append(new_sub_node.map_over(map_func))
         return self.__class__(new_elements)
 
 
@@ -200,6 +258,9 @@ class TypeFunctionArgument(TypeTypeComplex):
 
     def __hash__(self):
         return hash((self.__class__, self.name, self.type))
+
+    def __repr__(self):
+        return "TypeFunctionArgument({!r}, {!r})".format(self.name, self.type)
 
     def validate(self, context):
         return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context)
@@ -229,6 +290,9 @@ class TypeFunction(TypeTypeComplex):
 
     def __hash__(self):
         return hash((self.__class__, self._ret_args_hash))
+
+    def __repr__(self):
+        return "TypeFunction({!r}, {!r})".format(self.return_type, self.args)
 
     def validate(self, context):
         if not TypeType.type_validate(self.return_type, context):
