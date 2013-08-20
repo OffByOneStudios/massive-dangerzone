@@ -5,6 +5,7 @@ Action to load plugins.
 import logging
 
 from .. import operating_system
+
 from .base import *
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,4 @@ class LoadAction(BaseAction):
 
     def _get_provider(self, language):
         return self.LoadProvider(language.plugin_stub, self._operating)
-
-    def get_function(self, plugin_stub, name):
-        return self._operating.get_function(plugin_stub, name)
 
