@@ -24,6 +24,17 @@ class OptionSystemSkipDependencies(BaseOption):
     """This option determines if the system uses dependencies or not to prune what to build."""
     default_value = False
 
+class OptionSystemExecutePlugin(BaseOption):
+    """This option determines which plugin to execute."""
+
+class OptionSystemExecuteFunctionName(BaseOption):
+    """This option determines the name of the function to execute."""
+    default_value = "main"
+
+class OptionSystemExecuteFunctionSignature(BaseOption):
+    """This option provides the MDL signature of the function."""
+    from .. import MDL as MDL
+    default_value = MDL.TypeFunction(MDL.TypeNone, [])
 
 #
 # Default Options
