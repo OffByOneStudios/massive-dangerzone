@@ -17,7 +17,7 @@ class BaseAction(object):
     def __init__(self, system):
         self.system = system
 
-    def do(self):
+    def do(self, plugins=None):
         for plugin in self.system.active_plugins():
             self.do_plugin(plugin)
 

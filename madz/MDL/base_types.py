@@ -207,11 +207,17 @@ class TypeStruct(TypeTypeComplex):
         """
         try:
             temp_elements = dict(elements)
-            elements = map(lambda kv: TypeStructElement(kv[0], kv[1]), temp_elements.items())
-            self.elements = list(elements)
-            logger.warning("Dict based structs are depreciated, instead of:\n\t\tTypeStruct({!r})\n\tUse:\n\t\t{!r}".format(temp_elements, self))
+            elements = list(map(lambda kv: TypeStructElement(kv[0], kv[1]), temp_elements.items()))
+            logger.warning("Dict based structs are depreciated, instead of:\n\t\tTypeStruct({!r})\n\tUse:\n\t\tTypeStruct({!r})".format(temp_elements, list(elements)))
         except ValueError:
             pass
+        except TypeError:
+            pass
+
+        elements = list(elements)
+
+        if len(elements) == 0:
+            raise ValueError("Structs must contain elements.")
 
         self.elements = elements
         self._elements_hash = hash(tuple(elements))
@@ -279,7 +285,7 @@ class TypeFunction(TypeTypeComplex):
     """
     def __init__(self, return_type = TypeNone, args=[]):
         self.return_type = return_type
-        self.args = args
+        self.args = list(args)
         self._arg_lookup = dict((i[1].name, i[0]) for i in enumerate(args))
         self._ret_args_hash = hash((return_type, tuple(args)))
 

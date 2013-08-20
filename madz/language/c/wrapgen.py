@@ -89,21 +89,6 @@ class CGenerator(object):
         pdl.TypeFunction : _gen_table_function,
     }
 
-    def ordering(self, node):
-        node_type = node[0].__class__
-        # Typedefs
-        # Structs
-        # Variables
-        # Fucntions
-        if node_type == pdl.TypeTypedef:
-            return 1
-        elif node_type == pdl.TypeStructType:
-            return 2
-        elif node_type == pdl.TypeFunction:
-            return 4
-        else:
-            return 3
-
     def make_declarations(self):
         """Constructs Declarations for this namespace"""
         res = ""

@@ -56,8 +56,8 @@ def execute_args_across(argv, system, user_config):
 
             # Setup active plugins
             if not (args.plugins is None):
-                # TODO: Use resolver
-                system.active_plugins = (lambda: args.plugins)
+                active_plugins = [item for sublist in args.plugins for item in sublist]
+                system.set_active_plugins(system.resolve_plugins(active_plugins))
 
             # Expand out the parsed arguments
             parsed_commands = args.commands

@@ -52,7 +52,7 @@ class PluginSystem(object):
         self._plugin_stubs.append((plugin_stub, directory))
         self.plugin_resolver.add_plugin_stub(plugin_stub)
 
-    def resolve(self, string):
+    def resolve_plugin(self, string):
         """Retrieve plugin by namespace.
 
         Args:
@@ -63,11 +63,37 @@ class PluginSystem(object):
         """
         return self.plugin_resolver.get_plugin(string)
 
+    def resolve_plugins(self, plugin_strings):
+        return map(self.resolve_plugin, plugin_strings)
+
     def all_plugins(self):
         return map(lambda p: p[0], self._plugin_stubs)
 
+    def set_active_plugins(self, plugins, add_depends=False, add_requires=False):
+        plugins = list(plugins)
+
+        if add_depends:
+            deps = []
+            for plugin in plugins:
+                deps.extend(plugin.gen_recursive_loaded_depends())
+            plugins += deps
+
+        if add_requires:
+            reqs = []
+            for plugin in plugins:
+                reqs.extend(plugin.gen_recursive_loaded_requires())
+            plugins += reqs
+
+        plugins = list(set(plugins))
+
+        self._active_plugins = plugins
+        return plugins
+
+    def revert_active_plugins(self):
+        self._active_plugins = self.all_plugins()
+
     def active_plugins(self):
-        return self.all_plugins()
+        return self._active_plugins
 
     def _init_plugin(self, plugin):
         resolve_func = lambda id: self.plugin_resolver.get_plugin(id.namespace)
@@ -94,5 +120,5 @@ class PluginSystem(object):
                 tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
                 logger.error("Plugin failed to init: '{}':\n\t{}".format(plugin_stub, tb_string))
 
-
+        self.revert_active_plugins()
 

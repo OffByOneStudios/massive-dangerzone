@@ -32,7 +32,7 @@ class ExecuteAction(BaseAction):
             return
 
         try:
-            plugin_stub = self.system.resolve(execute_plugin_name)
+            plugin_stub = self.system.resolve_plugin(execute_plugin_name)
             function = self._get_function(plugin_stub, execute_function_name)
             function = set_ctypes_from_mdl(function, execute_function_signature)
 

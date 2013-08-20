@@ -178,7 +178,7 @@ class PluginStub(object):
         config.set_state(old_state)
 
     def gen_recursive_loaded_depends(self):
-        """Generates a list of all dependencies. In """
+        """Generates a list of all dependencies. In orderish."""
         depends_list = []
         new_list = self.loaded_depends
         while not (len(new_list) == 0):
@@ -190,6 +190,19 @@ class PluginStub(object):
                         new_list.append(ldepdeps)
         depends_list.reverse()
         return depends_list
+
+    def gen_recursive_loaded_requires(self):
+        """Generates a list of all requirements. No order."""
+        requires_list = []
+        new_list = self.loaded_requries
+        while not (len(new_list) == 0):
+            requires_list.extend(new_list)
+            new_list = []
+            for lreq in requires_list:
+                for lreqreqs in lreq.loaded_requries:
+                    if not (lreqreqs in requires_list or lreqreqs in new_list):
+                        new_list.append(lreqreqs)
+        return requires_list
 
     def get_plugin_id(self):
         """Returns the PluginId described by the description file."""
