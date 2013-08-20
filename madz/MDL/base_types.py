@@ -205,15 +205,6 @@ class TypeStruct(TypeTypeComplex):
         Args:
             elements: Dictionary mapping names in the struct to types
         """
-        try:
-            temp_elements = dict(elements)
-            elements = list(map(lambda kv: TypeStructElement(kv[0], kv[1]), temp_elements.items()))
-            logger.warning("Dict based structs are depreciated, instead of:\n\t\tTypeStruct({!r})\n\tUse:\n\t\tTypeStruct({!r})".format(temp_elements, list(elements)))
-        except ValueError:
-            pass
-        except TypeError:
-            pass
-
         elements = list(elements)
 
         if len(elements) == 0:
