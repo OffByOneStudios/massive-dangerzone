@@ -5,6 +5,7 @@ Provides objects for manipulating MDL descriptions.
 
 import re
 import logging
+import contextlib
 
 from . import nodes
 from . import base_types
@@ -13,6 +14,44 @@ from .extensions.objects import types as ext_objects
 logger = logging.getLogger(__name__)
 
 class NotFoundError(Exception): pass
+
+class ValidationState(object):
+    def __init__(self):
+        self.errors = []
+        self.warnings = []
+        self.valid = True
+        self.indent = ""
+
+    def add_error(self, msg):
+        self.errors.append(self.indent + str(msg) + "\n")
+        self.set_valid(False)
+
+    def add_warning(self, msg):
+        self.warnings.append(self.indent + str(msg) + "\n")
+
+    def set_valid(self, state):
+        self.valid = bool(state)
+
+    @contextlib.contextmanager
+    def error_boundry(self, msg):
+        old_valid = self.valid      # (1) Store old valid state
+        self.add_error(msg)         # (2) Add the error boundry message preemptavily
+        self.indent += "\t"         # (3) Indent
+        self.set_valid(True)        # Set valid True so we can test it later.
+        try:
+            yield
+        except Exception as e:
+            self.add_error("{}\n{}\--> And got exception: {}".format(msg, self.indent, e))
+            raise
+        finally:
+            # If no errors are found, revoke the error message from earlier (2)
+            if self.valid:
+                self.errors = self.errors[:-1]
+
+            # Restor valid state and index (1, 3)
+            self.set_valid(old_valid)
+            self.indent = self.indent[:-1]
+
 
 class MDLDescription(object):
     """An object holding an MDLDescription."""
@@ -133,28 +172,46 @@ class MDLDescription(object):
     def is_valid_symbol(cls, symbol):
         return not (cls._symbol_regex.search(symbol) is None)
 
-    def validate(self):
-        """Checks for valid declarations."""
-        namespaces = {}
+    def _validate_roots(self, validation):
         for node in self.ast:
             if not (isinstance(node, nodes.Declaration) or isinstance(node, nodes.Definition)):
-                logger.error("VALIDATION: Root node is not declaration or definition.")
-                return False
+                validation.add_warning("Root node {} is not declaration or definition.".format(node))
 
+    def _validate_namespace(self, validation):
+        namespaces = {}
+        for node in self.ast:
             namespacekey = node.get_namespace_key()
             if not (namespacekey in namespaces):
                 namespaces[namespacekey] = set()
 
             if node.name in namespaces[namespacekey]:
-                logger.error("VALIDATION: Multiple names ({}) in namespace.".format(node.name))
-                return False
+                validation.add_error("Duplicate name '{}' in namespace ({}).".format(node.name, namespacekey))
+
             namespaces[namespacekey].add(node.name)
 
-            if not (node.validate(self)):
-                logger.error("VALIDATION: Node is not validated.")
-                return False
+    def _validate_ast(self, validation):
+        for node in self.ast:
+            with validation.error_boundry("Node {} failed validation:".format(node)):
+                node.validate(validation, self)
 
-        return True
+    def validate(self):
+        """Checks for valid declarations."""
+        validate_state = ValidationState()
+
+        # Do validation
+        self._validate_roots(validate_state)
+        self._validate_namespace(validate_state)
+        self._validate_ast(validate_state)
+
+        # Print messages:
+        if validate_state.warnings:
+            logger.warning("Validation Warnings:\n{}".format("".join(validate_state.warnings)))
+
+        if validate_state.errors:
+            logger.error("Validation Errors:\n{}".format("".join(validate_state.errors)))
+
+        # Return
+        return validate_state.valid
 
     @classmethod
     def map_over(cls, ast, map_func):

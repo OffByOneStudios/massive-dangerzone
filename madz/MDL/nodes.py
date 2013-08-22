@@ -29,7 +29,7 @@ class BaseNode(object):
         pass
 
     @abc.abstractmethod
-    def validate(self, context):
+    def validate(self, validation, context):
         """Validates the AST tree from this point on."""
         pass
 
@@ -62,13 +62,12 @@ class Node(BaseNode):
             self.attributes = {}
         self.attributes[type] = value
 
-    def validate_attributes(self):
+    def validate_attributes(self, validation, context):
         if not hasattr(self, "attributes"):
-            return True
-        for attr in self.attributes.items():
-            if not attr.validate():
-                return False
-        return True
+            return
+        with validation.error_boundry("Attribute Validation Failed:"):
+            for attr in self.attributes.items():
+                attr.validate(validation, context)
 
 
 class Attribute(BaseNode):
@@ -96,8 +95,8 @@ class DocumentationAttribute(Attribute):
 
 class TypeType(Node):
     """Type base class."""
-    def validate(self, context):
-        return True
+    def validate(self, validation, context):
+        pass
 
     def map_over(self, map_func):
         return self
@@ -112,14 +111,28 @@ class TypeType(Node):
         return self
 
     @classmethod
-    def type_validate(cls, type, context, namedonly_ok=False):
+    def type_validate(cls, validation, type, context, namedonly_ok=False):
         #validate should ensure that get_type behaves correctly
-        return \
-            isinstance(type, TypeType) and \
-            type.validate(context) and \
-            type.get_type().is_general_type() and \
-            (namedonly_ok or not(type.get_type().is_namedonly_type())) and \
-            isinstance(type.get_type(), cls)
+        if not (isinstance(type, TypeType)):
+            validation.add_error("Node not of TypeType, type_validate failed.")
+            return 
+
+        with validation.error_boundry("Type {} is not valid:".format(type)):
+            type.validate(validation, context)
+        if not validation.valid:
+            return
+
+        if not type.get_type().is_general_type():
+            validation.add_error("Type {} is not a general type.".format(type))
+            return
+        
+        if not (namedonly_ok or not(type.get_type().is_namedonly_type())):
+            validation.add_error("Type {} is a namedonly type.".format(type))
+            return
+
+        if not isinstance(type.get_type(), cls):
+            validation.add_error("Type {} is not an instance of type {}.".format(type, cls.__name__))
+            return
 
 class RootNode(Node):
     @abc.abstractmethod
@@ -151,8 +164,13 @@ class TypeDeclaration(Declaration):
     def __repr__(self):
         return "TypeDeclaration({!r}, {!r})".format(self.name, self.type)
 
-    def validate(self, context):
-        return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context, namedonly_ok=True)
+    def validate(self, validation, context):
+        if not context.is_valid_symbol(self.name):
+            validation.add_error("TypeDeclaration name '{}' is not a valid name.".format(self.name))
+            return
+
+        with validation.error_boundry("TypeDeclaration type '{}' is not valid:".format(self.type)):
+            TypeType.type_validate(validation, self.type, context, namedonly_ok=True)
 
     def map_over(self, map_func):
         return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
@@ -183,8 +201,13 @@ class VariableDefinition(Definition):
     def __repr__(self):
         return "TypeDeclaration({!r}, {!r})".format(self.name, self.type)
 
-    def validate(self, context):
-        return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context)
+    def validate(self, validation, context):
+        if not context.is_valid_symbol(self.name):
+            validation.add_error("VariableDefinition name '{}' is not a valid name.".format(self.name))
+            return
+
+        with validation.error_boundry("VariableDefinition type '{}' is not valid:".format(self.type)):
+            TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
         return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))

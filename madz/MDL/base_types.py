@@ -57,8 +57,9 @@ class TypeTypeWidth(TypeTypeSimple):
     def __hash__(self):
         return hash((self.__class__, self.width))
 
-    def validate(self, context):
-        return self._valid()
+    def validate(self, validation, context):
+        if not self._valid():
+            validation.add_error("WidthType[{}] value {} is not valid.".format(self.__class__.__name__, self.width))
 
 
 class TypeInt(TypeTypeWidth):
@@ -122,8 +123,8 @@ class TypePointer(TypeTypeComplex):
     def __repr__(self):
         return "TypePointer({!r})".format(self.type)
 
-    def validate(self, context):
-        return TypeType.type_validate(self.type, context)
+    def validate(self, validation, context):
+        TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
         return self.__class__(self._map_over_single_val(self, map_func, self.type))
@@ -154,12 +155,12 @@ class TypeArray(TypeTypeComplex):
     def __repr__(self):
         return "TypeArray({!r}, {!r})".format(self.type, self.length)
 
-    def validate(self, context):
+    def validate(self, validation, context):
         try:
             foo = int(self.length)
         except ValueError:
-            return False
-        return TypeType.type_validate(self.type, context)
+            validation.add_error("Array length is not an int.")
+        TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
         return self.__class__(self._map_over_single_val(self, map_func, self.type), self.length)
@@ -184,8 +185,11 @@ class TypeStructElement(TypeTypeComplex):
     def __repr__(self):
         return "TypeStructMember({!r}, {!r})".format(self.name, self.type)
 
-    def validate(self, context):
-        return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context)
+    def validate(self, validation, context):
+        if not context.is_valid_symbol(self.name):
+            validation.add_error("StructElement name '{}' is not valid.".format(self.name))
+
+        TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
         return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
@@ -222,14 +226,13 @@ class TypeStruct(TypeTypeComplex):
     def __repr__(self):
         return "TypeStruct({!r})".format(self.elements)
 
-    def validate(self, context):
+    def validate(self, validation, context):
         for element in self.elements:
-            if not (
-                isinstance(element, TypeStructElement) and \
-                element.validate(context)):
-                return False
-
-        return True
+            with validation.error_boundry("Struct element not valid:"):
+                if not (isinstance(element, TypeStructElement)):
+                    validation.add_error("Not a TypeStructElement.")
+                    return
+                element.validate(validation, context)
 
     def map_over(self, map_func):
         new_elements = []
@@ -259,8 +262,11 @@ class TypeFunctionArgument(TypeTypeComplex):
     def __repr__(self):
         return "TypeFunctionArgument({!r}, {!r})".format(self.name, self.type)
 
-    def validate(self, context):
-        return context.is_valid_symbol(self.name) and TypeType.type_validate(self.type, context)
+    def validate(self, validation, context):
+        if not context.is_valid_symbol(self.name):
+            validation.add_error("StructElement name '{}' is not valid.".format(self.name))
+
+        TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
         return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
@@ -291,17 +297,15 @@ class TypeFunction(TypeTypeComplex):
     def __repr__(self):
         return "TypeFunction({!r}, {!r})".format(self.return_type, self.args)
 
-    def validate(self, context):
-        if not TypeType.type_validate(self.return_type, context):
-            return False
+    def validate(self, validation, context):
+        TypeType.type_validate(validation, self.return_type, context)
 
         for arg in self.args:
-            if not (
-                isinstance(arg, TypeFunctionArgument) and \
-                arg.validate(context)):
-                return False
-
-        return True
+            with validation.error_boundry("Function argumen not valid:"):
+                if not (isinstance(arg, TypeFunctionArgument)):
+                    validation.add_error("Not a TypeFunctionArgument.")
+                    return
+                arg.validate(validation, context)
 
     def map_over(self, map_func):
         new_return_type = self._map_over_single_val(self, map_func, self.return_type)
@@ -358,13 +362,23 @@ class NamedType(TypeTypeComplex):
     def get_type(self):
         return self._res_type
 
-    def validate(self, context):
+    def validate(self, validation, context):
         try:
             self.resolve(context)
         except:
-            return False
+            validation.add_error("Exception when resolving NamedType")
+            return
 
-        return isinstance(self._res_type, TypeType) and \
-            self._res_type.validate(context.get_context(context.split_namespace(self.symbol)[0])) and \
-            self._res_type.get_type().is_general_type()
+        if not isinstance(self._res_type, TypeType):
+            validation.add_error("NamedType result '{}' is not a Type.".format(self._res_type))
+            return
+
+        with validation.error_boundry("Type {} is not valid.".format(self._res_type)):
+            self._res_type.validate(validation, context.get_context(context.split_namespace(self.symbol)[0]))
+        if not validation.valid:
+            return
+
+        if not self._res_type.get_type().is_general_type():
+            validation.add_error("Type {} is not a general type.".format(self._res_type))
+            return
 
