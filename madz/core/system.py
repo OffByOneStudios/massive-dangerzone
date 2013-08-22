@@ -86,14 +86,14 @@ class PluginSystem(object):
 
         plugins = list(set(plugins))
 
-        self._active_plugins = plugins
+        self._active_plugins = list(plugins)
         return plugins
 
     def revert_active_plugins(self):
-        self._active_plugins = self.all_plugins()
+        self._active_plugins = list(self.all_plugins())
 
     def active_plugins(self):
-        return self._active_plugins
+        return list(self._active_plugins)
 
     def _init_plugin(self, plugin):
         resolve_func = lambda id: self.plugin_resolver.get_plugin(id.namespace)

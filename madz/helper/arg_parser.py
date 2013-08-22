@@ -76,6 +76,7 @@ def execute_args_across(argv, system, user_config):
 
                     # Do Actions
                     for action in config.get(OptionCommandActions):
+                        logger.debug("Starting action '{}'".format(action))
                         actions[action](system).do()
 
                     # Remove Modes, safely cleanup config.

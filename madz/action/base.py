@@ -18,7 +18,11 @@ class BaseAction(object):
         self.system = system
 
     def do(self, plugins=None):
-        for plugin in self.system.active_plugins():
+        active_plugins = self.system.active_plugins()
+
+        logger.info("ACTION[{}] performing across {} plugins.".format(self.action_name, len(active_plugins)))
+
+        for plugin in active_plugins:
             self.do_plugin(plugin)
 
     def _check_dependency(self, action_provider):
