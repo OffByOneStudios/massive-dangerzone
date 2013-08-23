@@ -2,6 +2,8 @@
 @OffbyOne Studios 2013
 Action for executing a plugin.
 """
+from ctypes import *
+
 import logging
 
 from .. import operating_system
@@ -35,7 +37,7 @@ class ExecuteAction(BaseAction):
             plugin_stub = self.system.resolve_plugin(execute_plugin_name)
             function = self._get_function(plugin_stub, execute_function_name)
             function = set_ctypes_from_mdl(function, execute_function_signature)
-
+            
             function()
         except Exception as e:
             tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
