@@ -39,6 +39,7 @@ DefaultConfig.default_options = [
     ## Modes
     ModeConfig("debug", [
         OptionCompilerDebug(True),
+        OptionCompilerOptimization(0.0),
     ]),
 
     ## Commands

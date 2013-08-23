@@ -27,6 +27,7 @@ class MSCLCompiler(base.SubprocCompilerBase):
         return map(lambda d: "/LIBPATH:{}".format(d), self.config.get(OptionLibrarySearchPaths, []))
         
     def _gen_compile_flags(self):
+        # We don't use optimization flags for cl. It is self optimizing /snark.
         return \
             (["/DEBUG:Yes"] if self.config.get(OptionCompilerDebug, False) else [])
 
