@@ -74,6 +74,8 @@ TypeInt16 = TypeInt(16)
 TypeInt32 = TypeInt(32)
 TypeInt64 = TypeInt(64)
 
+TypeChar = TypeInt(8)
+
 class TypeUInt(TypeTypeWidth):
     """Object Representing Machine Unsigned Integers, and their varius widths."""
     _valid_widths = [8, 16, 32, 64]
@@ -85,8 +87,6 @@ TypeUInt8 = TypeUInt(8)
 TypeUInt16 = TypeUInt(16)
 TypeUInt32 = TypeUInt(32)
 TypeUInt64 = TypeUInt(64)
-
-TypeChar = TypeUInt(8)
 
 class TypeFloat(TypeTypeWidth):
     """Object Representing Machine Floating Point Values, and their varius widths."""

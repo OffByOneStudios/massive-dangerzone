@@ -314,13 +314,14 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
         #TODO function_pointers, all same except
         fragments ={"fn_dec" : "", "function_pointers" : ""}
         fn = """{rettype}{fnname}({args});\n"""
-        pointer = """    {prettype} (*{fnname})({args});\n"""
+        pointer = """    {prettype} (*{nodename})({args});\n"""
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 frg = {
                              "prettype":"void*" if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else c_gen.gen_type_string("", node.type.return_type),
                              "rettype":c_gen.gen_type_string("", node.type.return_type),
-                             "fnname":node.name,
+                             "fnname":"___madz_LANG_python_FN_" + node.name,
+                             "nodename": node.name,
                              "args":",".join(map(
                                 lambda a: c_gen.gen_type_string(a.name, a.type),
                                 node.type.args)),
@@ -352,7 +353,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     def make_get_in_struct(self):
         """Makes C function getters for in structs."""
         res = \
-"""{rettype}* DLLEXPORT {prefix}_get_{name}_struct(){{
+"""DLLEXPORT {rettype}* {prefix}_get_{name}_struct(){{
     return ___madz_IN_{name};
 }}
 """
@@ -366,7 +367,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     def make_get_python_out_struct(self):
         """Creates Getter for This plugin's python out struct."""
         res = \
-"""___madz_LANG_python_TYPE_* DLLEXPORT {}_get_out_struct(){{
+"""DLLEXPORT ___madz_LANG_python_TYPE_* {}_get_out_struct(){{
     return &___madz_LANG_python_OUTPUT;
 }}
 
@@ -376,7 +377,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     def make_get_out_struct(self):
         """Creates Getter for This plugin's C out struct."""
         res = \
-"""___madz_TYPE_* DLLEXPORT ___madz_TYPE_get_out_struct(){{
+"""DLLEXPORT ___madz_TYPE_* ___madz_TYPE_get_out_struct(){{
     return &___madz_OUTPUT;
 }}
 
@@ -461,7 +462,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
         fragments = {"function_hooks":"", "madzpath" : madz_path.replace("\\", "/")}
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
-                fragments["function_hooks"] +="    ___madz_OUTPUT." + node.name + " = " + node.name  +";\n"
+                fragments["function_hooks"] +="    ___madz_OUTPUT." + node.name + " = " + "___madz_LANG_python_FN_" + node.name  +";\n"
 
         return res.format(**fragments)
 
@@ -491,7 +492,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     PyThreadState *tmp;
 
     tmp = PyThreadState_Swap(python_thread_state);
-    ___madz_LANG_python_OUTPUT.{fnname}({argnames});
+    ___madz_LANG_python_OUTPUT.{nodename}({argnames});
     PyThreadState_Swap(tmp);
     return;
 }}
@@ -505,7 +506,8 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
                          "maybe_parentheses":")"  if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
                          "cast_and_deref":"*({}*)".format(c_gen.gen_type_string("", node.type.return_type)) if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
                          "rettype":c_gen.gen_type_string("", node.type.return_type),
-                         "fnname":node.name,
+                         "fnname":"___madz_LANG_python_FN_" + node.name,
+                         "nodename": node.name,
                          "args":",".join(map(
                             lambda a: c_gen.gen_type_string(a.name, a.type),
                             node.type.args)),

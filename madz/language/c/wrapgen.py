@@ -304,7 +304,7 @@ extern {type_prefix}_ {madz_prefix}_OUTPUT;
 {in_struct_defines}
 
 /* The external dll function, called by the madz plugin system, to intialize this plugin */
-int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * depends, void * * output) {{
+DLLEXPORT int {madz_prefix}_EXTERN_INIT(void * * depends, void * * output) {{
 \t{in_struct_depends_assigns}
 
 \t{out_struct_func_assigns}
@@ -319,7 +319,7 @@ int DLLEXPORT {madz_prefix}_EXTERN_INIT(void * * depends, void * * output) {{
 }}
 
 /* The external dll function, called by the madz plugin system, to provide imports */
-int DLLEXPORT {madz_prefix}_EXTERN_INITIMPORTS(void * * imports) {{
+DLLEXPORT int {madz_prefix}_EXTERN_INITIMPORTS(void * * imports) {{
 \t{in_struct_imports_assigns}
 
 \treturn 0;
