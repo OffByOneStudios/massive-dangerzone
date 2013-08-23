@@ -34,7 +34,7 @@ DefaultConfig.default_options = [
     ## Commands
     # Main commands
     command.CommandConfig("all", [
-        command.OptionCommandActions(["wrap", "build", "load", "execute", "clean"]),
+        command.OptionCommandActions(["clean", "wrap", "build", "load", "execute"]),
     ]),
     command.CommandConfig("main", [
         command.OptionCommandActions(["wrap", "build", "load", "execute"]),
@@ -52,6 +52,9 @@ DefaultConfig.default_options = [
     ]),
     command.CommandConfig("make", [
         command.OptionCommandActions(["wrap", "build"]),
+    ]),
+    command.CommandConfig("remake", [
+        command.OptionCommandActions(["clean", "wrap", "build"]),
     ]),
     command.CommandConfig("load", [
         command.OptionCommandActions(["load"]),
