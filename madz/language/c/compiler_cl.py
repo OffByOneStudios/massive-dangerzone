@@ -24,7 +24,7 @@ class MSCLCompiler(base.SubprocCompilerBase):
         return map(lambda d: '/I"{}"'.format(d), self.config.get(OptionHeaderSearchPaths, []))
 
     def _gen_link_library_dirs(self):
-        return map(lambda d: "/L{}".format(d), self.config.get(OptionLibrarySearchPaths, []))
+        return map(lambda d: "/LIBPATH:{}".format(d), self.config.get(OptionLibrarySearchPaths, []))
         
     def args_binary_compile(self, source_files):
         return [self.binary_name_binary_compiler(), "/c", "/I"+self.language.get_wrap_directory(),] + list(self._gen_header_include_dirs()) + list(source_files)

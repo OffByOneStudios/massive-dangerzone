@@ -66,7 +66,7 @@ class LanguagePy(language.BaseLanguage):
         return os.path.join(self.get_wrap_directory(), "_madz.py")
 
     def get_python_outgoing_module(self):
-        return os.path.join(self.get_wrap_directory(), "madz.py")
+        return os.path.join(self.get_wrap_directory(), "madz_out.py")
 
     def get_source_files(self):
         return glob.glob(os.path.join(self.plugin_stub.directory, "*.c"))
