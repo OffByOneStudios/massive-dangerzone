@@ -10,9 +10,6 @@ class ClangCompiler(GCCCompiler):
     def binary_name_binary_compiler(self):
         return "clang"
 
-    def _gcc_visibility(self):
-        return ["-fvisibility=hidden"]
-
     def _gcc_shared_codegen(self):
         return ["-fPIC"]
 

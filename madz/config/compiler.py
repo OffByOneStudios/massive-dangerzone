@@ -29,3 +29,14 @@ class OptionLibraryDynamicLinks(BaseAppendOption): pass
 
 class OptionHeaderSearchPaths(BaseAppendOption): pass
 class OptionHeaderIncludes(BaseAppendOption): pass
+
+# Flags
+
+class OptionCompilerDebug(BaseOption):
+    default_value = False
+
+# Optimization
+
+class OptionCompilerOptimization(BaseOption):
+    """A value between 0.0 and 1.0 inclusive representing how much optimization to attempt."""
+    default_value = 1.0

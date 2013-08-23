@@ -28,6 +28,13 @@ class GCCCompiler(base.SubprocCompilerBase):
     def _gen_link_library_statics(self):
         return map(lambda d: "-l{}".format(d), self.config.get(OptionLibraryStaticLinks, []))
 
+    def _gen_compile_flags(self):
+        return \
+            (["-g"] if self.config.get(OptionCompilerDebug, False) else [])
+
+    def _gen_link_flags(self):
+        return []
+
     def _gcc_visibility(self):
         return ["-fvisibility=hidden"]
 
@@ -38,14 +45,18 @@ class GCCCompiler(base.SubprocCompilerBase):
         return ["-Wl,-z,defs", "-Wl,--warn-unresolved-symbols"]
 
     def args_binary_compile(self, source_file):
-        return [self.binary_name_binary_compiler(), "-c", "-I"+self.language.get_wrap_directory()] + \
+        return [self.binary_name_binary_compiler()] + \
+            list(self._gen_compile_flags()) + \
+            ["-c", "-I"+self.language.get_wrap_directory()] + \
             list(self._gen_header_include_dirs()) + \
             list(self._gcc_visibility()) + \
             list(self._gcc_shared_codegen()) + \
             list(source_file)
 
     def args_shared_link(self, object_files):
-        return [self.binary_name_shared_linker(), "-shared", "-o", self.language.get_output_file()] + \
+        return [self.binary_name_shared_linker(), "-shared"] + \
+            list(self._gen_link_flags()) + \
+            ["-o", self.language.get_output_file()] + \
             list(self._gen_link_library_dirs()) + \
             list(self._gcc_warn_unresolved()) + \
             list(object_files) + \

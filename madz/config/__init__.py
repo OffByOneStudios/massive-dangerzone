@@ -33,39 +33,47 @@ DefaultConfig.default_options = [
         "osx": OptionCompilerPreference("clang")
         }[config_source.get(OptionPlatformOperatingSystem)]),
 
+    OptionCompilerDebug(),
+    OptionCompilerOptimization(),
+
+    ## Modes
+    ModeConfig("debug", [
+        OptionCompilerDebug(True),
+    ]),
+
     ## Commands
     # Main commands
-    command.CommandConfig("all", [
-        command.OptionCommandActions(["clean", "wrap", "build", "load", "execute"]),
+    CommandConfig("all", [
+        OptionCommandActions(["clean", "wrap", "build", "load", "execute"]),
     ]),
-    command.CommandConfig("main", [
-        command.OptionCommandActions(["wrap", "build", "load", "execute"]),
+    CommandConfig("main", [
+        OptionCommandActions(["wrap", "build", "load", "execute"]),
     ]),
 
     # Piecemeal commands
-    command.CommandConfig("init", [
-        command.OptionCommandActions([]),
+    CommandConfig("init", [
+        OptionCommandActions([]),
     ]),
-    command.CommandConfig("wrap", [
-        command.OptionCommandActions(["wrap"]),
+    CommandConfig("wrap", [
+        OptionCommandActions(["wrap"]),
     ]),
-    command.CommandConfig("build", [
-        command.OptionCommandActions(["build"]),
+    CommandConfig("build", [
+        OptionCommandActions(["build"]),
     ]),
-    command.CommandConfig("make", [
-        command.OptionCommandActions(["wrap", "build"]),
+    CommandConfig("make", [
+        OptionCommandActions(["wrap", "build"]),
     ]),
-    command.CommandConfig("remake", [
-        command.OptionCommandActions(["clean", "wrap", "build"]),
+    CommandConfig("remake", [
+        OptionCommandActions(["clean", "wrap", "build"]),
     ]),
-    command.CommandConfig("load", [
-        command.OptionCommandActions(["load"]),
+    CommandConfig("load", [
+        OptionCommandActions(["load"]),
     ]),
-    command.CommandConfig("execute", [
-        command.OptionCommandActions(["load", "execute"]),
+    CommandConfig("execute", [
+        OptionCommandActions(["load", "execute"]),
     ]),
-    command.CommandConfig("clean", [
-        command.OptionCommandActions(["clean"]),
+    CommandConfig("clean", [
+        OptionCommandActions(["clean"]),
     ]),
 ]
 

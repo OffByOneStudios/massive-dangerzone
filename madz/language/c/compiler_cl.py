@@ -26,11 +26,26 @@ class MSCLCompiler(base.SubprocCompilerBase):
     def _gen_link_library_dirs(self):
         return map(lambda d: "/LIBPATH:{}".format(d), self.config.get(OptionLibrarySearchPaths, []))
         
+    def _gen_compile_flags(self):
+        return \
+            (["/DEBUG:Yes"] if self.config.get(OptionCompilerDebug, False) else [])
+
+    def _gen_link_flags(self):
+        return []
+
     def args_binary_compile(self, source_files):
-        return [self.binary_name_binary_compiler(), "/c", "/I"+self.language.get_wrap_directory(),] + list(self._gen_header_include_dirs()) + list(source_files)
+        return [self.binary_name_binary_compiler(), "/c"] +\
+            list(self._gen_compile_flags()) + \
+            ["/I"+self.language.get_wrap_directory(),] + \
+            list(self._gen_header_include_dirs()) + \
+            list(source_files)
 
     def args_shared_link(self, object_files):
-        return [self.binary_name_shared_linker(), "/DLL ", "/OUT:"+self.language.get_output_file()] + list(self._gen_link_library_dirs()) + list(object_files)
+        return [self.binary_name_shared_linker(), "/DLL "] +\
+            list(self._gen_link_flags()) + \
+            ["/OUT:"+self.language.get_output_file()] + \
+            list(self._gen_link_library_dirs()) + \
+            list(object_files)
 
     def log_output(self, retcode, output, errput, foutput, ferrput):
 
