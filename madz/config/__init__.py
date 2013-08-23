@@ -23,6 +23,8 @@ class DefaultConfig(BaseConfig):
 DefaultConfig.default_options = [
     ## System options
     OptionSystemSkipDependencies(),
+    OptionSystemExecuteFunctionName(),
+    OptionSystemExecuteFunctionSignature(),
 
     ## Compiler defaults
     OptionImposter(lambda: {

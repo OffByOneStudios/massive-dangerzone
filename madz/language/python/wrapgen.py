@@ -57,7 +57,7 @@ class PythonGenerator(object):
             ret = "c_void_p"
         else:
             ret = self.gen_type_string("", node.return_type).strip()
-        pointer = "{}FUNC = CFUNCTYPE({}{})".format(name.upper(), ret, "" if node.args == [] else ", " + ", ".join(map(
+        pointer = "{} = CFUNCTYPE({}{})".format("_madz_LANG_python_TYPEFUNC_" + name, ret, "" if node.args == [] else ", " + ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string("", t.type)),
                 node.args)))
         return pointer
@@ -225,13 +225,13 @@ class PythonGenerator(object):
             if isinstance(node.type, pdl.TypeFunction):
                 frags={
                     "name" : node.name,
-                    "nameupper" : node.name.upper(),
+                    "nameupper" : "_madz_LANG_python_TYPEFUNC_" + node.name,
                     "args":",".join([i.name for i in node.type.args])
                 }
                 if isinstance(node.type.return_type.get_type(),pdl.TypeStruct):
-                    res += "    plugin.{name} = {nameupper}FUNC(lambda {args}:cast(byref(incoming_module.{name}({args})), c_void_p))\n".format(**frags)
+                    res += "    plugin.contents.{name} = {nameupper}(lambda {args}:cast(byref(incoming_module.{name}({args})), c_void_p))\n".format(**frags)
                 else:
-                    res += "    plugin.{name} = {nameupper}FUNC(incoming_module.{name})\n".format(**frags)
+                    res += "    plugin.contents.{name} = {nameupper}(incoming_module.{name})\n".format(**frags)
 
         return res
 
@@ -344,7 +344,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
 """
         for node in self.description.definitions():
             if isinstance(node.type, pdl.TypeFunction):
-                args['fields'] += "(\"{}\" , {}),".format(node.name, node.name.upper()+"FUNC")
+                args['fields'] += "(\"{}\" , {}),".format(node.name, "_madz_LANG_python_TYPEFUNC_" + node.name)
             else:
                 args['fields'] += self.gen_type_string(node.name, node.type) +","
 

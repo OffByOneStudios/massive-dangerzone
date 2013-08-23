@@ -8,19 +8,24 @@ def get_system_description():
     elif os.name == "posix" or os.name == "mac":
         return "unix"
 
+_systems = {}
+
 def get_system():
     sysd = get_system_description()
 
-    if sysd == "windows":
-        from . import windows
-        return windows.WindowsOperatingSystem()
+    if not (sysd in _systems):
+        if sysd == "windows":
+            from . import windows
+            _systems["windows"] = windows.WindowsOperatingSystem()
 
-    elif sysd == "unix":
-        from . import unix
-        return unix.UnixOperatingSystem()
+        elif sysd == "unix":
+            from . import unix
+            _systems["unix"] = unix.UnixOperatingSystem()
 
-    elif sysd == "osx":
-        from . import unix
-        return unix.UnixOperatingSystem()
-    else:
-        raise NotImplementedError(os.name)
+        elif sysd == "osx":
+            from . import unix
+            _systems["osx"] = unix.UnixOperatingSystem()
+        else:
+            raise NotImplementedError(os.name)
+
+    return _systems[sysd]
