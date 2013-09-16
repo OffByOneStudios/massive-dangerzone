@@ -19,14 +19,13 @@ logger = logging.getLogger(__name__)
 class PluginDirectory(object):
     """Represents a directory potentially containing numerous plugins, which are assummed to follow canonical naming standards.
 
-    Load the description for each plugin and validates it against it's location in the directory.
+    Loads the description for each plugin and validates it against it's location in the directory.
     """
     def __init__(self, directory):
         """Constructor for PluginDirectory.
 
         Args:
             directory: Pathname of the directory.
-            partial_root: String prepended to plugin id strings before parsing. Used to place plugins in a specific subnamespace area.
         """
         self.directory = os.path.abspath(directory)
 
