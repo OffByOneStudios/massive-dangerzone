@@ -26,31 +26,39 @@ class PluginDirectory(object):
 
         Args:
             directory: Pathname of the directory.
-            partial_root: String prepended to plugin id strings before parsing. Used to place plugins in a specific subnamespace area.
         """
         self.directory = os.path.abspath(directory)
-
         self._plugin_stubs = {}
 
     def _add_plugin_stub(self, system, plugin_stub):
+        """Adds a plugin stub to a system
+        
+        Args:
+            system: The system to add the plugin stub to.
+            plugin_stub; The plugin stub to be added to the provided system.
+        """
         self._plugin_stubs[plugin_stub.id] = plugin_stub
         system.add_plugin_stub(self, plugin_stub)
 
     def index_plugins(self, system, partial_root):
-        """Indexs all the plugins in this directory. Adding them to the system.
+        """Indexes all the plugins in this directory, adding them to the system.
 
         Args:
-            system: The system to add the plugin to.
+            system: The system to add the indexed plugins to.
             partial_root: String prepended to plugin id strings before construction of PluginStubs. Used to place plugins in a specific subnamespace area.
         """
         for root, dirs, files in os.walk(self.directory):
             relroot = os.path.relpath(root, self.directory)
             splitrelroot = relroot.split(os.sep)
 
+            # Skips hidden directories
+            hiddendir = False
             for d in splitrelroot:
                 if d.startswith('.'):
-                    continue
-
+                    hiddendir = True
+            if hiddendir:
+                continue
+                    
             if PythonPluginStubFile.can_load_directory(root):
                 file_pid = None
                 try:
@@ -76,4 +84,10 @@ class PluginDirectory(object):
                     tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
                     logger.error("Plugin failed to load, ID per directory is '{}':\n\t{}".format(file_pid, tb_string))
 
+"""
+#Example Usage of PluginDirectory
 
+directory = PluginDirectory("/Plugins")
+
+directory.index_plugins(physics, "/ragdoll")
+"""

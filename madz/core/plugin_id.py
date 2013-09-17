@@ -23,12 +23,17 @@ class PluginId(object):
 
     @classmethod
     def parse(cls, relative):
-        """Parses a canoical plugin id string into a PluginIndex"""
+        """Parses a canonical plugin id string into a PluginIndex
+        
+        Arguments:
+            relative: A string representing a plugin ID.
+        """
         if isinstance(relative, cls):
             return relative
 
         relativestring = relative
 
+        # Grab the version name from the plugin id string
         version_string = None
         version_start = relativestring.find('[')
         version_end = relativestring.find(']')
@@ -38,6 +43,7 @@ class PluginId(object):
             version_string = relativestring[version_start+1:version_end]
             relativestring = relativestring[:version_start] + relativestring[version_end+1:]
 
+        # Grab the implementation name string from the plugin id string
         implname_string = None
         implname_start = relativestring.find('(')
         implname_end = relativestring.find(')')
@@ -55,19 +61,21 @@ class PluginId(object):
             implname_string)
 
     def as_tuple(self):
-        """Returns a tuple for uniquely indentifying the PluginIndex"""
+        """Returns a tuple for uniquely identifying the PluginIndex"""
         return (self.namespace, self.version, self.implementation)
 
     def __hash__(self):
         return hash(self.as_tuple())
 
     def compatible(self, other):
+        """Returns true if the PluginId is compatible with the provided PluginId, and false otherwise."""
         return \
             functools.reduce(lambda a, i: a and i,
                 map(lambda a, b: ((a is None) != (b is None)) or a == b,
                     self.as_tuple(), other.as_tuple()))
 
     def merge(self, other):
+        """Merges the PluginId with another PluginId."""
         return PluginId(*map(lambda a, b: a or b, self.as_tuple(), other.as_tuple()))
 
     def __eq__(self, other):
@@ -83,7 +91,27 @@ class PluginId(object):
         return "PluginId{!r}".format(self.as_tuple())
 
 class PartialPluginId(PluginId):
-    """Represents a plugin id which can refrence more than a single plugin."""
+    """Represents a plugin id which can reference more than a single plugin."""
     #TODO:
     pass
 
+"""
+#Example Usage of PluginId
+
+pluginid = PluginId("the/namespace.of/plugin", "[1.0]", "implementation_name")
+pluginid2 = PluginId.parse("the/namespace.of/plugin/[1.0]/(implementation_name)")
+
+pid_tuple = pluginid.as_tuple()
+
+if compatible(pluginid, pluginid2):
+    pass
+
+merge(pluginid, pluginid2)
+
+if pluginid == pluginid2:
+    pass
+
+plugin_string = str(pluginid)
+    
+print pluginid
+"""

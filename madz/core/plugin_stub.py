@@ -68,19 +68,21 @@ class PluginStub(object):
             raise PluginDescriptionKeyError() from exc
 
     def _try_get(self, name, default=None):
+        """Attempts to call _get. Returns default if it cannot."""
         try:
             return self._get(name)
         except:
             return default
 
     def _init_description(self, file_pid):
+        """Called in __init___, helper to initialize the Plugin Stub."""
         # Determine the plugin id from the description file:
         desc_pid = PluginId(
             self._try_get("namespace"),
             SemanticVersion.parse(self._try_get("version")),
             self._try_get("implementation_name"))
 
-        # Verify the plugin id from the file name and description file are compatiable
+        # Verify the plugin id from the file name and description file are compatible
         if not desc_pid.compatible(file_pid):
             raise PluginDescriptionError("Plugin location name and plugin description do not match.")
 
@@ -95,7 +97,7 @@ class PluginStub(object):
 
         # Save the plugin specific configs
         # These merges must obey config load order:
-        # * Default language config base incase no other config is availble
+        # * Default language config base incase no other config is available
         # * System config contains the correct order for: Default -> User -> System
         # * Plugin config is the config from the plugin descriptions
         self.config = self._try_get("config")
@@ -126,7 +128,7 @@ class PluginStub(object):
         self.requires = self.depends + self.imports
 
     def check_platform(self, target_platform):
-        # Call the check platform function, if it doesn't have one assume it's false.
+        """Calls the check platform function, if one does not exist returns false."""
         return self._try_get("platform_check", lambda p: False)(target_platform)
 
     def init_requires(self, lookup_func):
@@ -158,6 +160,7 @@ class PluginStub(object):
 
     @contextlib.contextmanager
     def and_configs(self):
+        """"""
         # Copy state to restore later
         old_state = config.copy_state()
 
