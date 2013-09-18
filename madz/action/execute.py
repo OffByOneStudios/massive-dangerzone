@@ -24,7 +24,7 @@ class ExecuteAction(BaseAction):
         self._operating = operating_system.get_system()
 
     def do(self):
-        """Executes a plugin."""
+        """Executes a plugin on the associated system."""
         execute_plugin_name = config.get(OptionSystemExecutePlugin)
         execute_function_name = config.get(OptionSystemExecuteFunctionName)
         execute_function_signature = config.get(OptionSystemExecuteFunctionSignature)

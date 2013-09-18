@@ -27,7 +27,7 @@ class BaseOption(object):
 
     Useful override functions:
         @classmethod get_key: The key the option goes by in configs. For options to be merged by configs this must match.
-        @classmethod _validate_value: Checks to see if a value is valid before it is set. Checked during contruction and after merges. Except is false. Defaults to return True.
+        @classmethod _validate_value: Checks to see if a value is valid before it is set. Checked during construction and after merges. Except is false. Defaults to return True.
         @classmethod _coerce_value: Attemps to coerce the value to the correct type before validating. May throw exceptions.
         _merge_test: Checks to see if two options are mergeable, false will result in an exception. Uses get_key by default.
         _compute_merge_value: Calculates the merge of self and another option. Result must pass _validate_value.
@@ -38,6 +38,7 @@ class BaseOption(object):
 
     @classmethod
     def get_default_value(cls):
+        """Returns the default_value attribute of the Option."""
         return cls.default_value
 
     def __init__(self, value=None):
@@ -49,6 +50,7 @@ class BaseOption(object):
 
     @classmethod
     def get_key(cls):
+        """The key the option goes by in configs. For options to be merged by configs this must match."""
         return cls
 
     @classmethod
@@ -67,23 +69,28 @@ class BaseOption(object):
 
     @classmethod
     def _validate_value(cls, value):
+        """Checks to see if a value is valid before it is set. Checked during construction and after merges. Except is false. Defaults to return True."""
         return True
 
     @classmethod
     def _coerce_value(cls, value):
+        """Attemps to coerce the value to the correct type before validating. May throw exceptions."""
         return value
 
     @classmethod
     def _try_coerce_value(cls, value):
+        """Calls private method _coerce_value. Throws an OptionCoereceError if the coercion fails."""
         try:
             return cls._coerce_value(value)
         except Exception as exc:
             raise OptionCoerceError("Failed to coerce value.") from exc
 
     def _merge_test(self, other_option):
+        """Checks to see if two options are mergeable, false will result in an exception. Uses get_key by default."""
         return self.get_key() != other_option.get_key()
 
     def _merge_check(self, other_option):
+        """Tests if this option can be merged with another option. If false, throws an OptionMergeError."""
         if self._merge_test(other_option):
             raise OptionMergeError(
                 "Option keys (self='{}', other='{}') do not match, cannot merge.".format(
@@ -91,9 +98,11 @@ class BaseOption(object):
                     other.get_key()))
 
     def _compute_merge_value(self, other_option):
+        """Calculates the merge of self and another option. Result must pass _validate_value."""
         return other_option.get_value()
 
     def _get_merge_value(self, other_option):
+        """Returns the merge value of this option and other_option, throws an OptionInvalidValueError if the merge cannot be validated by _validate_value."""
         new_value = self._compute_merge_value(other_option)
 
         new_value = self._try_coerce_value(new_value)
@@ -104,14 +113,28 @@ class BaseOption(object):
         return new_value
 
     def merge(self, other_option):
+        """Merges this option with another option.
+        
+        Args:
+            other_option: An option object to merge with this option.
+            
+        Returns:
+            An option object which is the result of merging this option with other_option.
+        """
         self._merge_check(other_option)
         return self.make(self._get_merge_value(other_option))
 
     def apply(self, other_option):
+        """Applies the values of other_option to this option.
+        
+        Args:
+            other_option: An option object which to have its values added to this option object.
+        """
         self._merge_check(other_option)
         self.value = self._get_merge_value(other_option)
 
     def _str_key(self):
+        """Returns the string representation of the key of this option."""
         key = self.get_key()
         if (type(key) is tuple) and key[0] is self.__class__:
             return tuple(key[0].__name__, *(key[1:]))
@@ -124,6 +147,7 @@ class BaseOption(object):
 
 
 class BaseAppendOption(BaseOption):
+    """A helper option for any options which merge with list concatenation."""
     default_value=[]
 
     @classmethod
@@ -135,13 +159,16 @@ class BaseAppendOption(BaseOption):
 
 
 class BaseBoolOption(BaseOption):
-
+    """An option which expects values which can be cast as true or false."""
     @classmethod
     def _coerce_value(cls, value):
         return bool(value)
 
 
 class BaseChooseOption(BaseOption):
+    """An option which expects values from a pre-specified list.
+    
+    For a value to be valid in a BaseChooseOption, it must be in possible_values."""
     possible_values=[]
 
     @classmethod
@@ -180,6 +207,11 @@ class BaseConfigError(ConfigError): pass
 class ConfigMergeError(BaseConfigError): pass
 
 class BaseConfig(object):
+    """A helper option for options which contain other configs.
+    
+    Attributes:
+        options: A list of options to be applied to this option object.
+    """
     __metaclass__ = abc.ABCMeta
 
     default_options=[]
@@ -231,9 +263,15 @@ class BaseConfig(object):
         return self._opt_dict[key].get_value()
 
     def get_options(self):
+        """Returns the current options associated with the configuration."""
         return self._opt_dict.values()
 
     def apply_option(self, option):
+        """Applies an option to this configuration.
+        
+        Args:
+            options: An option object to be applied to this configuration.
+        """
         if option.get_key() in self._opt_dict:
             self._opt_dict[option.get_key()] = self._opt_dict[option.get_key()].merge(option)
         else:
@@ -251,11 +289,24 @@ class BaseConfig(object):
                     other.get_key()))
 
     def apply(self, other):
+        """Applies the options from the provided configuration onto this configuration.
+        
+        Args:
+            other: A configuration object
+        """
         self._merge_check(other)
         for opt in other.get_options():
             self.apply_option(opt)
 
     def merge(self, other_config):
+        """Merges a configuration object with this configuration.
+        
+        Args:
+            other_config: A configuration object to be merged with this configuration.
+            
+        Returns:
+            A configuration object, which is the result of the old configuration and provided configuration being merged.
+        """
         self._merge_check(other_config)
         new_config = self.copy()
         new_config.apply(other_config)
@@ -283,6 +334,7 @@ class MergedConfig(BaseConfig):
 
 
 class BaseLabeledConfig(BaseConfig):
+    """A labeled configuration which will merge with other configuration of the same label."""
     def __init__(self, label, options=[]):
         BaseConfig.__init__(self, options)
         self.label = label

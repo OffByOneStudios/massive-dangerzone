@@ -11,13 +11,19 @@ from ..config import *
 logger = logging.getLogger(__name__)
 
 class BaseAction(object):
-    """Manages core action facilities."""
+    """Manages core action facilities.
+    
+    Attributes:
+        system: The system for which actions are being applied.
+    """
     action_name = "<BASE>"
 
     def __init__(self, system):
         self.system = system
 
     def do(self, plugins=None):
+        """Applies the actions associated with the plugins within the Action's system."""
+        #TODO(Mason): Make the plugins variable do something.
         active_plugins = self.system.active_plugins()
 
         logger.info("ACTION[{}] performing across {} plugins.".format(self.action_name, len(active_plugins)))
@@ -29,9 +35,11 @@ class BaseAction(object):
         return config.get(OptionSystemSkipDependencies) or not (action_provider.get_dependency())
 
     def _get_provider(self, language):
+        #TODO(Mason): Implement this function.
         raise NotImplementedError()
 
     def do_plugin(self, plugin_stub):
+        """Given a plugin, preforms the actions associated with the plugin on the current system."""
         with plugin_stub.and_configs():
             language = plugin_stub.language
             provider = self._get_provider(language)

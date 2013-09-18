@@ -19,6 +19,7 @@ class LoadAction(BaseAction):
         self._operating = operating_system.get_system()
 
     class LoadProvider(object):
+        """Temporary placeholder for future load providers."""
         def __init__(self, plugin_stub, operating_system):
             self.plugin_stub = plugin_stub
             self.operating_system = operating_system
