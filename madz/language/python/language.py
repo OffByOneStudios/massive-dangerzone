@@ -15,6 +15,8 @@ from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
 class LanguagePy(language.BaseLanguage):
+    """Python language object."""
+    
     compilers = {
         "gcc": compiler_gcc.GCCCompiler,
         "mingw": compiler_mingw.MinGWCompiler,

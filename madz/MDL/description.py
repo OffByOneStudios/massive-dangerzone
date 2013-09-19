@@ -16,6 +16,14 @@ logger = logging.getLogger(__name__)
 class NotFoundError(Exception): pass
 
 class ValidationState(object):
+    """Object used in validation of types.
+    
+    Attributes:
+        errors: List of error messages from validations.
+        warnings: List of warnings from validations.
+        valid: Boolean.
+        indent: String representing the indentation level for output.
+    """
     def __init__(self):
         self.errors = []
         self.warnings = []
@@ -23,19 +31,39 @@ class ValidationState(object):
         self.indent = ""
 
     def add_error(self, msg):
+        """Adds an error message to ValidationState's list of errors.
+        
+        Args:
+            msg: An error string.
+        """
         self.errors.append(self.indent + str(msg) + "\n")
         self.set_valid(False)
 
     def add_warning(self, msg):
+        """Adds a warning message to ValidationState's list of warnings.
+        
+        Args:
+            msg: An warning string.
+        """
         self.warnings.append(self.indent + str(msg) + "\n")
 
     def set_valid(self, state):
+        """Sets the validity of the ValidationState.
+        
+        Args:
+            state: Boolean.
+        """
         self.valid = bool(state)
 
     @contextlib.contextmanager
     def error_boundry(self, msg):
+        """Adds a message to header future errors.
+        
+        Args:
+            msg: An error message string.
+        """
         old_valid = self.valid      # (1) Store old valid state
-        self.add_error(msg)         # (2) Add the error boundry message preemptavily
+        self.add_error(msg)         # (2) Add the error boundary message preemptively
         self.indent += "\t"         # (3) Indent
         self.set_valid(True)        # Set valid True so we can test it later.
         try:
@@ -48,21 +76,20 @@ class ValidationState(object):
             if self.valid:
                 self.errors = self.errors[:-1]
 
-            # Restor valid state and index (1, 3)
+            # Restore valid state and index (1, 3)
             self.set_valid(old_valid)
             self.indent = self.indent[:-1]
 
 
 class MDLDescription(object):
-    """An object holding an MDLDescription."""
+    """An object holding an MDLDescription.
+            
+    Attributes:
+        ast: A list of nodes which form the description of the plugin.
+        dependencies: Dictionary mapping PluginIds to MDLDescription objects.
+    """
 
     def __init__(self, ast, dependencies):
-        """Constructor for MDLDescription class.
-
-        Args:
-            ast: A list of nodes which form the description of the plugin.
-            dependencies: Dictionary mapping PluginIds to MDLDescription objects.
-        """
         self.ast = ast
         self.dependencies = dependencies
 
@@ -73,7 +100,14 @@ class MDLDescription(object):
 
     @classmethod
     def transform_ast_named_strs(cls, ast):
-        # An operation
+        """Names each subnode of the description.
+        
+        Args:
+            ast: List of subnodes
+            
+        Returns:
+            The MDLDescription object with named subnodes.
+        """
         def str_to_named(node, name=""):
             ret_node = node
             if isinstance(node, str):
@@ -86,10 +120,29 @@ class MDLDescription(object):
 
     @classmethod
     def transform_ast_user_convenience(cls, ast):
+        """Calls transform_ast_named_strs to name each subnode within the description.
+        
+        Args:
+            ast: List of subnodes.
+            
+        Returns:
+            The MDLDescription object with named subnodes.
+        """
         return cls.transform_ast_named_strs(ast)
 
     @staticmethod
     def keyfunc(node):
+        """Returns a key, node name pair depending on the type of node passed into the function.
+        
+        Args:
+            node: The node to fetch a key, node pair
+            
+        Returns:
+            (0, node.name) if the node is a Declaration.
+            (1, node.name) if the node is a TypeFunction.
+            (2, node.name) if the node is a TypePointer.
+            (3, node.name) if the node is not any of the above types.
+        """
         if node.node_type() == nodes.Declaration:
             return (0, node.name)
         else:
@@ -102,12 +155,13 @@ class MDLDescription(object):
 
     @staticmethod
     def split_namespace(stringname):
-        """Splits stringname into namespace,symbol pair
-        args:
-            stringname: fully qualified name of symbol
+        """Splits stringname into namespace, symbol pair.
+        
+        Args:
+            stringname: fully qualified name of symbol.
 
-        returns: (namespace, syombol) string pair.
-
+        returns:
+            (namespace, symbol) string pair.
         """
         split_name = stringname.split(".")
         end_name = split_name[-1]
@@ -115,14 +169,22 @@ class MDLDescription(object):
         return (namespace, end_name)
 
     def declarations(self):
-        """Filters the root AST for nodes declaring new types or other information that arn't variables."""
+        """Filters the root AST for nodes declaring new types or other information that aren't variables."""
         return list(filter(lambda n: isinstance(n, nodes.Declaration), self.ast))
 
     def definitions(self):
-        """Filters the root AST for nodes defining new variables or other information that arn't declarations."""
+        """Filters the root AST for nodes defining new variables or other information that aren't declarations."""
         return list(filter(lambda n: isinstance(n, nodes.Definition), self.ast))
 
     def get_context(self, namespace):
+        """Returns the MDLDescription object of the provided namespace.
+        
+        Args:
+            namespace: A named string representing the namespace of the desired MDLDescription object.
+            
+        Returns:
+            self if namespace is an empty string, and the MDLDescription object of the subnode within the current object otherwise.
+        """
         if namespace == "":
             return self
         return self.dependencies[namespace]
@@ -130,11 +192,11 @@ class MDLDescription(object):
     def get_types_of(self, the_type):
         """Returns dict of all declarations matching given type.
 
-            Args:
-                the_type: plugin_type.TypeType or a subclass
+        Args:
+            the_type: plugin_type.TypeType or a subclass
 
-            Returns:
-                List of TypeDeclarations which match the type.
+        Returns:
+            List of TypeDeclarations which match the type.
         """
         return filter(lambda n: isinstance(n, nodes.TypeDeclaration) and n.type == the_type, self.ast)
 
@@ -143,6 +205,7 @@ class MDLDescription(object):
 
         Args:
             the_type: Node to lookup
+            
         Returns:
             String name of the_type, otherwise the empty string
         """
@@ -170,14 +233,25 @@ class MDLDescription(object):
 
     @classmethod
     def is_valid_symbol(cls, symbol):
+        """Returns true if the provided symbol is a valid symbol, false otherwise."""
         return not (cls._symbol_regex.search(symbol) is None)
 
     def _validate_roots(self, validation):
+        """Validates the root nodes within the provided MDLDescription object.
+        
+        Args:
+            validation: An MDLDescription object.
+        """
         for node in self.ast:
             if not (isinstance(node, nodes.Declaration) or isinstance(node, nodes.Definition)):
                 validation.add_warning("Root node {} is not declaration or definition.".format(node))
 
     def _validate_namespace(self, validation):
+        """Validates the namespaces of each node within the provided MDLDescription object.
+        
+        Args:
+            validation: An MDLDescription object.
+        """
         namespaces = {}
         for node in self.ast:
             namespacekey = node.get_namespace_key()
@@ -190,12 +264,21 @@ class MDLDescription(object):
             namespaces[namespacekey].add(node.name)
 
     def _validate_ast(self, validation):
+        """Validates the subnodes within the provided MDLDescription object.
+        
+        Args:
+            validation: An MDLDescription object.
+        """
         for node in self.ast:
             with validation.error_boundry("Node {} failed validation:".format(node)):
                 node.validate(validation, self)
 
     def validate(self):
-        """Checks for valid declarations."""
+        """Checks for valid declarations.
+        
+        Returns:
+            The validation state of the current object after checking for validation.
+        """
         validate_state = ValidationState()
 
         # Do validation
@@ -215,6 +298,15 @@ class MDLDescription(object):
 
     @classmethod
     def map_over(cls, ast, map_func):
+        """Applies a map function over this nodes subnodes.
+        
+        Args:
+            map_func: A map function to be applied across the node.
+            ast: List of subnodes,
+        
+        Returns:
+            The subnodes after having the map function applied to it.
+        """
         new_ast = []
         for node in ast:
             new_subs = map_func(node)

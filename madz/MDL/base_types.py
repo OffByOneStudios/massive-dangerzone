@@ -2,6 +2,7 @@
 @OffbyOne Studios
 Base types of MDL. All wrappers should be able to work with these types.
 """
+
 import logging
 
 from .nodes import *
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 TypeType.Pointer = lambda s: TypePointer(s)
 
 class TypeTypeSimple(TypeType):
+    """A bare bones type."""
     def __eq__(self, other):
         return (self.__class__ == other.__class__)
 
@@ -22,7 +24,7 @@ class TypeTypeSimple(TypeType):
 
 
 class TypeTypeNone(TypeTypeSimple):
-    """Void, as in No Return Type"""
+    """Void type, meaning it has no return type"""
 
     def __repr__(self):
         return "TypeNone"
@@ -32,7 +34,7 @@ TypeNone = TypeTypeNone()
 
 class TypeTypeWidth(TypeTypeSimple):
     """A Type which can have a width parameter.
-    ie. Integers have a width parameter. Those widths commonly refered to as byte, short, int, long, etc
+    ie. Integers have a width parameter. Those widths commonly referred to as byte, short, int, long, etc
 
     Attributes:
         width : List of Integer Bit Width of type
@@ -46,8 +48,9 @@ class TypeTypeWidth(TypeTypeSimple):
 
     def _valid(self):
         """Private validator for TypeWidth objects.
+        
         Returns:
-            Boolean True iff instantiated width is with given width range, False otherwise.
+            Boolean True iff instantiated width is within given width range, False otherwise.
         """
         return (self.width in self._valid_widths)
 
@@ -58,12 +61,19 @@ class TypeTypeWidth(TypeTypeSimple):
         return hash((self.__class__, self.width))
 
     def validate(self, validation, context):
+        #TODO(Any): Make context do something
+        """Validates TypeWidth objects to ensure their within is within their given range.
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         if not self._valid():
             validation.add_error("WidthType[{}] value {} is not valid.".format(self.__class__.__name__, self.width))
 
 
 class TypeInt(TypeTypeWidth):
-    """Object Representing Machine Integers, and their varius widths."""
+    """Type representing machine integers, and their various widths."""
     _valid_widths = [8, 16, 32, 64]
 
     def __repr__(self):
@@ -77,7 +87,7 @@ TypeInt64 = TypeInt(64)
 TypeChar = TypeInt(8)
 
 class TypeUInt(TypeTypeWidth):
-    """Object Representing Machine Unsigned Integers, and their varius widths."""
+    """Type representing machine unsigned integers, and their various widths."""
     _valid_widths = [8, 16, 32, 64]
 
     def __repr__(self):
@@ -89,7 +99,7 @@ TypeUInt32 = TypeUInt(32)
 TypeUInt64 = TypeUInt(64)
 
 class TypeFloat(TypeTypeWidth):
-    """Object Representing Machine Floating Point Values, and their varius widths."""
+    """Type representing machine floating point values, and their various widths."""
     _valid_widths = [32, 64, 128, 256]
 
     def __repr__(self):
@@ -100,6 +110,7 @@ TypeFloat64 = TypeFloat(64)
 
 
 class TypeTypeComplex(TypeType):
+    """A type for complex objects."""
     def node_type(self):
         return self.__class__
 
@@ -109,7 +120,7 @@ class TypePointer(TypeTypeComplex):
     def __init__(self, type):
         """A type representing a pointer to another type
 
-        Agttributes:
+        Attributes:
             type: The type the pointer will point to.
         """
         self.type = type
@@ -124,13 +135,27 @@ class TypePointer(TypeTypeComplex):
         return "TypePointer({!r})".format(self.type)
 
     def validate(self, validation, context):
+        """Validates this node and its subnodes in the given context
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
+        """Applies a map function over this node and its new subnodes.
+        
+        Args:
+            map_func: A map function to be applied across the node.
+        
+        Returns:
+            The node after having the map function applied to it.
+        """
         return self.__class__(self._map_over_single_val(self, map_func, self.type))
 
 class TypeArray(TypeTypeComplex):
-    """Fixed length array of homogenous components.
+    """Fixed length array of homogeneous components.
 
     Attributes:
         length: Number of elements
@@ -156,6 +181,12 @@ class TypeArray(TypeTypeComplex):
         return "TypeArray({!r}, {!r})".format(self.type, self.length)
 
     def validate(self, validation, context):
+        """Validates this node and its subnodes in the given context
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         try:
             foo = int(self.length)
         except ValueError:
@@ -163,10 +194,24 @@ class TypeArray(TypeTypeComplex):
         TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
+        """Applies a map function over this node and its new subnodes.
+        
+        Args:
+            map_func: A map function to be applied across the node.
+        
+        Returns:
+            The node after having the map function applied to it.
+        """
         return self.__class__(self._map_over_single_val(self, map_func, self.type), self.length)
 
 
 class TypeStructElement(TypeTypeComplex):
+    """Type for elements within structures.
+    
+    Attributes:
+        name: String name of the type
+        type: A TYpe object
+    """
     def __init__(self, name, type):
         self.name = name
         self.type = type
@@ -186,25 +231,38 @@ class TypeStructElement(TypeTypeComplex):
         return "TypeStructMember({!r}, {!r})".format(self.name, self.type)
 
     def validate(self, validation, context):
+        """Validates this node and its subnodes in the given context
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         if not context.is_valid_symbol(self.name):
             validation.add_error("StructElement name '{}' is not valid.".format(self.name))
 
         TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
+        """Applies a map function over this node and its new subnodes.
+        
+        Args:
+            map_func: A map function to be applied across the node.
+        
+        Returns:
+            The node after having the map function applied to it.
+        """
         return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
 
 
 class TypeStruct(TypeTypeComplex):
-    """A fixed size record of hetrogenous components.
+    """A fixed size record of heterogeneous components.
 
     Attributes:
         elements: Dictionary mapping names in the struct to types
-
     """
 
     def __init__(self, elements):
-        """A fixed size record of hetrogenous components.n
+        """A fixed size record of heterogeneous components.n
 
         Args:
             elements: Dictionary mapping names in the struct to types
@@ -227,6 +285,12 @@ class TypeStruct(TypeTypeComplex):
         return "TypeStruct({!r})".format(self.elements)
 
     def validate(self, validation, context):
+        """Validates this node and its subnodes in the given context
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         for element in self.elements:
             with validation.error_boundry("Struct element not valid:"):
                 if not (isinstance(element, TypeStructElement)):
@@ -235,6 +299,14 @@ class TypeStruct(TypeTypeComplex):
                 element.validate(validation, context)
 
     def map_over(self, map_func):
+        """Applies a map function over this node and its new subnodes.
+        
+        Args:
+            map_func: A map function to be applied across the node.
+        
+        Returns:
+            The node after having the map function applied to it.
+        """
         new_elements = []
         for node in self.elements:
             new_subs = map_func(node)
@@ -263,12 +335,26 @@ class TypeFunctionArgument(TypeTypeComplex):
         return "TypeFunctionArgument({!r}, {!r})".format(self.name, self.type)
 
     def validate(self, validation, context):
+        """Validates this node and its subnodes in the given context
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         if not context.is_valid_symbol(self.name):
             validation.add_error("StructElement name '{}' is not valid.".format(self.name))
 
         TypeType.type_validate(validation, self.type, context)
 
     def map_over(self, map_func):
+        """Applies a map function over this node and its new subnodes.
+        
+        Args:
+            map_func: A map function to be applied across the node.
+        
+        Returns:
+            The node after having the map function applied to it.
+        """
         return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
 
 
@@ -298,6 +384,12 @@ class TypeFunction(TypeTypeComplex):
         return "TypeFunction({!r}, {!r})".format(self.return_type, self.args)
 
     def validate(self, validation, context):
+        """Validates this node and its subnodes in the given context
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         TypeType.type_validate(validation, self.return_type, context)
 
         for arg in self.args:
@@ -308,6 +400,14 @@ class TypeFunction(TypeTypeComplex):
                 arg.validate(validation, context)
 
     def map_over(self, map_func):
+        """Applies a map function over this node and its new subnodes.
+        
+        Args:
+            map_func: A map function to be applied across the node.
+        
+        Returns:
+            The node after having the map function applied to it.
+        """
         new_return_type = self._map_over_single_val(self, map_func, self.return_type)
 
         new_args = []
@@ -352,6 +452,11 @@ class NamedType(TypeTypeComplex):
     class SymbolResolutionError(Exception): pass
 
     def resolve(self, context):
+        """Sets the type of the node.
+        
+        Args:
+            context: MdlDescription object
+        """
         namespace, symbol = context.split_namespace(self.symbol)
         try:
             root_node = context.get_root_node(namespace, lambda n: isinstance(n, TypeDeclaration) and n.name == symbol)
@@ -363,6 +468,12 @@ class NamedType(TypeTypeComplex):
         return self._res_type
 
     def validate(self, validation, context):
+        """Validates this node and its subnodes in the given context
+        
+        Args:
+            validation: ValidationState object
+            context: MdlDescription object
+        """
         try:
             self.resolve(context)
         except:

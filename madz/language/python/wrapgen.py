@@ -15,7 +15,15 @@ from ...core.dependency import Dependency
 tmpnode = namedtuple('node', ['name', 'type'], verbose = False)
 
 class PythonGenerator(object):
-    """Class to Generate C wrapper for python plugins."""
+    """Class to Generate C wrapper for python plugins.
+    
+    Attributes:
+        dependencies: List of python generators whose plugins this generator is dependant on
+        namespace: String namespace for this plugin. Empty 
+        description:
+        mangled_namespace:
+        python_mangle:
+    """
 
     def __init__(self, dependencies, namespace, description):
         """Constructor for Python Source Generator/
