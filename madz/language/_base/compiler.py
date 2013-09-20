@@ -3,7 +3,12 @@ import abc
 from ...config import *
 
 class BaseCompiler(object):
-    """The base compiler object."""
+    """The base compiler object.
+    
+    Attributes:
+        language: A BaseLanguage object.
+        config: A MergedConfig object.
+    """
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, language):

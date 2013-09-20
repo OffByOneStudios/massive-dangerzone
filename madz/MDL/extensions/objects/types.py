@@ -4,6 +4,12 @@ from ... import base_types
 extension_prefix = "MADZ_EXT_OBJECTS_"
 
 class MemberFunctionDefinition(nodes.Definition):
+    """Instance method object to be attached to classes.
+    
+    Attributes:
+        name: String name of the function.
+        type:
+    """
     def __init__(self, name, type):
         self.name = name
         self.type = type

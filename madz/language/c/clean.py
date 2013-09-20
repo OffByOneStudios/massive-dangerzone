@@ -28,6 +28,11 @@ class Cleaner(object):
 
     @classmethod
     def clean_dir(cls, dir):
+        """Cleans the inputted directory.
+        
+        Args:
+            dir: Path to directory to be cleaned.
+        """
         if os.path.exists(dir):
             logger.debug("Found and cleaning directory: {}".format(dir))
             shutil.rmtree(dir)

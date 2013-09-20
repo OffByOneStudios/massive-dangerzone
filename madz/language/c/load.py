@@ -1,5 +1,10 @@
 
 class Loader(object):
+    """Loader object for C language.
+    
+    Attributes:
+        language: Language object.
+    """
     def __init__(self, language):
         self.language = language
 
