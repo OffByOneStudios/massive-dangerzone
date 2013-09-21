@@ -32,6 +32,9 @@ class MSCLCompiler(base.SubprocCompilerBase):
         """Returns a list of the linked library directories."""
         return map(lambda d: "/LIBPATH:{}".format(d), self.config.get(OptionLibrarySearchPaths, []))
         
+    def _gen_link_library_statics(self):
+        return map(lambda d: '{}'.format(d), self.config.get(OptionLibraryStaticLinks, []))    
+        
     def _gen_compile_flags(self):
         """Returns a list of compiler flags."""
         # We don't use optimization flags for cl. It is self optimizing /snark.
@@ -64,6 +67,7 @@ class MSCLCompiler(base.SubprocCompilerBase):
             list(self._gen_link_flags()) + \
             ["/OUT:"+self.language.get_output_file()] + \
             list(self._gen_link_library_dirs()) + \
+            list(self._gen_link_library_statics()) + \
             list(object_files)
 
     def log_output(self, retcode, output, errput, foutput, ferrput):
