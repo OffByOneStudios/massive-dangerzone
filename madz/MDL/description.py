@@ -98,6 +98,9 @@ class MDLDescription(object):
 
         self.ast = sorted(self.ast, key=self.keyfunc)
 
+    def copy(self):
+        return MDLDescription(list(self.ast), dict(self.dependencies))
+
     @classmethod
     def transform_ast_named_strs(cls, ast):
         """Names each subnode of the description.

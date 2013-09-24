@@ -38,6 +38,7 @@ class ExecuteAction(BaseAction):
             function = self._get_function(plugin_stub, execute_function_name)
             function = set_ctypes_from_mdl(function, execute_function_signature)
             
+            logger.info("ACTION[{}] Calling function '{}' from plugin '{}'.".format(self.action_name, execute_function_name, execute_plugin_name))
             function()
         except Exception as e:
             tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))

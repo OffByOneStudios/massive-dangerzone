@@ -139,6 +139,7 @@ class CppNamespaceGenerator(object):
                 return [(name, ret_node)]
             return [ret_node]
 
+        self.description = self.description.copy()
         self.description.ast = self.description.map_over(self.description.ast, map_func)
 
     def _make_namespaces(self):
