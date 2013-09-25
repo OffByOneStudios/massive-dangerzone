@@ -43,7 +43,8 @@ class GCCCompiler(base.SubprocCompilerBase):
         """Returns a list of the compiler flags."""
         return \
             (["-O0"] if (self.config.get(OptionCompilerDebug, 0.0) < 0.5) else ["-O4"]) + \
-            (["-g"] if self.config.get(OptionCompilerDebug, False) else [])
+            (["-g"] if self.config.get(OptionCompilerDebug, False) else []) + \
+            ["-std=c11"]
 
     def _gen_link_flags(self):
         """Returns a list of the linker flags."""

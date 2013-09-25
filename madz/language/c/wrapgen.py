@@ -34,11 +34,11 @@ class CGenerator(object):
         return namespace.replace(".", "__")
 
     def _gen_table_struct(self, node, name):
-        return "struct {{\n{}\n}} {}".format(
+        return "struct {type_name} {{\n{}\n}} {type_name}".format(
             "\n".join(map(
                 lambda t: "\t{};".format(self.gen_type_string(t.name, t.type)),
                 node.elements)),
-            name)
+            type_name = name)
 
     def _gen_table_function(self, node, name):
         return "{}(*{})({})".format(
@@ -47,9 +47,6 @@ class CGenerator(object):
             ", ".join(map(
                 lambda a: self.gen_type_string(a.name, a.type),
                 node.args)))
-
-    def _gen_table_typedef(self, node, name):
-        return "typedef " + self.gen_type_string("", node.type) + self.type_prefix + "_" + self.namespace + "_" + name
 
     def _gen_actual_function(self, node, name):
         return "{}{}({})".format(
@@ -97,6 +94,20 @@ class CGenerator(object):
         pdl.TypeFunction : _gen_table_function,
     }
 
+    def make_forward_declarations(self):
+        """Constructs Forward Declarations for this namespace.
+
+        Forward declarations allow simpler code generation in other areas,
+        namely in struct and function typedefs.
+        
+        Returns:
+            The constructed forward declarations for this namespace.
+        """
+        res = ""
+        for node in filter(lambda n: n.type.node_type() == pdl.TypeStruct, self.description.declarations()):
+            res += "typedef struct {type_name} {type_name};\n".format(type_name = self.mangle_type_name(node.name))
+        return res
+
     def make_declarations(self):
         """Constructs Declarations for this namespace.
         
@@ -104,7 +115,6 @@ class CGenerator(object):
             The constructed declarations for this namespace.
         """
         res = ""
-        #TODO For each typedef, struct def, function defininition generate C rep
         for node in self.description.declarations():
             res += "typedef {};\n".format(self.gen_type_string(self.mangle_type_name(node.name), node.type))
         return res
@@ -137,6 +147,7 @@ class CGenerator(object):
         """
         declares_vars  = "/*   * NAMESPACE: {} */\n".format(self.namespace)
         declares_vars += "/*   * \> declarations */\n"
+        declares_vars += self.make_forward_declarations()
         declares_vars += self.make_declarations()
         declares_vars += "/*   * \> variables struct */\n"
         declares_vars += self.make_variables()
