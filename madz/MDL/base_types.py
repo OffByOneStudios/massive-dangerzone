@@ -474,22 +474,30 @@ class NamedType(TypeTypeComplex):
             validation: ValidationState object
             context: MdlDescription object
         """
+        # Add valid cach dictionary
+        if not ("base_types.NamedType" in validation.valid_cache):
+            validation.valid_cache["base_types.NamedType"] = set()
+
+        # Attempt to resolve type
         try:
             self.resolve(context)
         except:
             validation.add_error("Exception when resolving NamedType")
             return
 
+        # Check that it derives from TypeType.
         if not isinstance(self._res_type, TypeType):
             validation.add_error("NamedType result '{}' is not a Type.".format(self._res_type))
             return
 
-        with validation.error_boundry("Type {} is not valid.".format(self._res_type)):
-            self._res_type.validate(validation, context.get_context(context.split_namespace(self.symbol)[0]))
-        if not validation.valid:
-            return
-
+        # Check that is is a general type.
         if not self._res_type.get_type().is_general_type():
             validation.add_error("Type {} is not a general type.".format(self._res_type))
             return
+
+        # Validate the resolved type; only if validation hasn't already started.
+        if not (self.symbol in validation.valid_cache["base_types.NamedType"]):
+            with validation.error_boundry("Type {} is not valid.".format(self._res_type)):
+                validation.valid_cache["base_types.NamedType"].add(self.symbol)
+                self._res_type.validate(validation, context.get_context(context.split_namespace(self.symbol)[0]))
 

@@ -29,6 +29,7 @@ class ValidationState(object):
         self.warnings = []
         self.valid = True
         self.indent = ""
+        self.valid_cache = {}
 
     def add_error(self, msg):
         """Adds an error message to ValidationState's list of errors.
