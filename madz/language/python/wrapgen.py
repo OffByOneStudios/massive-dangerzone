@@ -253,11 +253,11 @@ void ___madz_init_imports();
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 frg = {
-                             "prettype":"void*" if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else c_gen.gen_type_string("", node.type.return_type),
-                             "rettype":c_gen.gen_type_string("", node.type.return_type),
-                             "fnname":"___madz_LANG_python_FN_" + node.name,
+                             "prettype": c_gen.gen_type_string("", node.type.return_type),
+                             "rettype": c_gen.gen_type_string("", node.type.return_type),
+                             "fnname": "___madz_LANG_python_FN_" + node.name,
                              "nodename": node.name,
-                             "args":",".join(map(
+                             "args": ",".join(map(
                                 lambda a: c_gen.gen_type_string(a.name, a.type),
                                 node.type.args)),
 
@@ -441,7 +441,7 @@ void ___madz_init_imports(){{
 
     tmp = PyThreadState_Swap(___madz_LANG_python_thread_state);
     gstate = PyGILState_Ensure();
-    ret = {cast_and_deref}___madz_LANG_python_OUTPUT.{fnname}({argnames});
+    ret = {cast_and_deref}___madz_LANG_python_OUTPUT.{nodename}({argnames});
     PyGILState_Release(gstate);
     PyThreadState_Swap(tmp);
     return ret;
