@@ -260,7 +260,7 @@ class VariableDefinition(Definition):
         return hash((self.__class__, self.name, self.type))
 
     def __repr__(self):
-        return "TypeDeclaration({!r}, {!r})".format(self.name, self.type)
+        return "VariableDefinition({!r}, {!r})".format(self.name, self.type)
 
     def validate(self, validation, context):
         """Validates this node within the provided context.

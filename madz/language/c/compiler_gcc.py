@@ -43,7 +43,11 @@ class GCCCompiler(base.SubprocCompilerBase):
         """Returns a list of the compiler flags."""
         return \
             (["-O0"] if (self.config.get(OptionCompilerDebug, 0.0) < 0.5) else ["-O4"]) + \
-            (["-g"] if self.config.get(OptionCompilerDebug, False) else []) + \
+            (["-g"] if self.config.get(OptionCompilerDebug, False) else [])
+
+    def _gen_specifc_compile_flags(self):
+        """Returns a list of the language specific compiler flags. Must be overloaded if a different language."""
+        return \
             ["-std=c11"]
 
     def _gen_link_flags(self):
@@ -71,6 +75,7 @@ class GCCCompiler(base.SubprocCompilerBase):
         """
         return [self.binary_name_binary_compiler()] + \
             list(self._gen_compile_flags()) + \
+            list(self._gen_specifc_compile_flags()) + \
             ["-c", "-I"+self.language.get_wrap_directory()] + \
             list(self._gen_header_include_dirs()) + \
             list(self._gcc_visibility()) + \
