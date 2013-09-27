@@ -94,28 +94,30 @@ class CGenerator(object):
         pdl.TypeFunction : _gen_table_function,
     }
 
-    def make_forward_declarations(self):
-        """Constructs Forward Declarations for this namespace.
+    def make_declarations(self):
+        """Constructs Declarations for this namespace.
 
-        Forward declarations allow simpler code generation in other areas,
-        namely in struct and function typedefs.
+        This only forward declares stucts.
         
         Returns:
             The constructed forward declarations for this namespace.
         """
         res = ""
-        for node in filter(lambda n: n.type.node_type() == pdl.TypeStruct, self.description.declarations()):
-            res += "typedef struct {type_name} {type_name};\n".format(type_name = self.mangle_type_name(node.name))
+        for node in self.description.declarations():
+            if node.type.node_type() == pdl.TypeStruct:
+                res += "typedef struct {type_name} {type_name};\n".format(type_name = self.mangle_type_name(node.name))
+            else:
+                res += "typedef {};\n".format(self.gen_type_string(self.mangle_type_name(node.name), node.type))
         return res
 
-    def make_declarations(self):
-        """Constructs Declarations for this namespace.
+    def make_struct_declarations(self):
+        """Finishes declaring structs.
         
         Returns:
             The constructed declarations for this namespace.
         """
         res = ""
-        for node in self.description.declarations():
+        for node in filter(lambda n: n.type.node_type() == pdl.TypeStruct, self.description.declarations()):
             res += "typedef {};\n".format(self.gen_type_string(self.mangle_type_name(node.name), node.type))
         return res
 
@@ -147,8 +149,8 @@ class CGenerator(object):
         """
         declares_vars  = "/*   * NAMESPACE: {} */\n".format(self.namespace)
         declares_vars += "/*   * \> declarations */\n"
-        declares_vars += self.make_forward_declarations()
         declares_vars += self.make_declarations()
+        declares_vars += self.make_struct_declarations()
         declares_vars += "/*   * \> variables struct */\n"
         declares_vars += self.make_variables()
         declares_vars += "\n\n"

@@ -45,7 +45,7 @@ class PythonGenerator(object):
         self.description = description
         self.mangled_namespace = self._namespace_mangle(namespace)
 
-        self._is_top_level = None
+        self._is_top_level = None # Deals with self recursive structs
 
     def _namespace_mangle(self, namespace):
         """Removes dots from namespace names, replaces them with ___"""
@@ -62,7 +62,7 @@ class PythonGenerator(object):
 
     def _gen_table_function(self, node):
         return "CFUNCTYPE({}{})".format(
-            self.gen_type_string(node.return_type).strip(),
+            self.gen_type_string(node.return_type),
             "" if node.args == [] else ", " + ", ".join(map(
                 lambda t: "{}".format(self.gen_type_string(t.type)),
                 node.args)))
@@ -125,6 +125,7 @@ class PythonGenerator(object):
         """
         type_dict = self.python_madz_types_dict + self.mangled_namespace
         res = "{} = {{}}\n".format(type_dict)
+
         for node in self.description.declarations():
             varname = self.python_madz_types + self.mangled_namespace + "___" + node.name
             # Hack to get self referential top level structs.
@@ -183,7 +184,7 @@ class PythonGenerator(object):
                 }
                 res += \
 """
-    temp = {nameupper}(user_code_module.{name})
+    temp = cast(_sanitize_python_callback(user_code_module.{name}, {nameupper}), {nameupper})
     keepers['{nameupper}'] = temp
     _plugin.contents.{name} = temp
 """.format(**frags)
@@ -343,6 +344,11 @@ void ___madz_init_imports();
 """
         return res
 
+    def make_c_cast_deref_string(self, c_gen, node):
+        return "{}({})".format(
+            "*" if node.node_type() == pdl.TypeStruct else "",
+            c_gen.gen_type_string("", node))
+
     def make_c_init(self, madz_path):
         """Creates code to intialize this plugin's interpreter.
 
@@ -458,28 +464,16 @@ void ___madz_init_imports(){{
         fn =\
 """{rettype} {fnname}({args}){{
     {rettype} ret;
-    PyThreadState *tmp;
-    PyGILState_STATE gstate;
 
-    tmp = PyThreadState_Swap(___madz_LANG_python_thread_state);
-    gstate = PyGILState_Ensure();
     ret = {cast_and_deref}___madz_LANG_python_OUTPUT.{nodename}({argnames});
-    PyGILState_Release(gstate);
-    PyThreadState_Swap(tmp);
+
     return ret;
 }}
 
 """
         fn_no_return =\
 """{rettype} {fnname}({args}){{
-    PyThreadState *tmp;
-    PyGILState_STATE gstate;
-
-    tmp = PyThreadState_Swap(___madz_LANG_python_thread_state);
-    gstate = PyGILState_Ensure();
     ___madz_LANG_python_OUTPUT.{nodename}({argnames});
-    PyGILState_Release(gstate);
-    PyThreadState_Swap(tmp);
     return;
 }}
 
@@ -490,7 +484,7 @@ void ___madz_init_imports(){{
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 fragments = {
                     "maybe_parentheses": ")" if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
-                    "cast_and_deref": "",
+                    "cast_and_deref": self.make_c_cast_deref_string(c_gen, node.type.return_type),
                     "rettype": c_gen.gen_type_string("", node.type.return_type),
                     "fnname": "___madz_LANG_python_FN_" + node.name,
                     "nodename": node.name,
@@ -568,6 +562,12 @@ class _struct_accessor(object):
         else:
             # Default behaviour
             raise AttributeError()
+
+def _sanitize_python_callback(func, ctypes_functype):
+    sanitized_functype = CFUNCTYPE(c_void_p, *ctypes_functype._argtypes_)
+    def santized_call(*args, **kwargs):
+        return cast(func(*args, **kwargs), c_void_p)
+    return sanitized_functype(santized_call)
 
 ## Declarations
 

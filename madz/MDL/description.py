@@ -97,7 +97,7 @@ class MDLDescription(object):
         # TODO: Better extension detection.
         #self.ast = ext_objects.expand(self.ast)
 
-        self.ast = sorted(self.ast, key=self.keyfunc, reverse=True)
+        self.ast = sorted(self.ast, key=self.keyfunc)
 
     def copy(self):
         return MDLDescription(list(self.ast), dict(self.dependencies))
@@ -147,7 +147,7 @@ class MDLDescription(object):
             (2, node.name) if the node is a TypePointer.
             (3, node.name) if the node is not any of the above types.
         """
-        if node.node_type() == nodes.Declaration:
+        if isinstance(node, nodes.Declaration):
             return (0, "")
         else:
             if node.type.node_type() == base_types.TypeFunction:
