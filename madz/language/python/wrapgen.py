@@ -177,14 +177,15 @@ class PythonGenerator(object):
         """
         res = ""
         for node in self.description.definitions():
-            if isinstance(node.type, pdl.TypeFunction):
+            if isinstance(node.type.get_type(), pdl.TypeFunction):
                 frags={
-                    "name" : node.name,
-                    "nameupper" : self.python_madz_deftypes + "___" + node.name,
+                    "name": node.name,
+                    "nameupper": self.python_madz_deftypes + "___" + node.name,
+                    "sanitize": "_sanitize_python_callback" if isinstance(node.type.return_type.get_type(), pdl.TypePointer) else "_python_callback" 
                 }
                 res += \
 """
-    temp = cast(_sanitize_python_callback(user_code_module.{name}, {nameupper}), {nameupper})
+    temp = cast({sanitize}(user_code_module.{name}, {nameupper}), {nameupper})
     keepers['{nameupper}'] = temp
     _plugin.contents.{name} = temp
 """.format(**frags)
@@ -566,8 +567,11 @@ class _struct_accessor(object):
 def _sanitize_python_callback(func, ctypes_functype):
     sanitized_functype = CFUNCTYPE(c_void_p, *ctypes_functype._argtypes_)
     def santized_call(*args, **kwargs):
-        return cast(func(*args, **kwargs), c_void_p)
+        return cast(func(*args, **kwargs), c_void_p).value
     return sanitized_functype(santized_call)
+
+def _python_callback(func, ctypes_functype):
+    return ctypes_functype(func)
 
 ## Declarations
 
