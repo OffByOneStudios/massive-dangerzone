@@ -23,6 +23,8 @@ class CppCodeGenerator(object):
         self.in_func = False
         self.in_namespace = ""
 
+        self.with_typedef = True;
+
     @contextlib.contextmanager
     def in_namespace(namespace, is_type=False, is_func=False):
         old = (self.in_namespace, self.in_type, self.in_func)
@@ -34,19 +36,29 @@ class CppCodeGenerator(object):
 
         self.in_namespace, self.in_type, self.in_func = old
 
+    def _sanitize_symbol(self, symbol):
+        if symbol in [
+            "class", "this", "struct"
+        ]:
+            return "_" + symbol;
+        else:
+            return symbol;
+
     def _gen_table_struct(self, node, name):
-        return "struct {{\n{}\n}} {}".format(
+        return "struct {} {{\n{}\n}} {}".format(
+            ("" if self.with_typedef else name),
             "\n".join(map(
-                lambda t: "\t{};".format(self.gen_node(t.name, t.type)),
+                lambda t: "\t{};".format(self.gen_node(self._sanitize_symbol(t.name), t.type)),
                 node.elements)),
-            name)
+            (name if self.with_typedef else ""),
+            )
 
     def _gen_table_function(self, node, name):
         return "{}(*{})({})".format(
             self.gen_node("", node.return_type),
             name,
             ", ".join(map(
-                lambda a: self.gen_node(a.name, a.type),
+                lambda a: self.gen_node(self._sanitize_symbol(a.name), a.type),
                 node.args)))
 
     class TypeRef(pdl.TypePointer):
@@ -77,7 +89,7 @@ class CppCodeGenerator(object):
         return self._gen_table[node.node_type()](self, node, gend_name)
 
     def gen_name(self, name):
-        return name
+        return self._sanitize_symbol(name)
 
     def gen_ns_name(self, name, is_type=False, is_func=False):
         ns_list = name.split(".")
@@ -153,10 +165,17 @@ class CppNamespaceGenerator(object):
             self.namespace.split('.')))
 
     def _make_declarations(self):
-        return "".join(map(
-            lambda node: "typedef {};\n".format(self.gen.gen_node(self.gen.gen_name(node.name), node.type)),
-            self.description.declarations()
-        ))
+        res = ""
+        for node in self.description.declarations():
+            if node.type.node_type() == pdl.TypeStruct:
+                self.gen.with_typedef = False
+                res += "struct {type_name};\n{declare};\n".format(
+                    type_name = self.gen.gen_name(node.name),
+                    declare = self.gen.gen_node(self.gen.gen_name(node.name), node.type))
+                self.gen.with_typedef = True
+            else:
+                res += "typedef {};\n".format(self.gen.gen_node(self.gen.gen_name(node.name), node.type))
+        return res
 
     def _make_variables_struct(self):
         #with self.gen.in_namespace("", is_type=True):
@@ -260,7 +279,7 @@ class WrapperGenerator(object):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_cpp_code_filename(),
                    self.language.get_cpp_header_filename()]
-        dependencies = self.language.get_plugin_description_files()
+        dependencies = self.language.get_source_files()
         return Dependency(dependencies, targets)
 
     prefix = "___madz"
