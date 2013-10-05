@@ -194,6 +194,17 @@ class PluginStub(object):
         depends_list.reverse()
         return depends_list
 
+    def gen_required_loaded_imports(self):
+        """Generates a list of all imports. In orderish."""
+        imports_list = []
+        for plugin_import in self.loaded_imports:
+            if plugin_import not in imports_list:
+                for p in plugin_import.gen_recursive_loaded_depends():
+                    if p not in imports_list:
+                        imports_list.append(p)
+                imports_list.append(plugin_import)
+        return imports_list
+
     def gen_recursive_loaded_requires(self):
         """Generates a list of all requirements. No order."""
         requires_list = []

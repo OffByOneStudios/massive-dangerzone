@@ -94,7 +94,7 @@ class GCCCompiler(base.SubprocCompilerBase):
             list(self._gen_link_library_dirs()) + \
             list(self._gcc_warn_unresolved()) + \
             list(object_files) + \
-            list(self._gen_link_library_statics())
+            (list(self._gen_link_library_statics()) * 2)
 
     def log_output(self, retcode, output, errput, foutput, ferrput):
         #TODO(Mason): Add proper description to function.

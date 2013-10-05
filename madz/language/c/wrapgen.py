@@ -259,7 +259,7 @@ class WrapperGenerator(object):
             code_fragments["depends_declares_vars"] += gen.make_declares_and_vars()
             make_in_struct(gen, True)
 
-        for imp in self.plugin_stub.loaded_imports:
+        for imp in self.plugin_stub.gen_required_loaded_imports():
             gen = CGenerator([], imp.id.namespace, imp.description)
             code_fragments["imports_declares_vars"] += gen.make_declares_and_vars()
             make_in_struct(gen, False)
