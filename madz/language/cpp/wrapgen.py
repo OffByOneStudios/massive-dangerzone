@@ -96,7 +96,7 @@ class CppCodeGenerator(object):
 
     def gen_ns_name(self, name, is_type=False, is_func=False):
         ns_list = name.split(".")
-        name = ns_list[-1]
+        name = self.gen_name(ns_list[-1])
         target_namespace_list = ns_list[:-1]
 
         if len(ns_list) == 1 :
