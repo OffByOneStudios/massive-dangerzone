@@ -38,7 +38,10 @@ class CppCodeGenerator(object):
 
     def _sanitize_symbol(self, symbol):
         if symbol in [
-            "class", "this", "struct"
+            "class", "this", "struct",
+            "new", "delete",
+            "if", "switch", "while", "for", "case", "break", "continue", "do"
+            "align"
         ]:
             return "_" + symbol;
         else:
