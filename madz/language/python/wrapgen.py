@@ -294,6 +294,8 @@ void ___madz_init_imports();
                              }
                 fragments["fn_dec"] += fn.format(**frg)
                 fragments["function_pointers"] += pointer.format(**frg)
+        if fragments["function_pointers"] == "":
+            fragments["function_pointers"] = "uint8_t _madz_empty;"
         return res.format(**fragments)
 
     def make_out_struct(self):
