@@ -5,6 +5,8 @@ Helper function for interpreting command line.
 
 import argparse
 import logging
+import os
+import importlib
 
 from ..config import *
 from ..action import actions
@@ -45,7 +47,44 @@ def generate_parser(valid_commands):
         nargs='*',
         help="The plugins to perform the action on, not recommended for some actions.")
 
+    parser.add_argument("--plugins-from-file",
+        action='append',
+        default=None,
+        nargs='*',
+        help="A file who's associated plugin actions are to be performed on"
+        )
     return parser
+
+def _plugin_names_from_file(file_path):
+    """Given a file determine the full names of their plugins
+
+    args:
+        Files: list of string filenames
+
+    returns:
+        List of plugin names
+    """
+    file_path = file_path[0][0]
+
+    def _find_nearest_plugin(path):
+        while(path != os.getcwd()):
+            head, tail = os.path.split(path)
+            for d in os.listdir(head):
+                if d.find("__plugin__.py") != -1:
+                    return head + "/" + d
+            path = head
+        return ""
+
+    if file_path.find("__plugin__.py") == -1:
+        file_path = _find_nearest_plugin(file_path)
+
+    if file_path == "":
+        return ""
+
+    else:
+        imp = importlib.machinery.SourceFileLoader("__plugin__", file_path)
+        plugin = imp.load_module("__plugin__")
+        return plugin.plugin.name
 
 def execute_args_across(argv, system, user_config):
     """Executes the commands from a list of plugin configurations across a provided system from the command line.
@@ -68,6 +107,13 @@ def execute_args_across(argv, system, user_config):
             # Setup logging level
             if not (logging_setup._log_ch is None):
                 logging_setup._log_ch.setLevel(logging_setup._log_level_name_index[args.log_level])
+
+
+            if not (args.plugins_from_file == None):
+                if args.plugins == None:
+                    args.plugins = [[_plugin_names_from_file(args.plugins_from_file)]]
+                else:
+                    args.plugins += [_plugin_names_from_file(args.plugins_from_file)]
 
             # Setup active plugins
             if not (args.plugins is None):
