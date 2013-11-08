@@ -44,10 +44,14 @@ class BaseAction(object):
             language = plugin_stub.language
             provider = self._get_provider(language)
             
-            if self._check_dependency(provider):
-                logger.info("ACTION[{}] on plugin '{}'".format(self.action_name, plugin_stub))
-                try:
-                    provider.do()
-                except Exception as e:
-                    tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
-                    logger.error("ACTION[{}] failed on plugin '{}':\n\t{}".format(self.action_name, plugin_stub, tb_string))
+            try:
+                if self._check_dependency(provider):
+                    logger.info("ACTION[{}] on plugin '{}'".format(self.action_name, plugin_stub))
+                    try:
+                        provider.do()
+                    except Exception as e:
+                        tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+                        logger.error("ACTION[{}] failed on plugin '{}':\n\t{}".format(self.action_name, plugin_stub, tb_string))
+            except Exception as e:
+                tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+                logger.error("ACTION[{}] dependency errored on plugin '{}':\n\t{}".format(self.action_name, plugin_stub, tb_string))
