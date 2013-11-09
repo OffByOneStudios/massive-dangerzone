@@ -671,7 +671,7 @@ class cstdlib(object):
 class mem(object):
     @staticmethod
     def malloc(ctype):
-        return ctypes.cast(cstdlib.malloc(ctypes.sizeof(ctype)), POINTER(ctype))
+        return ctypes.cast(cstdlib.malloc(ctypes.sizeof(ctype)), ctypes.POINTER(ctype))
 
     @staticmethod
     def free(ctype_ptr):
@@ -679,6 +679,15 @@ class mem(object):
 
 self = None
 types = _types()
+
+def pack(obj):
+    return ctypes.c_void_p(id(obj))
+
+def unpack(pointer):
+    if (pointer):
+        return ctypes.cast(pointer, ctypes.py_object).value
+    else:
+        return None
 
 imports = {{}}
 depends = {{}}
