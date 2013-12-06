@@ -16,6 +16,9 @@ class MinGWCompiler(GCCCompiler):
         """Returns the visibility of the compiler."""
         return []
 
+    def _gen_link_flags(self):
+        return ["-mwindows"]
+        
     def _gcc_shared_codegen(self):
         #TODO(Mason): Add proper description.
         """???"""
