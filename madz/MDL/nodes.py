@@ -196,7 +196,7 @@ class Declaration(RootNode):
 
 class TypeDeclaration(Declaration):
     """A declaration of a new type."""
-    def __init__(self, name, type):
+    def __init__(self, name=None, type=None):
         self.name = name
         self.type = type
 
@@ -247,7 +247,7 @@ class Definition(RootNode):
 
 class VariableDefinition(Definition):
     """A definition of a new variables."""
-    def __init__(self, name, type):
+    def __init__(self, name=None, type=None):
         self.name = name
         self.type = type
 
