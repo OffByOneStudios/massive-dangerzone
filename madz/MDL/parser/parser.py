@@ -82,7 +82,7 @@ class Parser():
 
         def __str__(self):
             return "ParseStateDebugStack:\n{}".format("".join(
-                map(lambda s: "  {!r}:\n    {!s}\n".format(s.parsed_string, s), self._stack)))
+                map(lambda s: "{}{!s}:  {!r}\n".format("  "*(s[1]+1), s[0], s[0].parsed_string), self._stack)))
 
     class ParseStateLevelStack(ParseStateStack):
         class LevelState(object):
@@ -91,6 +91,9 @@ class Parser():
                 self._start = kwargs.get('on_start', lambda self, state: None)
                 self._end = kwargs.get('on_end', lambda self, state: None)
                 self._parsed = kwargs.get('on_parsed', lambda self, state, accepted: None)
+
+            def parsing(self, state):
+                pass
 
             def parsed(self, state, accepted):
                 self._parsed(self, state, accepted)
@@ -199,6 +202,11 @@ class Parser():
 
         # Parse loop
         while (pstr != ""):
+            #= Inform level
+            top_level = state[Parser.ParseStateLevelStack.key()].top
+            if not (top_level is None):
+                top_level.parsing(state)
+
             try:
                 accepted = self._do_rules(pstr, state)[0]
             except Exception as e:
@@ -207,7 +215,7 @@ class Parser():
 
             #=== Build next parse state
             state = IParseState.copy_state(accepted.state)
-            state[Parser.ParseStateDebugStack.key()].push(accepted)
+            state[Parser.ParseStateDebugStack.key()].push((accepted, len(state[Parser.ParseStateLevelStack.key()]._stack)))
 
             #= Inform level
             top_level = state[Parser.ParseStateLevelStack.key()].top

@@ -19,6 +19,9 @@ class TypeTypeSimple(TypeType):
     def __hash__(self):
         return hash(self.__class__)
 
+    def copy(self):
+        return self
+
     def node_type(self):
         return self
 
@@ -117,7 +120,7 @@ class TypeTypeComplex(TypeType):
 class TypePointer(TypeTypeComplex):
     """A type representing a pointer to another type"""
 
-    def __init__(self, type):
+    def __init__(self, type=None):
         """A type representing a pointer to another type
 
         Attributes:
@@ -133,6 +136,9 @@ class TypePointer(TypeTypeComplex):
 
     def __repr__(self):
         return "TypePointer({!r})".format(self.type)
+
+    def copy(self):
+        return self.__class__(type=None if self.type is None else self.type.copy())
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -180,6 +186,9 @@ class TypeArray(TypeTypeComplex):
     def __repr__(self):
         return "TypeArray({!r}, {!r})".format(self.type, self.length)
 
+    def copy(self):
+        return self.__class__(length=self.length, type=None if self.type is None else self.type.copy())
+
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
         
@@ -212,7 +221,7 @@ class TypeStructElement(TypeTypeComplex):
         name: String name of the type
         type: A TYpe object
     """
-    def __init__(self, name, type):
+    def __init__(self, name=None, type=None):
         self.name = name
         self.type = type
 
@@ -229,6 +238,9 @@ class TypeStructElement(TypeTypeComplex):
 
     def __repr__(self):
         return "TypeStructMember({!r}, {!r})".format(self.name, self.type)
+
+    def copy(self):
+        return self.__class__(name=self.name, type=None if self.type is None else self.type.copy())
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -261,16 +273,13 @@ class TypeStruct(TypeTypeComplex):
         elements: Dictionary mapping names in the struct to types
     """
 
-    def __init__(self, elements):
+    def __init__(self, elements=[]):
         """A fixed size record of heterogeneous components.n
 
         Args:
             elements: Dictionary mapping names in the struct to types
         """
         elements = list(elements)
-
-        if len(elements) == 0:
-            raise ValueError("Structs must contain elements.")
 
         self.elements = elements
         self._elements_hash = hash(tuple(elements))
@@ -284,6 +293,12 @@ class TypeStruct(TypeTypeComplex):
     def __repr__(self):
         return "TypeStruct({!r})".format(self.elements)
 
+    def get_complex_list(self):
+        return self.elements
+
+    def copy(self):
+        return self.__class__(elements=[v.copy() for v in self.elements])
+
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
         
@@ -291,6 +306,9 @@ class TypeStruct(TypeTypeComplex):
             validation: ValidationState object
             context: MdlDescription object
         """
+        if len(elements) == 0:
+            validation.add_error("Structs must contain elements.")
+            return
         for element in self.elements:
             with validation.error_boundry("Struct element not valid:"):
                 if not (isinstance(element, TypeStructElement)):
@@ -316,7 +334,7 @@ class TypeStruct(TypeTypeComplex):
 
 
 class TypeFunctionArgument(TypeTypeComplex):
-    def __init__(self, name, type):
+    def __init__(self, name=None, type=None):
         self.name = name
         self.type = type
 
@@ -333,6 +351,9 @@ class TypeFunctionArgument(TypeTypeComplex):
 
     def __repr__(self):
         return "TypeFunctionArgument({!r}, {!r})".format(self.name, self.type)
+
+    def copy(self):
+        return self.__class__(name=self.name, type=None if self.type is None else self.type.copy())
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -382,6 +403,12 @@ class TypeFunction(TypeTypeComplex):
 
     def __repr__(self):
         return "TypeFunction({!r}, {!r})".format(self.return_type, self.args)
+
+    def get_complex_list(self):
+        return self.args
+
+    def copy(self):
+        return self.__class__(return_type=None if self.return_type is None else self.return_type.copy(), args=[v.copy() for v in self.args])
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -448,6 +475,9 @@ class NamedType(TypeTypeComplex):
 
     def __repr__(self):
         return "{}({!r})".format(self.__class__.__name__, self.symbol)
+
+    def copy(self):
+        return self.__class__(symbol=self.symbol)
 
     class SymbolResolutionError(Exception): pass
 

@@ -21,7 +21,7 @@ class ParseStateParseTree(ParseStateClassKeyMetaMod()):
         super().__init__(**kwargs)
         self.roots = []
         self.current_root = None
-        self._current_func = None
+        self._current_func = (lambda r: r)
 
     @classmethod
     def _valid_root(cls, root):
@@ -35,7 +35,7 @@ class ParseStateParseTree(ParseStateClassKeyMetaMod()):
         if (root is None):
             root = self.current_root
             self.current_root = None
-            self._current_func = None
+            self._current_func = (lambda r: r)
         self.roots.append(root)
 
     def current_root():
@@ -56,12 +56,14 @@ class ParseStateParseTree(ParseStateClassKeyMetaMod()):
         """Set the func that uses the root node to retrieve the current node"""
         self._current_func = func
 
+    def get_current_node_func(self):
+        """Get the func that uses the root node to retrieve the current node"""
+        return self._current_func
+
     def current_node():
         doc = "The current node being generated."
         def fget(self):
-            if self._current_func is None:
-                return None
-            return self._current_func(self.current_node)
+            return self._current_func(self.current_root)
         return locals()
     current_node = property(**current_node())
 
@@ -71,6 +73,6 @@ class ParseStateParseTree(ParseStateClassKeyMetaMod()):
 
     def _copy(self, new):
         super()._copy(new)
-        new.roots = list(map(lambda r: r, self.roots)) #TODO Copy
-        new.current_root = None if self.current_root is None else self.current_root #TODO Copy
+        new.roots = list(map(lambda r: r.copy(), self.roots))
+        new.current_root = None if self.current_root is None else self.current_root.copy()
         new._current_func = self._current_func

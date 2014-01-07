@@ -211,6 +211,9 @@ class TypeDeclaration(Declaration):
     def __repr__(self):
         return "TypeDeclaration({!r}, {!r})".format(self.name, self.type)
 
+    def copy(self):
+        return self.__class__(name=self.name, type=None if self.type is None else self.type.copy())
+
     def validate(self, validation, context):
         """Validates the node within the provided context.
         
@@ -261,6 +264,9 @@ class VariableDefinition(Definition):
 
     def __repr__(self):
         return "VariableDefinition({!r}, {!r})".format(self.name, self.type)
+
+    def copy(self):
+        return self.__class__(name=self.name, type=None if self.type is None else self.type.copy())
 
     def validate(self, validation, context):
         """Validates this node within the provided context.

@@ -13,7 +13,10 @@ class ParseRuleBase(IParseRule):
     def _new_levelstate(self, **kwargs):
         return Parser.ParseStateLevelStack.LevelState(**kwargs)
 
-    def p_chars(self, pstro, state, chars):
+    def p_chars(self, pstro, state, chars, first_chars=None):
+        if not (first_chars is None) \
+            and not pstro.test_in(first_chars):
+            raise Exception("Bad first character")
         pstro.match_all(chars)
 
     def _gen_levelargs(self, state, **kwargs):
@@ -104,11 +107,6 @@ class ParseRuleFromTillEndOfLine(ParseRuleChar):
         sup = super()._do_parse(pstro, state, gen_args)
         if not (sup is None): return sup
         while(pstro.cur != None and pstro.cur != '\n'): pstro.p()
-
-class ParseRuleSymbolWithMods(ParseRuleBase):
-    def __init__(self, chars, mods, from_left=False, **kwargs):
-        """mods is a dict mapping mod string to lambda manipulating current node"""
-        super().__init__(**kwargs)
 
 def ParseRuleNameMod(name, base):
     base._name = name

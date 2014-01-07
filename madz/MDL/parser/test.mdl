@@ -1,5 +1,8 @@
 
-type blarg void;
+type blarg ****char;
 var foo char;    #basdlfsadfj
+type gggg *void;
+type fooff (bird *char);
+type foofff {foo: *char};
 
 #  
