@@ -1,3 +1,9 @@
+Version 0.3.0
+=============
+
+* Adding MDL parser.
+* Improving documentation.
+* Improving python/c/c++ wrapper and compiler layers.
 
 Version 0.2.0
 =============
