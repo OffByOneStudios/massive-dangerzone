@@ -73,7 +73,7 @@ class MdlParseSymbol(MdlParseRuleBase()):
 
 class MdlTypeParseRuleNamed(MdlParseRuleBase()):
     def _do_parse(self, pstro, state, gen_args):
-        self.p_chars(pstro, state, self._config.config["symbol_chars"], self._config.config["symbol_first_chars"])
+        self.p_chars(pstro, state, self._config.config["symbol_chars"] + ".", self._config.config["symbol_first_chars"])
 
         res = pstro.parsed()
         if len(res) == 0:
@@ -285,8 +285,8 @@ class MdlTypeParseRuleFunc(MdlTypeParseRuleComplex):
 
 def generate_parser():
     config = MdlParserConfig({
-        "symbol_chars": string.ascii_letters + "_",
-        "symbol_first_chars": string.ascii_letters + "_" + string.digits})
+        "symbol_chars": string.ascii_letters + "_" + string.digits, 
+        "symbol_first_chars": string.ascii_letters + "_" })
 
     specialrules = ParseStateSpecialRules(
         whitespace=ParseRuleNameMod("whitespace", ParseRuleWhitespace(whitespace=string.whitespace + ',')),

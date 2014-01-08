@@ -38,8 +38,8 @@ class PluginSystem(object):
         """Adds a PluginDirectory to the list of directories to retrieve plugins from.
 
         Args:
-			directory: A string representing the directory path
-			partial_root: A string representing the partial root to the directory, if neccessary.
+            directory: A string representing the directory path
+            partial_root: A string representing the partial root to the directory, if neccessary.
         """
         self.directories.append((directory, partial_root))
 
@@ -71,16 +71,16 @@ class PluginSystem(object):
         return map(lambda p: p[0], self._plugin_stubs)
 
     def set_active_plugins(self, plugins, add_depends=False, add_requires=False):
-		"""Sets the active plugins of the PluginSystem object to the provided plugins list.
-		
-		Args:
-			plugins: A list of plugins
-			add_depends: If true, extends the dependencies of the PluginSystem to reflect the dependices of the new active plugins.
-			add_requries: If true, extends the requirements of the PluginSystem to reflect the requirements of the new active plugins.
-			
-		Returns:
-			The inputted list of plugins with any changes to dependencies and requirements.
-		"""
+        """Sets the active plugins of the PluginSystem object to the provided plugins list.
+        
+        Args:
+            plugins: A list of plugins
+            add_depends: If true, extends the dependencies of the PluginSystem to reflect the dependices of the new active plugins.
+            add_requries: If true, extends the requirements of the PluginSystem to reflect the requirements of the new active plugins.
+            
+        Returns:
+            The inputted list of plugins with any changes to dependencies and requirements.
+        """
         plugins = list(plugins)
 
         if add_depends:
@@ -101,15 +101,15 @@ class PluginSystem(object):
         return plugins
 
     def revert_active_plugins(self):
-		"""Sets all plugins in the universe to active plugins."""
+        """Sets all plugins in the universe to active plugins."""
         self._active_plugins = list(self.all_plugins())
 
     def active_plugins(self):
-		"""Returns a list of the active plugins in the system."""
+        """Returns a list of the active plugins in the system."""
         return list(self._active_plugins)
 
     def _init_plugin(self, plugin):
-		"""Private function called in PluginSystem.index"""
+        """Private function called in PluginSystem.index"""
         resolve_func = lambda id: self.plugin_resolver.get_plugin(id.namespace)
 
         if not(plugin.inited):

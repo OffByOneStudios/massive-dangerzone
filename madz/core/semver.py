@@ -6,14 +6,14 @@ Class object for manipulating Semantic Versions
 class SemanticVersion(object):
     """A Semantic Version object for a plugin, as defined by version 2.0.0 on semver.org :
         http://semver.org/spec/v2.0.0.html
-	
-	Args:
-		major: The major version number. (*1*.0.0)
-		minor: The minor version number. (1.*0*.0)
-		patch: The patch number (1.0.*0*)
-		prerelease: The prerelease number, if applicable (1.0.0*+40*)
-		metadata: Any relevant metadata to the version number.
-	"""
+    
+    Args:
+        major: The major version number. (*1*.0.0)
+        minor: The minor version number. (1.*0*.0)
+        patch: The patch number (1.0.*0*)
+        prerelease: The prerelease number, if applicable (1.0.0*+40*)
+        metadata: Any relevant metadata to the version number.
+    """
 
     def __init__(self, major , minor, patch, prerelease = None, metadata = None):
         """Initializes a SemVer object. Defaults to version number 0.0.0 if no information is provided."""
@@ -24,18 +24,18 @@ class SemanticVersion(object):
         self.metadata = metadata
 
     class SemanticVersionParseError(Exception):
-		pass
+        pass
 
     @classmethod
     def parse(cls, string):
         """Parses a string to return its SemVer object.
-			
-		Args:
-			string: A string representation of the SemVer object.
-			
-		Returns:
-			A SemanticVersion object.
-		"""
+        
+        Args:
+            string: A string representation of the SemVer object.
+            
+        Returns:
+            A SemanticVersion object.
+        """
         if string is None:
             return None
         elif isinstance(string, cls):
@@ -181,11 +181,11 @@ semver = SemanticVersion(1,0,0)
 semver2 = SemanticVersion.parse("1.0.0+42")
 
 if same_version_number(semver, semver2):
-	pass
-	
+    pass
+    
 if semver >= semver2:
-	pass
-	
+    pass
+    
 print semver
 
 semstr = str(semver)
