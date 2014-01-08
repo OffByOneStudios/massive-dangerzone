@@ -34,7 +34,7 @@ class LambdaFilter(PluginFilter):
 
 
 class LambdaOrderer(PluginOrderer):
-    """Plugin Orderer which accepts a order function.
+    """Plugin Orderer which accepts an order function.
 
     Attributes:
         fn : Function which returns a comparable object from the incoming collection
@@ -54,7 +54,7 @@ class IdentityPluginFilter(LambdaFilter):
 
 
 class DirectoryFilter(LambdaFilter):
-    """Filter Plugins Based off of a Directory"""
+    """Filter plugins based off of a Directory"""
     def __init__(self, directory, reverse=False):
         self.directory = directory
         self.reverse = reverse
@@ -62,6 +62,7 @@ class DirectoryFilter(LambdaFilter):
 
 
 class ImplementationFilter(LambdaFilter):
+    """Filter plugins based off of Implementation"""
     def __init__(self, implementation, reverse=False):
         self.implementation = implementation
         self.reverse = reverse
@@ -69,6 +70,7 @@ class ImplementationFilter(LambdaFilter):
 
 
 class NamespaceFilter(LambdaFilter):
+    """Filter plugins based off of a Namespace"""
     def __init__(self, namespace, reverse=False):
         self.namespace = namespace
         self.reverse = reverse
@@ -76,7 +78,13 @@ class NamespaceFilter(LambdaFilter):
 
 
 class VersionFilter(LambdaFilter):
-    """Filter plugins based on version number"""
+    """Filter plugins based on version number
+    
+    Attributes:
+        version: The version number to filter the plugins on.
+        reverse: If true, filters the list in reverse order.
+        op: The operation for the filter.
+    """
     eq="eq"
     gt="gt"
     lt="lt"
@@ -84,7 +92,7 @@ class VersionFilter(LambdaFilter):
     gteq="gteq"
     neq="neq"
     comparators = [eq, gt, lt, lteq, gteq, neq]
-
+    
     def __init__(self, version, reverse=False, op=eq):
         self.version = version
         self.reverse = reverse
@@ -115,13 +123,20 @@ class PluginResolverException(Exception):
 
 
 class PluginResolver(object):
-    """Class to lookup PluginSystems based on namespaces"""
+    """Class to lookup PluginSystems based on namespaces
+    
+        Attributes:
+            namespaces: Dictionary of namespaces
+            plugin_stubs: List of plugin stubs
+            filters: List of filters
+    """
     def __init__(self):
         self.namespaces = {}
         self.plugin_stubs = set()
         self.filters = [IdentityPluginFilter()]
 
     def add_filter(self, filter, index=None):
+        """Adds a filter to the PluginResolver's filter list."""
         if index == None:
             self.filters.append(filter)
         else:
@@ -179,6 +194,17 @@ class PluginResolver(object):
         self.namespaces[alias_name] = namespace
 
     def get_plugin(self, namespace):
+        """Returns a plugin from the Resolver for a provided namespace.
+        
+        Args:
+            namespace: A named string of the plugin being searched for
+            
+        Returns:
+            plugin.PythonPluginStub object
+            
+        Raises:
+            PluginResolverException if the provided namespace contains no plugin stub.
+        """
         candidates = self._get_plugin(namespace)
         for fil in self.filters:
             candidates = fil.filter(candidates)

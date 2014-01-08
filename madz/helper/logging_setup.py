@@ -14,7 +14,13 @@ _log_level_name_index = {
 _log_ch = None
 
 def bind_to_standard_out(level=logging.DEBUG, formatter=_logging_default_formatter, check_argv=sys.argv):
-
+    """Binds output from the logging system to standard out.
+    
+    Args:
+        level: The level of the logging system to bind to standard out
+        formatter: The formatting style for messages sent to standard out
+        check_argv: Arguments from the command line
+    """
     def pre_check_logger_level(argv, default=logging.DEBUG):
         if "-l" in argv:
             loc = argv.index("-l")
@@ -49,6 +55,14 @@ def bind_to_standard_out(level=logging.DEBUG, formatter=_logging_default_formatt
 _log_fh = None
 
 def bind_to_file(filename, mode="a", level=logging.DEBUG, formatter=_logging_default_formatter):
+    """Binds output from the logging system to a file
+    
+    Args:
+        filename: String representing the name of the file to output logging
+        mode: Mode for writing to file
+        level: Logging level for output to file
+        formatter: The formatting style for messages sent to standard out
+    """
     # create stream handler
     log_fh = logging.FileHandler(filename, mode)
 

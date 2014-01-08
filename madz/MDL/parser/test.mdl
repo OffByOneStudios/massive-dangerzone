@@ -1,0 +1,9 @@
+
+type blarg ****char;
+var foo char;    #basdlfsadfj
+type gggg *void;
+type fooff (bird *char birds ****void);
+type fooff (bird *char birds {foo: * char});
+type foofff {foo: *char cat: void};
+
+#  

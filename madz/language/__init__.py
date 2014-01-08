@@ -10,6 +10,14 @@ class LanguageError(Exception): pass
 class LanguageDoesNotExistError(LanguageError): pass
 
 def get_language(language):
+    """Retrieves a named language module from madz.
+    
+    Args:
+        language: A string of the name of the language to retrieve.
+        
+    Returns:
+        A Language Module
+    """
     if not os.path.exists(os.path.join(os.path.dirname(__file__), language)):
          LanguageDoesNotExistError("Could not find folder for language: {}".format(language))
 

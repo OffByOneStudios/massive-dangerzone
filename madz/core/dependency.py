@@ -6,7 +6,12 @@ Code to create and traverse dependency graphs of plugins.
 import os.path, time
 
 class Dependency(object):
-    """Generates a dependency graph of plugins allowing for generation in the correct order."""
+    """Generates a dependency graph of plugins allowing for generation in the correct order.
+    
+    Attributes:
+        dependencies: A list of strings, naming files for which there is a dependency.
+        targets: A list of strings, naming files for which are dependent on the dependencies.
+    """
 
     def __init__(self, dependencies, targets):
         self.dependencies = dependencies
@@ -38,6 +43,7 @@ class Dependency(object):
         self._has_checked = True
 
     def __bool__(self):
+        """Returns true if there are 0 unsatisfied targets in the Dependency."""
         if not self._has_checked:
             self.check()
         if len(self._unsatisfied_targets) == 0:
@@ -48,12 +54,13 @@ class Dependency(object):
     __nonzero__ = __bool__
 
     def get_unsatisfied_targets(self):
+        """Returns the list of all targets which are older than one of the dependencies."""
         if not self._has_checked:
             self.check()
         return self._unsatisfied_targets
 
 """
-#Example calls to Dependency
+#Example Usage of Dependency
 
 Dep = Dependency(["loader.py"],["builder.py"])
 

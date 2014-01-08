@@ -9,11 +9,12 @@ from ...core.dependency import Dependency
 logger = logging.getLogger(__name__)
 
 class SubprocCompilerBase(compiler.BaseCompiler):
-
+    """A compiler object which uses subprocesses to perform compilation steps (as opposed to direct calls)."""
     def __init__(self, language):
         compiler.BaseCompiler.__init__(self, language)
 
     class OperationType():
+        """Class used to assign key values to compiler operation types."""
         Compile = 0
         Link = 1
 
@@ -50,7 +51,14 @@ class SubprocCompilerBase(compiler.BaseCompiler):
 
     @abc.abstractmethod
     def log_output(self, operation, retcode, output, errput):
+        #TODO(Mason): Implement this method and add proper descriptions of input paramaters.
         """Responsible for logging the output from the proccess.
+        
+        Args:
+            operation: 
+            retcode:
+            output:
+            errput:
         """
         pass
 
@@ -94,7 +102,7 @@ class SubprocCompilerBase(compiler.BaseCompiler):
 
     def build(self, type=compiler.BaseCompiler.BuildType.DynamicPlugin):
         """Compiles and links plugin.
-
+        
         Implementation Notes:
             Hard Coded to use GCC
             Links as Unix Style Shared Objects.

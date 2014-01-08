@@ -10,17 +10,17 @@ from madz.dependency import Dependency
 logger = logging.getLogger(__name__)
 
 class Builder():
-    """Object Which can build Python plugins.
+    """Object which builds Python plugins.
 
     Attributes:
-        plugin_stub madz.plugin.PythonPluginStub object
+        plugin_stub: madz.plugin.PythonPluginStub object
     """
 
     def __init__(self, language):
         """Constructor for Python Builder.
 
         Args:
-            plugin_stub madz.plugin.PythonPluginStub object
+            language: A Language object
         """
 
         self.language = language

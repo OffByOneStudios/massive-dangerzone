@@ -1,6 +1,6 @@
 """language.py
 @OffbyoneStudios 2013
-The language object pulling togeather all of the pieces needed for a plugin of this language.
+The language object pulling together all of the pieces needed for a plugin of this language.
 """
 
 import os, sys, shutil
@@ -16,7 +16,7 @@ class Cleaner(c_clean.Cleaner):
     """Object Which can clean Python plugins.
 
     Attributes:
-        plugin_stub madz.plugin.PythonPluginStub object
+        language: A language object
     """
     def __init__(self, language):
         """Constructor for Python Cleaner.

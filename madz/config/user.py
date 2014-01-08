@@ -44,6 +44,14 @@ class UserConfig(BaseConfig):
 
     @classmethod
     def load_from_env_var(cls, env_var):
+        """Returns a UserConfig object from an environment variable.
+        
+        Args:
+            env_var: A string representing an environment variable
+            
+        Returns:
+            A UserConfig object.
+        """
         return cls.load_from_filename(os.environ.get(env_var))
 
 

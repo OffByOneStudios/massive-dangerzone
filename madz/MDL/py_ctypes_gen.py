@@ -7,6 +7,7 @@ import ctypes
 from . import *
 
 def set_ctypes_from_mdl(ctypes_function, mdl):
+    #TODO(Mason): Provide an accurate description of this function.
     type_convert = {
         TypeNone : None,
     }

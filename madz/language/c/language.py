@@ -15,7 +15,10 @@ from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
 class LanguageC(language.BaseLanguage):
+    """Language object for C.s"""
+    
     compilers = {
+        """List of compatible compilers with C and MADZ."""
         "gcc": compiler_gcc.GCCCompiler,
         "mingw": compiler_mingw.MinGWCompiler,
         "clang": compiler_clang.ClangCompiler,
@@ -24,36 +27,48 @@ class LanguageC(language.BaseLanguage):
     default_compiler = "gcc"
 
     def get_language_name(self):
+        """Returns the name of the language."""
         return "c"
 
     def make_cleaner(self):
+        """Creates the cleaner object."""
         return clean.Cleaner(self)
 
     def make_loader(self):
+        """Creates the loader object."""
         return load.Loader(self)
 
     def make_builder(self):
+        """Creates the builder object."""
         return self.get_compiler()
 
     def make_wrapper(self):
+        """Creates the wrapper object."""
         return wrapgen.WrapperGenerator(self)
 
     def get_wrap_directory(self):
+        """Returns the directory of the wrapper."""
         return os.path.join(self.plugin_stub.directory, ".wrap-c")
 
     def get_build_directory(self):
+        """Returns the directory of the builder."""
         return os.path.join(self.plugin_stub.directory, ".build-c")
 
     def get_c_header_filename(self):
+        """Returns the path to the filename of the madz header."""
         return os.path.join(self.get_wrap_directory(), "madz.h")
 
     def get_c_code_filename(self):
+        """Returns the path to the filename of the c code."""
         return os.path.join(self.get_wrap_directory(), "_madz.c")
 
     def get_internal_source_files(self):
+        """Returns a list of the internal c source files."""
         return [self.get_c_code_filename()]
 
     def get_source_files(self):
+        #TODO(Mason): Add proper description to this method.
+        """???"""
         glob_pattern = os.path.join(self.plugin_stub.directory, "*.c")
 
         # replace the left square bracket with [[]

@@ -5,6 +5,8 @@ Helper function for interpreting command line.
 
 import argparse
 import logging
+import os
+import importlib
 
 from ..config import *
 from ..action import actions
@@ -14,6 +16,14 @@ from . import logging_setup
 logger = logging.getLogger(__name__)
 
 def generate_parser(valid_commands):
+    """Creates a parser for actions on a plugin system.
+    
+    Args:
+        valid_commands: A list of commands which are allowed to be performed on a plugin system.
+        
+    Returns:
+        An argparse.ArgumentParser object
+    """
     parser = argparse.ArgumentParser(description='Perform actions across a plugin system.')
 
     parser.add_argument("commands",
@@ -37,9 +47,53 @@ def generate_parser(valid_commands):
         nargs='*',
         help="The plugins to perform the action on, not recommended for some actions.")
 
+    parser.add_argument("--plugins-from-file",
+        action='append',
+        default=None,
+        nargs='*',
+        help="A file who's associated plugin actions are to be performed on"
+        )
     return parser
 
+def _plugin_names_from_file(file_path):
+    """Given a file determine the full names of their plugins
+
+    args:
+        Files: list of string filenames
+
+    returns:
+        List of plugin names
+    """
+    file_path = file_path[0][0]
+
+    def _find_nearest_plugin(path):
+        while(path != os.getcwd()):
+            head, tail = os.path.split(path)
+            for d in os.listdir(head):
+                if d.find("__plugin__.py") != -1:
+                    return head + "/" + d
+            path = head
+        return ""
+
+    if file_path.find("__plugin__.py") == -1:
+        file_path = _find_nearest_plugin(file_path)
+
+    if file_path == "":
+        return ""
+
+    else:
+        imp = importlib.machinery.SourceFileLoader("__plugin__", file_path)
+        plugin = imp.load_module("__plugin__")
+        return plugin.plugin.name
+
 def execute_args_across(argv, system, user_config):
+    """Executes the commands from a list of plugin configurations across a provided system from the command line.
+    
+    Args:
+        argv: List of arguments from the command line
+        system: A system object which the Configurations will be applied to
+        user_config: A list of Configurations
+    """
     # Apply system and user config.
     with config.and_merge(system.config):
         with config.and_merge(user_config):
@@ -53,6 +107,13 @@ def execute_args_across(argv, system, user_config):
             # Setup logging level
             if not (logging_setup._log_ch is None):
                 logging_setup._log_ch.setLevel(logging_setup._log_level_name_index[args.log_level])
+
+
+            if not (args.plugins_from_file == None):
+                if args.plugins == None:
+                    args.plugins = [[_plugin_names_from_file(args.plugins_from_file)]]
+                else:
+                    args.plugins += [_plugin_names_from_file(args.plugins_from_file)]
 
             # Setup active plugins
             if not (args.plugins is None):
@@ -70,7 +131,7 @@ def execute_args_across(argv, system, user_config):
                     # Apply Modes
                     old_config_state = config.copy_state()
                     for parsed_mode in [item for sublist in parsed_modes for item in sublist]:
-                        logger.debug("Enetering mode '{}'".format(parsed_mode))
+                        logger.debug("Entering mode '{}'".format(parsed_mode))
                         # TODO: Check for non-existent ModeConfigs
                         config.add(config.get(ModeConfig.make_key(parsed_mode)))
 
@@ -79,5 +140,5 @@ def execute_args_across(argv, system, user_config):
                         logger.debug("Starting action '{}'".format(action))
                         actions[action](system).do()
 
-                    # Remove Modes, safely cleanup config.
+                    # Remove Modes, safely clean up config.
                     config.set_state(old_config_state)

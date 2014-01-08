@@ -5,17 +5,30 @@ Code To generated Python "Headers" from Madz Plugin Descriptions.
 import sys,os
 from collections import namedtuple
 from ..c import wrapgen as c_wrapgen
-#import language
 # TODO(Any) Fix importing
 
 from ... import MDL as pdl
 from ...core.dependency import Dependency
+from ...config import *
 
 # Box dict elements into a named tuple so that one function can be used to construct conversions.
 tmpnode = namedtuple('node', ['name', 'type'], verbose = False)
 
 class PythonGenerator(object):
-    """Class to Generate C wrapper for python plugins."""
+    """Class to Generate C wrapper for python plugins.
+    
+    Attributes:
+        dependencies: List of python generators whose plugins this generator is dependant on
+        namespace: String namespace for this plugin. Empty 
+        description:
+        mangled_namespace:
+        python_mangle:
+    """
+
+    python_mangle = "___madz_LANG_python"
+    python_madz_types = "_madz_TYPE_"
+    python_madz_deftypes = "_madz_DEFTYPE_"
+    python_madz_types_dict = "_madz_TYPEDICT_"
 
     def __init__(self, dependencies, namespace, description):
         """Constructor for Python Source Generator/
@@ -31,108 +44,70 @@ class PythonGenerator(object):
         self.namespace = namespace
         self.description = description
         self.mangled_namespace = self._namespace_mangle(namespace)
-        self.python_mangle = "___madz_LANG_python"
+
+        self._is_top_level = None # Deals with self recursive structs
 
     def _namespace_mangle(self, namespace):
         """Removes dots from namespace names, replaces them with ___"""
         return namespace.replace(".", "__")
 
     #Python Source Generation
-    def gen_type_string(self, name, node):
+    def gen_type_string(self, node):
         """Given a name and a node, which is a type, generates a string for a variable of that type"""
-        return self._gen_table[node.node_type()](self, node, name)
+        return self._gen_table[node.node_type()](self, node)
 
-    def _gen_table_function(self, node, name):
-        """Generate Python Function Declaration.
-        Args:
-            node:
-                AST Node object
-            name:
-                String function name
+    def gen_type_tuple_string(self, name, node):
+        """Given a name and a node, which is a type, generates a string for a variable of that type"""
+        return "('{}', {})".format(name, self.gen_type_string(node))
 
-        Returns:
-            String containing python code to generate function declaration
-        """
-        if isinstance(node.return_type.get_type(), pdl.TypeStruct):
-            ret = "c_void_p"
-        else:
-            ret = self.gen_type_string("", node.return_type).strip()
-        pointer = "{}FUNC = CFUNCTYPE({}{})".format(name.upper(), ret, "" if node.args == [] else ", " + ", ".join(map(
-                lambda t: "{}".format(self.gen_type_string("", t.type)),
+    def _gen_table_function(self, node):
+        return "CFUNCTYPE({}{})".format(
+            self.gen_type_string(node.return_type),
+            "" if node.args == [] else ", " + ", ".join(map(
+                lambda t: "{}".format(self.gen_type_string(t.type)),
                 node.args)))
-        return pointer
 
-    def _gen_pointer(self, node, name):
-        """Generates a Python Ctypes Pointer declaration for a pointer AST node.
-        Args:
-            node:
-                AST Node object
-            name:
-                String pointer name
-        Returns:
-            String containing python code to generate pointer declaration
-        """
-        return "(\"{}\", POINTER({}))".format(name, self.gen_type_string("", node.type))
+    def _gen_pointer(self, node):
+        return "POINTER({})".format(self.gen_type_string(node.type))
 
-    def _gen_named(self, node, name):
-        """Generate Python Array Definition
-        no.symbol.upper() if na =="" else "(\"{}\", {})".format(na, no.symbol.upper())
-        Args:
-            node:
-                AST Node object
-            name:
-                String struct name
-        Returns:
-            String containing python code to generate struct declaration
-        """
+    def _gen_named(self, node):
+        split = node.symbol.split(".")
+        namespace = self._namespace_mangle(".".join(split[:-1])) if len(split) > 1 else self.mangled_namespace
+        name = split[-1]
+        return self.python_madz_types + namespace + "___" + name
 
-        if isinstance(node.get_type(), pdl.TypeStruct):
-            res = node.symbol.upper() if name == "" else "(\"{}\", {})".format(name, node.symbol.upper())
-        elif isinstance(node.get_type(), pdl.TypeArray):
-            res = "{}ArrayType".format(self.description.get_name_for_node(node.get_type())) if name == "" else  "(\"{}\", {}ArrayType)".format(
-                                                                                                                                        name, self.description.get_name_for_node(node.get_type()))
-        else:
-            res = self.gen_type_string(name, node.get_type())
-        return res
+    def _gen_array(self, node):
+        return "({} * {})".format(self.gen_type_string(node.type), node.length)
 
-    def _gen_array(self, node, name):
-        typename = self.description.get_name_for_node(node)
-        if typename !="":
-            return  "{}ArrayType".format(typename) if name == "" else  "(\"{}\", {}ArrayType)".format(name, typename)
-        else:
-            return "{} * {}".format(self.gen_type_string("", node.type), node.length) if name =="" else  "(\"{}\", {} * {})".format(name, self.gen_type_string("", node.type), node.length)
-
-    def _gen_table_struct(self, node, name):
-        """Generate Python structure definition
-
-        Args:
-            node:
-                AST Node object
-            name:
-                String struct name
-        Returns:
-            String containing python code to generate struct declaration
-        """
-
-        return "class {}(Structure):\n\t_fields_ = [{}]\n".format(name.upper(),
+    def _gen_table_struct(self, node):
+        is_top_level = self._is_top_level
+        self._is_top_level = None
+        fields_list = "[{}]".format(
             ", ".join(map(
-                lambda t: "{}".format(self.gen_type_string(t.name, t.type)),
-                node.elements)),
-            )
+                lambda t: "{}".format(self.gen_type_tuple_string(t.name, t.type)),
+                node.elements)))
+        # Check if we should generate top level struct
+        if not (is_top_level is None):
+            return "class {name}(Structure):\n    pass\n{name}._fields_ = {fields}".format(
+                name = is_top_level,
+                fields = fields_list)
+        else:
+            return "anon_struct({})".format(fields_list)
+
     """Function Table for generating ctypes code from AST"""
     _gen_table = {
-        pdl.TypeNone : lambda s, no, na: "None",
-        pdl.TypeInt8 : lambda s, no, na: "c_byte" if na=="" else "(\"" + na  + "\" , c_byte)",
-        pdl.TypeInt16 : lambda s, no, na:"c_short" if na=="" else "(\"" + na + "\", c_short)",
-        pdl.TypeInt32 : lambda s, no, na: "c_int" if na=="" else "(\"" + na + "\", c_int)",
-        pdl.TypeInt64 : lambda s, no, na: "c_longlong" if na=="" else "(\"" + na + "\",c_longlong)",
-        pdl.TypeChar : lambda s, no, na: "char" if na=="" else "(\"" + na + "\", c_char)",
-        pdl.TypeUInt8 : lambda s, no, na: "c_ubyte" if na=="" else "(\"" + na + "\", c_ubyte)",
-        pdl.TypeUInt16 : lambda s, no, na: "c_ushort" if na=="" else "(\"" + na + "\", c_ushort)",
-        pdl.TypeUInt32 : lambda s, no, na: "c_uint" if na=="" else "(\"" + na + "\", c_uint)",
-        pdl.TypeUInt64 : lambda s, no, na: "c_ulonglong" if na=="" else "(\"" + na + "\", c_ulonglong)",
-        pdl.TypeFloat32 : lambda s, no, na: "c_float" if na=="" else "(\"" + na + "\", c_float)",
-        pdl.TypeFloat64 : lambda s, no, na: "c_double" if na=="" else "(\"" + na + "\", c_double)",
+        pdl.TypeNone : lambda s, no: "None",
+        pdl.TypeInt8 : lambda s, no: "c_byte",
+        pdl.TypeInt16 : lambda s, no:"c_short",
+        pdl.TypeInt32 : lambda s, no: "c_int",
+        pdl.TypeInt64 : lambda s, no: "c_longlong",
+        pdl.TypeChar : lambda s, no: "c_ubyte",
+        pdl.TypeUInt8 : lambda s, no: "c_ubyte",
+        pdl.TypeUInt16 : lambda s, no: "c_ushort",
+        pdl.TypeUInt32 : lambda s, no: "c_uint",
+        pdl.TypeUInt64 : lambda s, no: "c_ulonglong",
+        pdl.TypeFloat32 : lambda s, no: "c_float",
+        pdl.TypeFloat64 : lambda s, no: "c_double",
         pdl.TypePointer : _gen_pointer,
         pdl.TypeArray : _gen_array,
         pdl.NamedType : _gen_named,
@@ -141,49 +116,29 @@ class PythonGenerator(object):
     }
 
     def make_typedefs(self):
-        """Sets up not struct/array typedefs as variable alias of primitive ctypes."""
-        res =""
-        for node in self.description.declarations():
-            if isinstance(node.type, pdl.TypeInt):
-                res += "{} = {}\n".format(node.name, self.gen_type_string("", node.type))
-            elif isinstance(node.type, pdl.TypeUInt):
-                res += "{} = {}\n".format(node.name, self.gen_type_string("", node.type))
-            elif isinstance(node.type, pdl.TypeFloat):
-                res += "{} = {}\n".format(node.name, self.gen_type_string("", node.type))
-
-        return res
-
-
-    def make_arrays(self):
-        """Construct Python Array Types for each array definition in AST/
-        Args:
-            None
-        Returns:
-            String containing python code to generate array.
-        """
-        res =""
-        for node in self.description.declarations():
-            if isinstance(node.type, pdl.TypeArray):
-                res += node.name + "ArrayType = " + self.gen_type_string("", node.type.type) + "* " + str(node.type.length) + "\n"
-        return res
-
-    def make_structs(self):
-        """Construct Python classes for each struct definition in AST.
+        """Construct ctypes definitions for each object in AST.
 
         Args:
             None
         Returns:
-            String containing python code to generate struct.
+            String containing python code to generate function.
         """
-        res = ""
-
+        type_dict = self.python_madz_types_dict + self.mangled_namespace
+        res = "{} = {{}}\n".format(type_dict)
 
         for node in self.description.declarations():
-            if isinstance(node.type, pdl.TypeStruct):
-                res += self.gen_type_string(node.name, node.type)
+            varname = self.python_madz_types + self.mangled_namespace + "___" + node.name
+            # Hack to get self referential top level structs.
+            if (node.type.node_type() == pdl.TypeStruct):
+                self._is_top_level = varname
+                res += self.gen_type_string(node.type)
+                res += "\n"
+            else:
+                res += "{} = {}\n".format(varname, self.gen_type_string(node.type))
+            res += "{}['{}'] = {}\n".format(type_dict, node.name, varname)
         return res
 
-    def make_functions(self):
+    def make_def_function_types(self):
         """Construct ctypes function definitions for each function in AST.
 
         Args:
@@ -191,10 +146,10 @@ class PythonGenerator(object):
         Returns:
             String containing python code to generate function.
         """
-        res =""
-        for node in self.description.declarations() + self.description.definitions():
+        res = ""
+        for node in self.description.definitions():
             if isinstance(node.type, pdl.TypeFunction):
-                res += self.gen_type_string(node.name, node.type) +"\n"
+                res += "{} = {}\n".format(self.python_madz_deftypes + self.mangled_namespace + "___" + node.name, self.gen_type_string(node.type))
 
         return res
 
@@ -203,7 +158,7 @@ class PythonGenerator(object):
 
         # Depreciated, no longer generating stubs for users.
         """
-        res =""
+        res = ""
         for node in self.description.declarations() + self.description.definitions():
             if isinstance(node.type,pdl.TypeFunction):
                 res += "def {}({}):\n    pass".format(node.name, ", ".join(map(
@@ -220,19 +175,20 @@ class PythonGenerator(object):
         Returns:
             String to generate python source.
         """
-        res=""
+        res = ""
         for node in self.description.definitions():
-            if isinstance(node.type, pdl.TypeFunction):
+            if isinstance(node.type.get_type(), pdl.TypeFunction):
                 frags={
-                    "name" : node.name,
-                    "nameupper" : node.name.upper(),
-                    "args":",".join([i.name for i in node.type.args])
+                    "name": node.name,
+                    "nameupper": self.python_madz_deftypes + "___" + node.name,
+                    "sanitize": "_sanitize_python_callback" if isinstance(node.type.return_type.get_type(), pdl.TypePointer) else "_python_callback" 
                 }
-                if isinstance(node.type.return_type.get_type(),pdl.TypeStruct):
-                    res += "    plugin.{name} = {nameupper}FUNC(lambda {args}:cast(byref(incoming_module.{name}({args})), c_void_p))\n".format(**frags)
-                else:
-                    res += "    plugin.{name} = {nameupper}FUNC(incoming_module.{name})\n".format(**frags)
-
+                res += \
+"""
+    temp = cast({sanitize}(user_code_module.{name}, {nameupper}), {nameupper})
+    keepers['{nameupper}'] = temp
+    _plugin.contents.{name} = temp
+""".format(**frags)
         return res
 
     def make_module_hook(self):
@@ -250,9 +206,9 @@ class PythonGenerator(object):
 
 """
         fragments ={
-                    "varname": "plugin" if self.namespace == "" else self._namespace_mangle(self.namespace) + "_plugin",
-                    "fname":"___madz_LANG_python_get_out_struct" if self.namespace == "" else "___madz_LANG_python_get_"+self._namespace_mangle(self.namespace) + "_struct",
-                    "structname":"OUTSTRUCT" if self.namespace == "" else self._namespace_mangle(self.namespace).upper()
+                    "varname": self._namespace_mangle(self.namespace) + "_plugin",
+                    "fname": "___madz_LANG_python_get_out_struct" if self.namespace == "" else "___madz_LANG_python_get_"+self._namespace_mangle(self.namespace) + "_struct",
+                    "structname": self.python_madz_types + ("OUTSTRUCT" if self.namespace == "" else self._namespace_mangle(self.namespace))
                     }
 
         return res.format(**fragments)
@@ -267,15 +223,14 @@ class PythonGenerator(object):
 
 """
         fragments ={
-                    "varname": "plugin",
-                    "fname":"___madz_TYPE_get_out_struct",
-                    "structname":"OUTSTRUCT"
+                    "varname": "_plugin",
+                    "fname": "___madz_TYPE_get_out_struct",
+                    "structname": self.python_madz_types + "OUTSTRUCT"
                     }
 
         return res.format(**fragments)
 
-        return res
-    def make_cleanup_code(self):
+    def make_cleanup_code(self, is_import):
         """Creates ease of use code for end user to access imported modules.
 
         Args:
@@ -284,12 +239,20 @@ class PythonGenerator(object):
             String of python cleanup code
         """
         res = \
-"""outgoing_module.imports["{name}"] = {varname}
+"""    # {dict_lookup}
+    autogenerated_module.{dict_lookup} = _struct_accessor({varname})
+    autogenerated_module.types.{dict_lookup} = _accessor({dictname})
 """
+
         fragments ={
-                "name":self.namespace,
-                "varname":self._namespace_mangle(self.namespace) + "_plugin"
-                }
+            "dict_lookup": "self" if (is_import is None) 
+                else ('{reqires_type}["{name}"]'.format(
+                    reqires_type = "imports" if is_import else "depends",
+                    name = self.namespace)),
+            "varname": self.mangled_namespace + "_plugin",
+            "dictname": self.python_madz_types_dict + self.mangled_namespace,
+            }
+
         return res.format(**fragments)
 
     # C Header Generation
@@ -302,11 +265,13 @@ class PythonGenerator(object):
         struct. This second struct (declared below) is hooked to the python function pointers generated above.
         """
         res = \
-"""PyThreadState* python_thread_state;
+"""PyThreadState* ___madz_LANG_python_thread_state; //Holds Thread State for this interpreter
+PyObject *___madz_LANG_python_wrapper_module; //Hold Pointer to the _madz.py file representing this plugin
 typedef struct{{
 {function_pointers}
 }}___madz_LANG_python_TYPE_;
 ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
+void ___madz_init_imports();
 {fn_dec}
 
 """
@@ -314,45 +279,45 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
         #TODO function_pointers, all same except
         fragments ={"fn_dec" : "", "function_pointers" : ""}
         fn = """{rettype}{fnname}({args});\n"""
-        pointer = """    {prettype} (*{fnname})({args});\n"""
+        pointer = """    {prettype} (*{nodename})({args});\n"""
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 frg = {
-                             "prettype":"void*" if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else c_gen.gen_type_string("", node.type.return_type),
-                             "rettype":c_gen.gen_type_string("", node.type.return_type),
-                             "fnname":node.name,
-                             "args":",".join(map(
+                             "prettype": c_gen.gen_type_string("", node.type.return_type),
+                             "rettype": c_gen.gen_type_string("", node.type.return_type),
+                             "fnname": "___madz_LANG_python_FN_" + node.name,
+                             "nodename": node.name,
+                             "args": ",".join(map(
                                 lambda a: c_gen.gen_type_string(a.name, a.type),
                                 node.type.args)),
 
                              }
                 fragments["fn_dec"] += fn.format(**frg)
                 fragments["function_pointers"] += pointer.format(**frg)
+        if fragments["function_pointers"] == "":
+            fragments["function_pointers"] = "uint8_t _madz_empty;"
         return res.format(**fragments)
 
     def make_out_struct(self):
         """Ctypes Struct representing each plugin's exported struct."""
         args ={
-           "name":"OUTSTRUCT" if self.namespace=="" else self._namespace_mangle(self.namespace).upper(),
+           "name": self.python_madz_types + ("OUTSTRUCT" if self.namespace == "" else self._namespace_mangle(self.namespace)),
            "fields":""
-
            }
-        res= \
+
+        res = \
 """class {name}(Structure):
     _fields_ = [{fields}]
 """
         for node in self.description.definitions():
-            if isinstance(node.type, pdl.TypeFunction):
-                args['fields'] += "(\"{}\" , {}),".format(node.name, node.name.upper()+"FUNC")
-            else:
-                args['fields'] += self.gen_type_string(node.name, node.type) +","
+            args['fields'] += self.gen_type_tuple_string(node.name, node.type) + ", "
 
         return res.format(**args)
 
     def make_get_in_struct(self):
         """Makes C function getters for in structs."""
         res = \
-"""{rettype}* DLLEXPORT {prefix}_get_{name}_struct(){{
+"""DLLEXPORT {rettype}* {prefix}_get_{name}_struct(){{
     return ___madz_IN_{name};
 }}
 """
@@ -366,7 +331,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     def make_get_python_out_struct(self):
         """Creates Getter for This plugin's python out struct."""
         res = \
-"""___madz_LANG_python_TYPE_* DLLEXPORT {}_get_out_struct(){{
+"""DLLEXPORT ___madz_LANG_python_TYPE_* {}_get_out_struct(){{
     return &___madz_LANG_python_OUTPUT;
 }}
 
@@ -376,18 +341,18 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     def make_get_out_struct(self):
         """Creates Getter for This plugin's C out struct."""
         res = \
-"""___madz_TYPE_* DLLEXPORT ___madz_TYPE_get_out_struct(){{
+"""DLLEXPORT ___madz_TYPE_* ___madz_TYPE_get_out_struct(){{
     return &___madz_OUTPUT;
 }}
 
 """
         return res
 
-    def make_cleanup_code(self):
-        res =\
-"""outgoing_module.plugin = plugin
-"""
-        return res
+    def make_c_cast_deref_string(self, c_gen, node):
+        return "{}({})".format(
+            "*" if node.node_type() == pdl.TypeStruct else "",
+            c_gen.gen_type_string("", node))
+
     def make_c_init(self, madz_path):
         """Creates code to intialize this plugin's interpreter.
 
@@ -399,7 +364,7 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
         """
         res = \
 """void ___madz_init(){{
-    PyObject *p, *name, *fn, *implib, *importer;
+    PyObject *name, *fn, *implib, *importer;
     PyInterpreterState *interp_state;
     PyThreadState *thread_state, *tmp;
     if(!Py_IsInitialized())
@@ -411,13 +376,11 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     }}
 
     interp_state = PyInterpreterState_New();
-
     thread_state = PyThreadState_New(interp_state);
-
     PyEval_RestoreThread(thread_state);
 
-    python_thread_state = Py_NewInterpreter();
-    tmp = PyThreadState_Swap(python_thread_state);
+    ___madz_LANG_python_thread_state = Py_NewInterpreter();
+    tmp = PyThreadState_Swap(___madz_LANG_python_thread_state);
     implib = PyImport_ImportModule("importlib.machinery");
 
     fn = PyObject_GetAttrString(implib,"SourceFileLoader");
@@ -425,24 +388,24 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     Py_XDECREF(fn);
     fn = PyObject_GetAttrString(importer,"load_module");
 
-    p = PyObject_CallObject(fn, Py_BuildValue("(s)", "_madz"));
+    ___madz_LANG_python_wrapper_module = PyObject_CallObject(fn, Py_BuildValue("(s)", "_madz"));
     Py_XDECREF(fn);
     Py_XDECREF(implib);
     Py_XDECREF(importer);
 
-    if (p == NULL){{
+    if (___madz_LANG_python_wrapper_module == NULL){{
         PyErr_Print();
 
         PyThreadState_Swap(tmp);
-        PyEval_SaveThread();
+        //PyEval_SaveThread();
         return;
     }}
-    fn = PyObject_GetAttrString(p, "_madz_init");
+    fn = PyObject_GetAttrString(___madz_LANG_python_wrapper_module, "_madz_init");
 
     if(fn == NULL){{
 		PyErr_Print();
 		PyThreadState_Swap(tmp);
-        PyEval_SaveThread();
+        //PyEval_SaveThread();
 
 		return;
 	}}
@@ -456,12 +419,40 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
     PyThreadState_Swap(tmp);
     PyEval_SaveThread();
 }}
+
+void ___madz_init_imports(){{
+    //Asks _madz.py to attach imported plugins to the madz.py autogenerated file
+    PyObject *fn;
+    PyThreadState *tmp;
+    PyGILState_STATE gstate;
+
+    //Swap Thread State
+    tmp = PyThreadState_Swap(___madz_LANG_python_thread_state);
+    //Get the init imports function
+    gstate = PyGILState_Ensure();
+    fn = PyObject_GetAttrString(___madz_LANG_python_wrapper_module, "_madz_init_imports");
+    
+    if(fn == NULL){{
+		PyErr_Print();
+		PyThreadState_Swap(tmp);
+        return;
+    }}
+    //Call The init imports function
+    
+    if(PyObject_CallObject(fn, 0) == NULL){{
+        PyErr_Print();
+    }}
+    PyGILState_Release(gstate);
+    //Reinstate Thread State
+    PyThreadState_Swap(tmp);
+    
+}}
 """
         #Path variable cannot be accessed here. Let's forward it.
         fragments = {"function_hooks":"", "madzpath" : madz_path.replace("\\", "/")}
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
-                fragments["function_hooks"] +="    ___madz_OUTPUT." + node.name + " = " + node.name  +";\n"
+                fragments["function_hooks"] +="    ___madz_OUTPUT." + node.name + " = " + "___madz_LANG_python_FN_" + node.name  +";\n"
 
         return res.format(**fragments)
 
@@ -475,24 +466,18 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
             4)Return result
         """
         fn =\
-"""{rettype}{fnname}({args}){{
-    {rettype}ret;
-    PyThreadState *tmp;
+"""{rettype} {fnname}({args}){{
+    {rettype} ret;
 
-    tmp = PyThreadState_Swap(python_thread_state);
-    ret = {cast_and_deref}___madz_LANG_python_OUTPUT.{fnname}({argnames});
-    PyThreadState_Swap(tmp);
+    ret = {cast_and_deref}___madz_LANG_python_OUTPUT.{nodename}({argnames});
+
     return ret;
 }}
 
 """
         fn_no_return =\
-"""{rettype}{fnname}({args}){{
-    PyThreadState *tmp;
-
-    tmp = PyThreadState_Swap(python_thread_state);
-    ___madz_LANG_python_OUTPUT.{fnname}({argnames});
-    PyThreadState_Swap(tmp);
+"""{rettype} {fnname}({args}){{
+    ___madz_LANG_python_OUTPUT.{nodename}({argnames});
     return;
 }}
 
@@ -502,27 +487,35 @@ ___madz_LANG_python_TYPE_ ___madz_LANG_python_OUTPUT;
         for node in self.description.definitions():
             if isinstance(node.type.get_type(), pdl.TypeFunction):
                 fragments = {
-                         "maybe_parentheses":")"  if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
-                         "cast_and_deref":"*({}*)".format(c_gen.gen_type_string("", node.type.return_type)) if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
-                         "rettype":c_gen.gen_type_string("", node.type.return_type),
-                         "fnname":node.name,
-                         "args":",".join(map(
-                            lambda a: c_gen.gen_type_string(a.name, a.type),
-                            node.type.args)),
-                         "argnames":",".join(map(
-                            lambda a: a.name,
-                            node.type.args))
-                         }
-                res += fn.format(**fragments) if not isinstance(node.type.return_type, pdl.TypeTypeNone) else fn_no_return.format(**fragments)
+                    "maybe_parentheses": ")" if isinstance(node.type.return_type.get_type(),pdl.TypeStruct) else "",
+                    "cast_and_deref": self.make_c_cast_deref_string(c_gen, node.type.return_type),
+                    "rettype": c_gen.gen_type_string("", node.type.return_type),
+                    "fnname": "___madz_LANG_python_FN_" + node.name,
+                    "nodename": node.name,
+                    "args": ",".join(map(
+                        lambda a: c_gen.gen_type_string(a.name, a.type),
+                        node.type.args)),
+                    "argnames":",".join(map(
+                        lambda a: a.name,
+                        node.type.args))
+                    }
+                res += (fn if not isinstance(node.type.return_type, pdl.TypeTypeNone) else fn_no_return).format(**fragments)
         return res
 
 
 class WrapperGenerator(c_wrapgen.WrapperGenerator):
+    """Compilation object for Python.
+    
+    Attributes:
+        language: Python language object.
+        plugin_stub: Plugin stub attached to the Python language object.
+    """
     def __init__(self, language):
         self.language = language
         self.plugin_stub = language.plugin_stub
 
     def prep(self):
+        """Creates necessary directories for the compilation process."""
         if not (os.path.exists(self.language.get_wrap_directory())):
             os.makedirs(self.language.get_wrap_directory())
 
@@ -531,92 +524,211 @@ class WrapperGenerator(c_wrapgen.WrapperGenerator):
         pass
 
     py_template=\
-"""#madz.py
-#This is an autogenerated file.
+"""#_madz.py
+# This is an autogenerated file.
+
+user_code_module = None
+autogenerated_module = None
+shared_object = None
+keepers = {{}}
+
+# Imports
+import sys
 import importlib.machinery
+import traceback
 from ctypes import *
-#Dependency Function Declarations
-{imported_functions}
-#Dependency Structure Declarations
-{imported_structs}
 
-#Declarations
-#Typedef Declarations
+# Helper code
+def anon_struct(fields):
+    class anon(Structure):
+        _fields_ = fields
+    return anon
+
+class _accessor(object):
+    def __init__(self, var_dict):
+        self.__var_dict = var_dict
+
+    def __getattr__(self, name):
+        if name in self.__var_dict:
+            return self.__var_dict[name]
+        else:
+            # Default behaviour
+            raise AttributeError()
+
+class _struct_accessor(object):
+    def __init__(self, pointer):
+        self.__pointer = pointer
+
+    def __getattr__(self, name):
+        struct = self.__pointer.contents
+        if hasattr(struct, name):
+            return getattr(struct, name)
+        else:
+            # Default behaviour
+            raise AttributeError()
+
+def _sanitize_python_callback(func, ctypes_functype):
+    sanitized_functype = CFUNCTYPE(c_void_p, *ctypes_functype._argtypes_)
+    def santized_call(*args, **kwargs):
+        return cast(func(*args, **kwargs), c_void_p).value
+    return sanitized_functype(santized_call)
+
+def _python_callback(func, ctypes_functype):
+    return ctypes_functype(func)
+
+## Declarations
+
+# Typedef Declarations
 {typedefs}
-#Array Declarations
-{arrays}
-#Struct Declarations
-{structs}
-#In_Structs
-{in_structs}
-#Functions
-{functions}
-#Exported Struct
-{out_structs}
-#Initilization Code
-def _madz_init():
-    incoming_module = None
-    outgoing_module = None
-    try:
-        imp = importlib.machinery.SourceFileLoader("__init__", \"{init_path}\")
-        incoming_module = imp.load_module("__init__")
-    except Exception as e:
-        print(e)
-        return
-    try:
-        imp = importlib.machinery.SourceFileLoader("madz", \"{outgoing_module_path}\")
-        outgoing_module = imp.load_module("madz")
-    except Exception as e:
-        print(e)
-        return
-    shared_object = cdll.LoadLibrary("{plugin_cname}")
-    #Fill In Dependency Modules
-    {module_hooks}
-    #Fill in plugin's function pointers with callbacks
-{function_callbacks}
-    #Reconfigure plugin to point at real output struct
-    {fix_plugin}
-    #Clean up
-    {cleanup_code}
 
+# Dependency Function Declarations
+{imported_functions}
+
+# In_Structs
+{in_structs}
+
+# Functions
+{functions}
+
+# Exported Struct
+{out_structs}
+
+# Initilization Code
+
+def _madz_init_imports():
+    global user_code_module, autogenerated_module
+
+    # Fill In Dependency Modules
+{imp_module_hooks}
+
+    # Clean up
+    {imp_cleanup_code}
+
+    return
+    
+def _madz_init():
+    global user_code_module, autogenerated_module, shared_object, keepers
+
+    sys.path.append({autogenerated_module_path!r})
+    user_code_module = None
+    autogenerated_module = None
+    
+    # Get Madz DLL for this plugin
+    shared_object = cdll.LoadLibrary({plugin_cname!r})
+    try:
+        imp = importlib.machinery.SourceFileLoader("madz", {autogenerated_module_path!r})
+        autogenerated_module = imp.load_module("madz")
+    except Exception as e:
+        traceback.print_exc()
+        return
+    
+    try:
+        imp = importlib.machinery.SourceFileLoader("__init__", {init_path!r})
+        user_code_module = imp.load_module("__init__")
+    except Exception as e:
+        traceback.print_exc()
+        return
+        
+    {module_hooks}
+
+    # Fill In Dependency Modules
+{dep_module_hooks}
+
+    # Fill in plugin's function pointers with callbacks
+{function_callbacks}
+
+    # Reconfigure plugin to point at real output struct
+    {fix_plugin}
+
+    # Clean up
+    {dep_cleanup_code}
+
+    {cleanup_code}
+    
+    
 """
 
-    outgoing_module_template = \
-"""#plugin.py
-#AutoGenerated Code
-#This module will contain this plugin and its import's c structures
-import _madz as declarations
-plugin = None
-imports = {}
+    autogenerated_module_template = \
+"""#madz.py
+import ctypes as ctypes
+from ctypes.util import find_library as _ctypes_find_library
+
+class _types(object):
+    def __init__(self):
+        self.self = None
+        self.imports = {{}}
+        self.depends = {{}}
+
+class cstdlib(object):
+    _dll = ctypes.cdll.LoadLibrary(_ctypes_find_library({cstdlib}))
+    malloc = _dll.malloc
+    malloc.argtypes = [ctypes.c_size_t]
+    malloc.restype = ctypes.c_void_p
+
+    free = _dll.free
+    free.argtypes = [ctypes.c_void_p]
+
+class mem(object):
+    @staticmethod
+    def malloc(ctype):
+        return ctypes.cast(cstdlib.malloc(ctypes.sizeof(ctype)), ctypes.POINTER(ctype))
+
+    @staticmethod
+    def free(ctype_ptr):
+        cstdlib.free(ctypes.cast(ctype_ptr, ctypes.c_void_p))
+
+self = None
+types = _types()
+
+def pack(obj):
+    return ctypes.c_void_p(id(obj))
+
+def unpack(pointer):
+    if (pointer):
+        return ctypes.cast(pointer, ctypes.py_object).value
+    else:
+        return None
+
+imports = {{}}
+depends = {{}}
 """
     def _filter_code_fragments(self, code_fragments):
         code_fragments["out_struct_func_assigns"] = ""
         code_fragments["output_var_func_declares"] = ""
+        code_fragments["in_struct_imports_assigns"] +="\n\t___madz_init_imports();\n"
         code_fragments["pre_header"] = self._pre_header
         code_fragments["post_header"] = self._post_header
         return code_fragments
 
     def generate(self):
-
+        """Performs the wrapping process."""
         py_gen = PythonGenerator([], "", self.plugin_stub.description)
-        code_fragments={
-                        "outgoing_module_path":self.language.get_python_outgoing_module().replace("\\","/"),
-                        "fix_plugin" : py_gen.make_fix_plugin(),
-                        "init_path":self.language.get_plugin_init().replace("\\","/"),
-                        "imported_functions":"",
-                        "imported_structs":"",
-                        "in_structs":"",
-                        "typedefs":py_gen.make_typedefs(),
-                        "arrays" : py_gen.make_arrays(),
-                        "structs":py_gen.make_structs(),
-                        "functions":py_gen.make_functions(),
-                        "out_structs":py_gen.make_out_struct(),
-                        "plugin_cname":os.path.join(os.path.join(self.language.get_output_directory()), self.plugin_stub.id.namespace +".madz").replace("\\","/"),
-                        "function_callbacks":py_gen.make_function_callbacks(),
-                        "module_hooks":py_gen.make_module_hook(),
-                        "cleanup_code":py_gen.make_cleanup_code(),
-                        "function_stubs":py_gen.make_function_stubs()
-                        }
+        code_fragments = {
+            "autogenerated_module_path": os.path.normcase(self.language.get_python_autogenerated_module()),
+            "fix_plugin": py_gen.make_fix_plugin(),
+            "init_path": os.path.normcase(self.language.get_plugin_init()),
+            "module_hooks": py_gen.make_module_hook(),
+            "cleanup_code": py_gen.make_cleanup_code(None),
+            "imported_functions": "",
+            "in_structs": "",
+            "dep_module_hooks": "",
+            "dep_cleanup_code": "",
+            "imp_module_hooks": "",
+            "imp_cleanup_code": "",
+            "typedefs": "",
+            "functions": py_gen.make_def_function_types(),
+            "out_structs": py_gen.make_out_struct(),
+            "plugin_cname": os.path.normcase(os.path.join(os.path.join(self.language.get_output_directory()), self.plugin_stub.id.namespace +".madz")),
+            "function_callbacks": py_gen.make_function_callbacks(),
+            "autogenerated_module_path": self.language.get_python_autogenerated_module(),
+            "function_stubs": py_gen.make_function_stubs()
+            }
+
+        cstdlib = {
+            "windows": "'MSVCRT'",
+            "unix": "'c'",
+            "osx": "'c'"
+        }[config_target.get(OptionPlatformOperatingSystem)]
 
         self.prep()
         self._pre_header ="#include \"Python.h\"\n"
@@ -629,35 +741,35 @@ imports = {}
         c_source += py_gen.make_get_python_out_struct()
         c_source += py_gen.make_c_function_stubs()
 
-
+        # depends plugins python
         for dep in self.plugin_stub.gen_recursive_loaded_depends():
             gen = PythonGenerator([], dep.id.namespace, dep.description)
-            code_fragments["imported_structs"] += gen.make_structs()
-            code_fragments["imported_functions"] += gen.make_functions()
-            code_fragments["typedefs"] += gen.make_typedefs()
-            code_fragments["arrays"] += gen.make_arrays()
-            code_fragments["in_structs"] += gen.make_out_struct()
-            code_fragments["module_hooks"] +="    " + gen.make_module_hook()
-            code_fragments["cleanup_code"] +="    " + gen.make_cleanup_code()
-            c_source += gen.make_get_in_struct()
-        for imp in self.plugin_stub.loaded_imports:
 
+            code_fragments["imported_functions"] += gen.make_def_function_types()
+            code_fragments["typedefs"] += gen.make_typedefs()
+            code_fragments["in_structs"] += gen.make_out_struct()
+            code_fragments["dep_module_hooks"] += "    " + gen.make_module_hook()
+            code_fragments["dep_cleanup_code"] += gen.make_cleanup_code(False)
+
+            c_source += gen.make_get_in_struct()
+            
+        # imports plugins python   
+        for imp in self.plugin_stub.gen_required_loaded_imports():
             gen = PythonGenerator([], imp.id.namespace, imp.description)
 
-            code_fragments["imported_structs"] += gen.make_structs()
-            code_fragments["imported_functions"] += gen.make_functions()
+            code_fragments["imported_functions"] += gen.make_def_function_types()
             code_fragments["typedefs"] += gen.make_typedefs()
-            code_fragments["arrays"] += gen.make_arrays()
             code_fragments["in_structs"] += gen.make_out_struct()
-            code_fragments["module_hooks"] += "    " + gen.make_module_hook()
-            code_fragments["cleanup_code"] +="    " + gen.make_cleanup_code()
+            code_fragments["imp_module_hooks"] += "    " + gen.make_module_hook()
+            code_fragments["imp_cleanup_code"] += gen.make_cleanup_code(True)
+
             c_source += gen.make_get_in_struct()
 
+        # This plugins python
+        code_fragments["typedefs"] += py_gen.make_typedefs()
 
-
-        with open(self.language.get_python_outgoing_module(), "w") as f:
-            f.write(self.outgoing_module_template)
-
+        with open(self.language.get_python_autogenerated_module(), "w") as f:
+            f.write(self.autogenerated_module_template.format(cstdlib = cstdlib))
 
         with open(self.language.get_c_code_filename(), "a") as f:
             f.write("\n{}\n".format(c_source))

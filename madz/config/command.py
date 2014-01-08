@@ -18,5 +18,3 @@ class CommandConfig(BaseLabeledConfig):
 
 class OptionCommandActions(BaseAppendOption): pass
 
-class OptionExecutePlugin(BaseOption): pass
-class OptionExecuteFunction(BaseOption): pass
