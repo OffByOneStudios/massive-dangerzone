@@ -117,6 +117,7 @@ class TypeTypeComplex(TypeType):
     def node_type(self):
         return self.__class__
 
+
 class TypePointer(TypeTypeComplex):
     """A type representing a pointer to another type"""
 
@@ -306,7 +307,7 @@ class TypeStruct(TypeTypeComplex):
             validation: ValidationState object
             context: MdlDescription object
         """
-        if len(elements) == 0:
+        if len(self.elements) == 0:
             validation.add_error("Structs must contain elements.")
             return
         for element in self.elements:
@@ -403,6 +404,15 @@ class TypeFunction(TypeTypeComplex):
 
     def __repr__(self):
         return "TypeFunction({!r}, {!r})".format(self.return_type, self.args)
+
+    def type():
+        doc = "The type property."
+        def fget(self):
+            return self.return_type
+        def fset(self, value):
+            self.return_type = value
+        return locals()
+    type = property(**type())
 
     def get_complex_list(self):
         return self.args

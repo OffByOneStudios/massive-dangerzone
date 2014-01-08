@@ -11,6 +11,9 @@ from . import nodes
 from . import base_types
 from .extensions.objects import types as ext_objects
 
+from .parser_impl import generate_parser, get_result
+MDLparser = generate_parser()
+
 logger = logging.getLogger(__name__)
 
 class NotFoundError(Exception): pass
@@ -91,6 +94,10 @@ class MDLDescription(object):
     """
 
     def __init__(self, ast, dependencies):
+        if isinstance(ast, str):
+            print ("PARSING")
+            ast = get_result(MDLparser.parse(ast))
+
         self.ast = ast
         self.dependencies = dependencies
 
@@ -132,6 +139,8 @@ class MDLDescription(object):
         Returns:
             The MDLDescription object with named subnodes.
         """
+        if isinstance(ast, str):
+            return ast
         return cls.transform_ast_named_strs(ast)
 
     @staticmethod

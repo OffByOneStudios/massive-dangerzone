@@ -5,84 +5,53 @@ from .base_types import *
 class MdlParserConfig():
     def __init__(self, config):
         self.config = dict(config)
-        #symbol_chars
-        #symbol_first_chars
-        #typerule
+        # Expected types:
+        #  symbol_chars
+        #  symbol_first_chars
+        #  typerule
+        #  keyword_end
 
-class MdlParseRuleBase(ParseRuleBase):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._config = kwargs.get("config", MdlParserConfig({}))
 
-class MdlKeywordParseRule(MdlParseRuleBase):
-    default_end_char = ParseRuleChar(char=";")
+def MdlParseRuleBase(base=ParseRuleBase):
+    class AMdlParseRuleBase(base):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self._config = kwargs.get("config", MdlParserConfig({}))
+    return AMdlParseRuleBase
 
+class MdlKeywordParseRule(MdlParseRuleBase(ParseRuleLevelBase)):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._nodetype = kwargs["node_type"]
         self._keyword = kwargs["keyword"]
         self._subrules = [[self]] + kwargs["subrules"]
 
-    def _new_levelstate(self, **kwargs):
-        return MdlKeywordParseRule.LevelState(**kwargs)
+    def _copy_level(self, new, old):
+        super()._copy_level(new, old)
+        new._i = old._i
 
-    class LevelState(Parser.ParseStateLevelStack.LevelState):
-        def __init__(self, **kwargs):
-            self._parent = kwargs["parent"]
-            self._subrules = kwargs.get("subrules", [MdlKeywordParseRule.default_end_char])
-            super().__init__(**kwargs)
+    def _init_level(self, level, state):
+        super()._init_level(level, state)
+        level._i = 1
 
-            self._i = 0
-            self._rule_order = []
+    def _end_level(self, level, state):
+        super()._end_level(level, state)
+        state[ParseStateParseTree.key()].add_root()
 
-            self._old_rules = []
+    def _update_level(self, level, state, accepted):
+        super()._update_level(level, state, accepted)
+        if accepted is None:
+            return
 
-        def _fixup_parserules(self, state):
-            if (self._i == len(self._subrules)):
-                self.end_this(state)
-                return
+        if accepted.rule in self._subrules[level._i]:
+            level._i += 1
+        if level._i == len(self._subrules):
+            level.finish(state)
+            return
 
-            parserules = list(self._special)
-            parserules += self._subrules[self._i]
-
-            # Set parse rules
-            state[Parser.ParseStateRules.key()].value = parserules
-
-        def parsed(self, state, accepted):
-            for rule in self._subrules[self._i]:
-                if accepted.rule is rule:
-                    self._i += 1
-                    break
-
-            self._rule_order.append(rule)
-            self._fixup_parserules(state)
-
-        def start(self, state):
-            self._special = state[ParseStateSpecialRules].all()
-            self._old_rules = state[Parser.ParseStateRules.key()].value
-
-            self._i = 1
-            self._rule_order.append(self._parent)
-            self._fixup_parserules(state)
-
-        def end(self, state):
-            state[Parser.ParseStateRules.key()].value = self._old_rules
-            state[ParseStateParseTree.key()].add_root()
-
-        def _copy(self, new):
-            super()._copy(new)
-
-            new._i = self._i
-            new._rule_order = list(self._rule_order)
-
-            new._parent = self._parent
-            new._special = self._special
-            new._old_rules = self._old_rules
-
-    def _gen_levelargs(self, state, **kwargs):
-        kwargs["parent"] = self
-        kwargs["subrules"] = self._subrules
-        return super()._gen_levelargs(state, **kwargs)
+        rules = self._generate_base_parserules(level, state)
+        rules += self._subrules[level._i]
+        level.set_parse_rules(state, rules)
 
     def _do_parse(self, pstro, state, gen_args):
         if not pstro.match(self._keyword, case_insensitive=True):
@@ -90,7 +59,8 @@ class MdlKeywordParseRule(MdlParseRuleBase):
 
         state[ParseStateParseTree.key()].current_root = self._nodetype()
 
-class MdlParseSymbol(MdlParseRuleBase):
+
+class MdlParseSymbol(MdlParseRuleBase()):
     def _do_parse(self, pstro, state, gen_args):
         self.p_chars(pstro, state, self._config.config["symbol_chars"], self._config.config["symbol_first_chars"])
 
@@ -100,58 +70,46 @@ class MdlParseSymbol(MdlParseRuleBase):
 
         state[ParseStateParseTree.key()].current_node.name = res
 
-class MdlTypeLevelParseRule(MdlParseRuleBase):
+
+class MdlTypeParseRuleNamed(MdlParseRuleBase()):
+    def _do_parse(self, pstro, state, gen_args):
+        self.p_chars(pstro, state, self._config.config["symbol_chars"], self._config.config["symbol_first_chars"])
+
+        res = pstro.parsed()
+        if len(res) == 0:
+            raise Exception("Symbol must have more than 0 charaters.")
+
+        state[ParseStateParseTree.key()].current_node.type = NamedType(res)
+
+
+class MdlTypeLevelParseRule(MdlParseRuleBase(ParseRuleLevelBase)):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._modrules = kwargs["modrules"]
         self._typerules = kwargs["typerules"]
 
-    def _new_levelstate(self, **kwargs):
-        return MdlTypeLevelParseRule.LevelState(**kwargs)
+    def _init_level(self, level, state):
+        super()._init_level(level, state)
+        rules = self._generate_base_parserules(level, state)
+        rules += self._modrules
+        rules += self._typerules
 
-    class LevelState(Parser.ParseStateLevelStack.LevelState):
-        def __init__(self, **kwargs):
-            self._parent = kwargs["parent"]
-            self._rule_order = []
-            super().__init__(**kwargs)
+        level.set_parse_rules(state, rules)
 
-        def parsed(self, state, accepted):
-            if accepted.rule in self._parent._typerules:
-                self.end_this(state)
+    def _update_level(self, level, state, accepted):
+        super()._update_level(level, state, accepted)
+        if accepted is None:
+            return
 
-            self._rule_order.append(accepted.rule)
-
-        def start(self, state):
-            self._old_rules = state[Parser.ParseStateRules.key()].value
-            self._old_func = state[ParseStateParseTree.key()].get_current_node_func()
-
-            parserules = list(state[ParseStateSpecialRules].all())
-            parserules += self._parent._modrules
-            parserules += self._parent._typerules
-
-            state[Parser.ParseStateRules.key()].value = parserules
-
-        def end(self, state):
-            state[Parser.ParseStateRules.key()].value = self._old_rules
-            state[ParseStateParseTree.key()].set_current_node_func(self._old_func)
-
-        def _copy(self, new):
-            super()._copy(new)
-
-            new._rule_order = list(self._rule_order)
-
-            new._special = self._special
-            new._old_rules = self._old_rules
-            new._old_func = self._old_func
-
-    def _gen_levelargs(self, state, **kwargs):
-        kwargs["parent"] = self
-        return super()._gen_levelargs(state, **kwargs)
+        if accepted.rule in self._typerules:
+            level.finish(state)
+            return
 
     def _do_parse(self, pstro, state, gen_args):
         pass
 
-class MdlTypeParseRuleBase(MdlParseRuleBase):
+
+class MdlTypeParseRuleBase(MdlParseRuleBase()):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._nodetype = kwargs["nodetype"]
@@ -165,27 +123,24 @@ class MdlTypeParseRuleBase(MdlParseRuleBase):
         state_parsetree.current_node.type = self._nodetype()
         state_parsetree.set_current_node_func(lambda r, current_func=state_parsetree.get_current_node_func(): current_func(r).type)
 
-class MdlTypeParseRuleComplex(MdlParseRuleBase):
+
+class MdlTypeParseRuleComplex(MdlParseRuleBase(ParseRuleLevelBase)):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.__kwargs = kwargs
         self._chars = kwargs["chars"]
         self._nodetype = kwargs["nodetype"]
         self._subnodetype = kwargs["subnodetype"]
-        self._endrule = self._end_rule()
 
-    def _end_rule(mself):
-        class EndRule(MdlParseRuleBase):
-            mchars=mself._chars
-            mname=mself._name
-            def __init__(self, **kwargs):
-                super().__init__(**kwargs)
-                _name = ("" if self.mname is None else self.mname) + "!End"
+    def _end_rule(self):
+        if not hasattr(self, "_endrule"):
+            kwargs = dict(self.__kwargs)
+            kwargs["match"] = self._chars[1]
 
-            def _do_parse(self, pstro, state, gen_args):
-                if not pstro.match(self.mchars[1]):
-                    raise Exception("No close Symbol")
-        return EndRule()
+            self._endrule = ParseRuleNameMod(
+                ("" if self._name is None else self._name) + "!End",
+                ParseRuleMatch(**kwargs))
+        return self._endrule
 
     def _name_rule(mself):
         class SymbolRule(MdlParseSymbol):
@@ -193,77 +148,57 @@ class MdlTypeParseRuleComplex(MdlParseRuleBase):
             mname=mself._name
             def __init__(self, **kwargs):
                 super().__init__(**kwargs)
-                _name = ("" if self.mname is None else self.mname) + "!Symbol"
+                self._name = ("" if self.mname is None else self.mname) + "!Symbol"
             def _do_parse(self, pstro, state, gen_args):
                 state[ParseStateParseTree.key()].current_node.get_complex_list().append(mself._subnodetype())
-                state[ParseStateParseTree.key()].set_current_node_func(lambda r, current_func=state[ParseStateParseTree.key()].get_current_node_func(): current_func(r).get_complex_list()[-1])
+                state[ParseStateParseTree.key()].set_current_node_func(
+                    lambda r, current_func=state[ParseStateParseTree.key()].get_current_node_func(): current_func(r).get_complex_list()[-1])
                 super()._do_parse(pstro, state, gen_args)
-
         return SymbolRule(**mself.__kwargs)
 
-    def _new_levelstate(self, **kwargs):
-        return MdlTypeParseRuleComplex.LevelState(**kwargs)
+    def _copy_level(self, new, old):
+        super()._copy_level(new, old)
+        new._i = old._i
 
-    class LevelState(Parser.ParseStateLevelStack.LevelState):
-        def __init__(self, **kwargs):
-            self._parent = kwargs["parent"]
-            self._rule_order = []
-            super().__init__(**kwargs)
+    def _init_level(self, level, state):
+        super()._init_level(level, state)
+        level._i = 0
+        state[ParseStateParseTree.key()].current_node.type = self._nodetype()
 
-            self._i = 0
+        old_func = level.init_state[ParseStateParseTree.key()].get_current_node_func()
+        state[ParseStateParseTree.key()].set_current_node_func(
+            lambda r, current_func=old_func: current_func(r).type)
 
-        def _fixup_parserules(self, state):
-            parserules = []
-            if (self._i == len(self._parent._subrules)):
-                self._i = 0
-                parserules += [self._parent._endrule]
+        rules = self._generate_base_parserules(level, state)
+        rules += [self._end_rule()]
+        rules += self._subrules[level._i]
+        level.set_parse_rules(state, rules)
 
-            parserules += list(self._special)
-            parserules += self._parent._subrules[self._i]
+    def _update_level(self, level, state, accepted):
+        super()._update_level(level, state, accepted)
+        if accepted is None:
+            if level._i == 0:
+                old_func = level.init_state[ParseStateParseTree.key()].get_current_node_func()
+                state[ParseStateParseTree.key()].set_current_node_func(
+                    lambda r, current_func=old_func: current_func(r).type)
+            return
 
-            # Set parse rules
-            state[Parser.ParseStateRules.key()].value = parserules
+        if accepted.rule is self._end_rule():
+            level.finish(state)
+            return
 
-        def parsing(self, state):
-            if self._i == 0:
-                state[ParseStateParseTree.key()].set_current_node_func(lambda r, current_func=self._old_func: current_func(r).type)
+        if accepted.rule in self._subrules[level._i]:
+            level._i += 1
+            if level._i == len(self._subrules):
+                level._i = 0
 
-        def parsed(self, state, accepted):
-            if accepted.rule is self._parent._endrule:
-                self.end_this(state)
-                return
+        rules = self._generate_base_parserules(level, state)
 
-            for rule in self._parent._subrules[self._i]:
-                if accepted.rule is rule:
-                    self._i += 1
-                    break
+        if (level._i == 0):
+            rules += [self._end_rule()]
 
-            self._rule_order.append(accepted.rule)
-            self._fixup_parserules(state)
-
-        def start(self, state):
-            self._special = state[ParseStateSpecialRules].all()
-            self._old_rules = state[Parser.ParseStateRules.key()].value
-            self._old_func = state[ParseStateParseTree.key()].get_current_node_func()
-
-            state_parsetree = state[ParseStateParseTree.key()]
-            state_parsetree.current_node.type = self._parent._nodetype()
-            state_parsetree.set_current_node_func(lambda r, current_func=self._old_func: current_func(r).type)
-
-            self._fixup_parserules(state)
-
-        def end(self, state):
-            state[Parser.ParseStateRules.key()].value = self._old_rules
-            state[ParseStateParseTree.key()].set_current_node_func(self._old_func)
-
-        def _copy(self, new):
-            super()._copy(new)
-
-            new._rule_order = list(self._rule_order)
-
-            new._special = self._special
-            new._old_rules = self._old_rules
-            new._old_func = self._old_func
+        rules += self._subrules[level._i]
+        level.set_parse_rules(state, rules)
 
     def _gen_levelargs(self, state, **kwargs):
         kwargs["parent"] = self
@@ -273,6 +208,7 @@ class MdlTypeParseRuleComplex(MdlParseRuleBase):
         if not pstro.match(self._chars[0]):
             raise Exception("No Open Symbol")
 
+
 class MdlTypeParseRuleStruct(MdlTypeParseRuleComplex):
     def __init__(self, **kwargs):
         self.__kwargs = kwargs
@@ -281,17 +217,13 @@ class MdlTypeParseRuleStruct(MdlTypeParseRuleComplex):
         kwargs["chars"] = "{}"
         super().__init__(**kwargs)
 
-    def _seprule(mself):
-        class SymbolRule(MdlParseRuleBase):
-            mname=mself._name
-            def __init__(self, **kwargs):
-                super().__init__(**kwargs)
-                _name = ("" if self.mname is None else self.mname) + "!Sep"
-            def _do_parse(self, pstro, state, gen_args):
-                if not pstro.match(':'):
-                    raise Exception("No Sep Symbol")
+    def _seprule(self):
+        kwargs = dict(self.__kwargs)
+        kwargs["match"] = ":"
 
-        return SymbolRule(**mself.__kwargs)
+        return ParseRuleNameMod(
+            ("" if self._name is None else self._name) + "!Sep",
+            ParseRuleMatch(**kwargs))
 
     def _gen_levelargs(self, state, **kwargs):
         kwargs["parent"] = self
@@ -303,13 +235,36 @@ class MdlTypeParseRuleStruct(MdlTypeParseRuleComplex):
         return super()._gen_levelargs(state, **kwargs)
 
 
-
 class MdlTypeParseRuleFunc(MdlTypeParseRuleComplex):
     def __init__(self, **kwargs):
+        self.__kwargs = kwargs
         kwargs["nodetype"] = TypeFunction
         kwargs["subnodetype"] = TypeFunctionArgument
         kwargs["chars"] = "()"
         super().__init__(**kwargs)
+
+    def _update_level(self, level, state, accepted):
+        if not (accepted is None) and accepted.rule is self._end_rule():
+            level._j = 0
+            old_func = level.init_state[ParseStateParseTree.key()].get_current_node_func()
+            state[ParseStateParseTree.key()].set_current_node_func(
+                lambda r, current_func=old_func: current_func(r).type)
+        if hasattr(level, '_j'):
+            if accepted is None:
+                if level._j == len(self._endrules):
+                    level.finish(state)
+                return
+            if accepted.rule in self._endrules[level._j]:
+                level._j += 1
+            if level._j == len(self._endrules):
+                return
+
+            rules = self._generate_base_parserules(level, state)
+
+            rules += self._endrules[level._j]
+            level.set_parse_rules(state, rules)
+            return
+        super()._update_level(level, state, accepted)
 
     def _gen_levelargs(self, state, **kwargs):
         kwargs["parent"] = self
@@ -317,17 +272,24 @@ class MdlTypeParseRuleFunc(MdlTypeParseRuleComplex):
             [self._name_rule()],
             [self._config.config["typerule"]]
         ]
+        kwargs = dict(self.__kwargs)
+        kwargs["match"] = "->"
+        self._endrules = [
+            [ParseRuleNameMod(
+                ("" if self._name is None else self._name) + "!Arrow",
+                ParseRuleMatch(**kwargs))],
+            [self._config.config["typerule"]]
+        ]
         return super()._gen_levelargs(state, **kwargs)
 
-def main():
-    import sys
 
+def generate_parser():
     config = MdlParserConfig({
         "symbol_chars": string.ascii_letters + "_",
         "symbol_first_chars": string.ascii_letters + "_" + string.digits})
 
     specialrules = ParseStateSpecialRules(
-        whitespace=ParseRuleNameMod("whitespace", ParseRuleWhitespace()),
+        whitespace=ParseRuleNameMod("whitespace", ParseRuleWhitespace(whitespace=string.whitespace + ',')),
         comment=ParseRuleNameMod("comment", ParseRuleFromTillEndOfLine(char="#")))
 
     typerules = [
@@ -358,8 +320,9 @@ def main():
                     'nodetype': lambda nt=t[1]: nt})) 
             for t in typerules]
             + [
-                MdlTypeParseRuleStruct(config=config),
-                MdlTypeParseRuleFunc(config=config)
+                ParseRuleNameMod("TypeComplex[Struct]", MdlTypeParseRuleStruct(config=config)),
+                ParseRuleNameMod("TypeComplex[Func]", MdlTypeParseRuleFunc(config=config)),
+                ParseRuleNameMod("TypeComplex[Named]", MdlTypeParseRuleNamed(config=config))
             ],
         'config': config
     }
@@ -398,6 +361,19 @@ def main():
             specialrules,
             ParseStateParseTree(),
         ])
+
+    return parser
+
+
+def get_result(parse):
+    return parse[ParseStateParseTree.key()].roots
+
+
+def main():
+    import sys
+
+    parser = generate_parser()
+
     rstate = parser.parse(open(sys.argv[1], 'r').read())
 
     print(rstate[Parser.ParseStateDebugStack.key()])

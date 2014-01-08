@@ -168,6 +168,10 @@ class TypeType(Node):
         if not validation.valid:
             return
 
+        if type.get_type() is None:
+            validation.add_error("Type {} failed to resolve.".format(type))
+            return
+
         if not type.get_type().is_general_type():
             validation.add_error("Type {} is not a general type.".format(type))
             return

@@ -101,7 +101,7 @@ class Parser():
             def start(self, state):
                 self._start(self, state)
 
-            def end_this(self, state):
+            def finish(self, state):
                 self.__state = state
                 state[Parser.ParseStateLevelStack.key()].pop()
 
