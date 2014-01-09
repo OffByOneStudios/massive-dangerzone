@@ -95,7 +95,7 @@ class MDLDescription(object):
 
     def __init__(self, ast, dependencies):
         if isinstance(ast, str):
-            print ("PARSING")
+            logger.debug("Pasing MDL...")
             ast = get_result(MDLparser.parse(ast))
 
         self.ast = ast
