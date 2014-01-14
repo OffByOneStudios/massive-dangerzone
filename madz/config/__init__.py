@@ -19,7 +19,7 @@ from .language import *
 from .compiler import *
 
 class DefaultConfig(BaseConfig):
-	pass
+    pass
 
 DefaultConfig.default_options = [
     ## System options

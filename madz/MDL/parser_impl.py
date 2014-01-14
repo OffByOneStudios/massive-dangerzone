@@ -88,6 +88,10 @@ class MdlTypeLevelParseRule(MdlParseRuleBase(ParseRuleLevelBase)):
         self._modrules = kwargs["modrules"]
         self._typerules = kwargs["typerules"]
 
+    def _end_level(self, level, state):
+        state[Parser.ParseStateRules.key()].value = level.init_state[Parser.ParseStateRules.key()].value
+        pass
+
     def _init_level(self, level, state):
         super()._init_level(level, state)
         rules = self._generate_base_parserules(level, state)
@@ -163,6 +167,7 @@ class MdlTypeParseRuleComplex(MdlParseRuleBase(ParseRuleLevelBase)):
     def _init_level(self, level, state):
         super()._init_level(level, state)
         level._i = 0
+        
         state[ParseStateParseTree.key()].current_node.type = self._nodetype()
 
         old_func = level.init_state[ParseStateParseTree.key()].get_current_node_func()
