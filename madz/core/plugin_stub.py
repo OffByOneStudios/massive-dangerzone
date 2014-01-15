@@ -182,17 +182,21 @@ class PluginStub(object):
 
     def gen_recursive_loaded_depends(self):
         """Generates a list of all dependencies. In orderish."""
-        depends_list = []
-        new_list = self.loaded_depends
-        while not (len(new_list) == 0):
-            depends_list.extend(new_list)
-            new_list = []
-            for ldep in depends_list:
-                for ldepdeps in ldep.loaded_depends:
-                    if not (ldepdeps in depends_list or ldepdeps in new_list):
-                        new_list.append(ldepdeps)
-        depends_list.reverse()
-        return depends_list
+        
+        # new list to return
+        new_list = []
+        for dep in self.loaded_depends:
+            # inspect recursive subdepends for depends candidates 
+            subdeps = dep.gen_recursive_loaded_depends()
+            for subdep in subdeps:
+                # Add new dependencies 
+                if not(subdep in new_list):
+                    new_list.append(subdep)
+            # Add this plugin's depedencies.
+            if not(dep in new_list):
+                new_list.append(dep)
+                
+        return new_list
 
     def gen_required_loaded_imports(self):
         """Generates a list of all imports. In orderish."""
