@@ -96,34 +96,59 @@ class MDLDescription(object):
     """
 
     def __init__(self, ast, dependencies, dir=""):
+        # AST is in syntax form
         if isinstance(ast, str):
-            the_dir = os.path.join(dir, ".madz")
-            needs_parsing = True
-            if os.path.exists(the_dir) and "ast.pickle" in os.listdir(the_dir):
-                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "rb")
-                ast_str = pickle.load(pickle_file)
-                if ast_str == ast:
-                    logger.debug("Loading MDL...")
-                    needs_parsing = False
-                    ast = pickle.load(pickle_file)
-                    pickle_file.close()
-            if needs_parsing:
-                logger.debug("Pasing MDL...")
-                if not os.path.exists(the_dir):
-                    os.mkdir(the_dir)
-                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "wb")
-                pickle.dump(ast, pickle_file)
-                ast = get_result(MDLparser.parse(ast))
-                pickle.dump(ast, pickle_file)
-                pickle_file.close()
+            ast = self._parse_cached(ast, dir)
 
+        # Init object
         self.ast = ast
         self.dependencies = dependencies
 
-        # TODO: Better extension detection.
-        #self.ast = ext_objects.expand(self.ast)
-
+        # clean up ast order
         self.ast = sorted(self.ast, key=self.keyfunc)
+
+    def _parse_cached(self, ast, dir):
+        # Calculate directory of cache
+        the_dir = os.path.join(dir, ".madz")
+
+        # Set state flag
+        needs_parsing = True
+        # Check for cache pickle file
+        if os.path.exists(the_dir) and "ast.pickle" in os.listdir(the_dir):
+            # Open cache file
+            pickle_file = open(os.path.join(the_dir, "ast.pickle"), "rb")
+
+            # Unpickle original source
+            ast_str = pickle.load(pickle_file)
+            # Check that the current source and original source match
+            if ast_str == ast:
+                logger.debug("Loading MDL...")
+                needs_parsing = False
+
+                # Unpack cached AST
+                ast = pickle.load(pickle_file)
+                # Close the file
+                pickle_file.close()
+
+        # Parse AST syntax
+        if needs_parsing:
+            logger.debug("Parsing MDL...")
+            # Make the directory for the cache file
+            if not os.path.exists(the_dir):
+                os.mkdir(the_dir)
+
+            # Open the cache file
+            pickle_file = open(os.path.join(the_dir, "ast.pickle"), "wb")
+            # Dump original source
+            pickle.dump(ast, pickle_file)
+            # Parse source
+            ast = get_result(MDLparser.parse(ast))
+            # Dump AST
+            pickle.dump(ast, pickle_file)
+            # Close the file
+            pickle_file.close()
+
+        return ast
 
     def copy(self):
         return MDLDescription(list(self.ast), dict(self.dependencies))
