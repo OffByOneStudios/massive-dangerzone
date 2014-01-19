@@ -153,7 +153,8 @@ class PluginStub(object):
             ast = self._try_get("description")
             ast = pyMDL.MDLDescription.transform_ast_user_convenience(ast)
             self.description = pyMDL.MDLDescription(ast, 
-                dict((d.id.namespace, d.description) for d in self.loaded_depends))
+                dict((d.id.namespace, d.description) for d in self.loaded_depends),
+                dir=self.directory)
 
         # Validate the plugin description, and use it's return as whether we succeded or not.
         return self.description.validate()

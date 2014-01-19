@@ -4,8 +4,10 @@ Provides objects for manipulating MDL descriptions.
 """
 
 import re
+import os
 import logging
 import contextlib
+import pickle
 
 from . import nodes
 from . import base_types
@@ -93,10 +95,27 @@ class MDLDescription(object):
         dependencies: Dictionary mapping PluginIds to MDLDescription objects.
     """
 
-    def __init__(self, ast, dependencies):
+    def __init__(self, ast, dependencies, dir=""):
         if isinstance(ast, str):
-            logger.debug("Pasing MDL...")
-            ast = get_result(MDLparser.parse(ast))
+            the_dir = os.path.join(dir, ".madz")
+            needs_parsing = True
+            if os.path.exists(the_dir) and "ast.pickle" in os.listdir(the_dir):
+                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "rb")
+                ast_str = pickle.load(pickle_file)
+                if ast_str == ast:
+                    logger.debug("Loading MDL...")
+                    needs_parsing = False
+                    ast = pickle.load(pickle_file)
+                    pickle_file.close()
+            if needs_parsing:
+                logger.debug("Pasing MDL...")
+                if not os.path.exists(the_dir):
+                    os.mkdir(the_dir)
+                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "wb")
+                pickle.dump(ast, pickle_file)
+                ast = get_result(MDLparser.parse(ast))
+                pickle.dump(ast, pickle_file)
+                pickle_file.close()
 
         self.ast = ast
         self.dependencies = dependencies
