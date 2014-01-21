@@ -34,6 +34,7 @@ class Cleaner(object):
 
     def clean(self):
         """Cleans a plugin."""
+        self.clean_dir(os.path.join(self.plugin_stub.directory, ".madz"))
         self.clean_dir(self.language.get_wrap_directory())
         self.clean_dir(self.language.get_build_directory())
         self.clean_dir(self.language.get_output_directory())

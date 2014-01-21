@@ -98,7 +98,33 @@ class MDLDescription(object):
     def __init__(self, ast, dependencies, dir=""):
         # AST is in syntax form
         if isinstance(ast, str):
-            ast = self._parse_cached(ast, dir)
+                logger.debug("Parsing MDL...")
+            the_dir = os.path.join(dir, ".madz")
+            needs_parsing = True
+            if os.path.exists(the_dir) and "ast.pickle" in os.listdir(the_dir):
+                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "rb")
+                ast_str = pickle.load(pickle_file)
+                if ast_str == ast:
+                    logger.debug("Loading MDL...")
+                    needs_parsing = False
+                    ast = pickle.load(pickle_file)
+                    pickle_file.close()
+            if needs_parsing:
+                logger.debug("Pasing MDL...")
+                if not os.path.exists(the_dir):
+                    os.mkdir(the_dir)
+                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "wb")
+                ast_str = ast
+                try:
+                    ast = get_result(MDLparser.parse(ast))
+                except Exception as e:
+                    pickle.dump("", pickle_file)
+                    pickle.dump([], pickle_file)
+                    pickle_file.close()
+                    raise e
+                pickle.dump(ast_str, pickle_file)
+                pickle.dump(ast, pickle_file)
+                pickle_file.close()
 
         # Init object
         self.ast = ast
