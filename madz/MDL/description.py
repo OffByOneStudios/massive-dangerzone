@@ -98,33 +98,7 @@ class MDLDescription(object):
     def __init__(self, ast, dependencies, dir=""):
         # AST is in syntax form
         if isinstance(ast, str):
-                logger.debug("Parsing MDL...")
-            the_dir = os.path.join(dir, ".madz")
-            needs_parsing = True
-            if os.path.exists(the_dir) and "ast.pickle" in os.listdir(the_dir):
-                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "rb")
-                ast_str = pickle.load(pickle_file)
-                if ast_str == ast:
-                    logger.debug("Loading MDL...")
-                    needs_parsing = False
-                    ast = pickle.load(pickle_file)
-                    pickle_file.close()
-            if needs_parsing:
-                logger.debug("Pasing MDL...")
-                if not os.path.exists(the_dir):
-                    os.mkdir(the_dir)
-                pickle_file = open(os.path.join(the_dir, "ast.pickle"), "wb")
-                ast_str = ast
-                try:
-                    ast = get_result(MDLparser.parse(ast))
-                except Exception as e:
-                    pickle.dump("", pickle_file)
-                    pickle.dump([], pickle_file)
-                    pickle_file.close()
-                    raise e
-                pickle.dump(ast_str, pickle_file)
-                pickle.dump(ast, pickle_file)
-                pickle_file.close()
+            ast = self._parse_cached(ast, dir)
 
         # Init object
         self.ast = ast
@@ -165,13 +139,21 @@ class MDLDescription(object):
 
             # Open the cache file
             pickle_file = open(os.path.join(the_dir, "ast.pickle"), "wb")
-            # Dump original source
+            # Save the original AST
+            ast_str = ast
+
+            #Parse
+            try:
+                ast = get_result(MDLparser.parse(ast))
+            except Exception as e:
+                # Write bad parse and rethrow
+                pickle.dump("", pickle_file)
+                pickle.dump([], pickle_file)
+                pickle_file.close()
+                raise e
+            # Write successful parse
+            pickle.dump(ast_str, pickle_file)
             pickle.dump(ast, pickle_file)
-            # Parse source
-            ast = get_result(MDLparser.parse(ast))
-            # Dump AST
-            pickle.dump(ast, pickle_file)
-            # Close the file
             pickle_file.close()
 
         return ast
