@@ -81,9 +81,51 @@ class MSCLCompiler(base.SubprocCompilerBase):
             foutput: 
             ferrput:
         """
+        error = CLVerbosityLogFilter(foutput)
         if output.find("error") != -1:
-            logger.error(foutput)
+            logger.error(error.format())
         if errput.find("cl : Command line warning") != -1:
             logger.warning(ferrput)
 
+            
+class LogFilter(object):
+    """Helper Class to trunticate Log output. It's So long!"""
+    
+    def __init__(self, string):
+        self.string = string
+    
+    def format(self):
+        pass
+        
+    def __str__(self):
+        return self.format()
 
+        
+class IdentityLogFilter(LogFilter):
+    """Log Filter which returns it's input"""
+    
+    def format(self):
+        return self.string
+
+        
+class CLVerbosityLogFilter(LogFilter):
+    """Helper Class to limit the amount of information returned from CL"""
+    
+    def format(self):
+        import re
+        
+        fileRegex = "(^[^ \\/:*?""<>|]+([ ]+[^ \\/:*?""<>|]+)*$)"
+        errorRegex = ": error C[0-9]+:"
+        errorLines = self.string.split("\n")
+        res = []
+        for line in errorLines:
+            match = re.search(errorRegex, line)
+            if match != None:
+                file, error = line.split(match.group(0))
+                res.append("\t" + file[file.rfind("\\") + 1 : ] + ":" + error)
+            else:
+                res.append(line)
+        return '\n'.join(res)
+
+    
+    
