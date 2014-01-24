@@ -7,6 +7,7 @@ import os
 import glob
 import re
 
+from ...compiler import mingw_compiler
 from ...config import *
 from .._base import language
 from .clean import Cleaner
@@ -17,7 +18,7 @@ from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 class LanguageCPP(language.BaseLanguage):
     compilers = {
         "gcc": compiler_gcc.GCCCompiler,
-        "mingw": compiler_mingw.MinGWCompiler,
+        "mingw": NewCompilerWrapper(mingw_compiler.MingwCompiler),
         "clang": compiler_clang.ClangCompiler,
         "cl": compiler_cl.MSCLCompiler,
     }

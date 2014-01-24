@@ -7,6 +7,7 @@ import os
 import glob
 import re
 
+from ...compiler import mingw_compiler
 from ...config import *
 from .._base import language
 from . import clean
@@ -20,7 +21,7 @@ class LanguageC(language.BaseLanguage):
     compilers = {
         """List of compatible compilers with C and MADZ."""
         "gcc": compiler_gcc.GCCCompiler,
-        "mingw": compiler_mingw.MinGWCompiler,
+        "mingw": NewCompilerWrapper(mingw_compiler.MingwCompiler),
         "clang": compiler_clang.ClangCompiler,
         "cl": compiler_cl.MSCLCompiler,
     }
