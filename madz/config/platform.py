@@ -40,7 +40,8 @@ class OptionPlatformProcessorFamily(BaseChooseOption):
     @classmethod
     def get_default_value(cls):
         """Returns the name of the processor family of the current machine."""
-        return platform.machine().replace("AMD64","x86_64")
+        python_is_64bits = sys.maxsize > 2**32
+        return platform.machine().replace("AMD64","x86_64") if python_is_64bits else "i386";
 PlatformConfig.add_platform_option_type(OptionPlatformProcessorFamily)
 
 class OptionPlatformOperatingSystem(BaseChooseOption):
