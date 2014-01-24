@@ -39,9 +39,11 @@ class MingwCompiler(GnuCompilerBase):
 
     def compiler_flags_base(self, plugin_stub, language):
         return (
-            # Basic Compiler Flags
+            # Basic Config Flags
             (["-O0"] if (config.get(OptionCompilerDebug, 0.0) < 0.5) else ["-O4"]) +
             (["-g"] if (config.get(OptionCompilerDebug, False)) else []) +
+            # Platform Compiler Flags
+            (["-DMS_WIN64"] if config_target.get(OptionPlatformProcessorFamily) == "x86_64" else []) +
             # Language Compiler Flags
             ({
                 "c": ["-std=c11", "-xc"],
@@ -63,6 +65,7 @@ class MingwCompiler(GnuCompilerBase):
     def linker_flags_base(self, plugin_stub, language):
         return (
             # Basic Linker Flags
+            ["-shared"] +
             ["-mwindows"] +
             # Language Linker Flags
             ({
@@ -71,10 +74,8 @@ class MingwCompiler(GnuCompilerBase):
             }[language.name]) +
             # Library Directories
             list(self._gen_link_library_dirs()) +
-            # Linker Prep (position independant code and visibility)
-            ["-fvisibility=hidden", "-fpic"] +
             # Warnings
-            ["-Wl,-z,defs", "-Wl,--warn-unresolved-symbols"])
+            ["-Wl,--warn-unresolved-symbols"])
 
     def linker_flags_files(self, plugin_stub, language, source_files):
         return ["-o", language.get_output_file()] + \

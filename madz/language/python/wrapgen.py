@@ -364,7 +364,7 @@ void ___madz_init_imports();
         """
         res = \
 """void ___madz_init(){{
-    PyObject *name, *fn, *implib, *importer;
+    PyObject *fn, *implib, *importer;
     PyInterpreterState *interp_state;
     PyThreadState *thread_state, *tmp;
     if(!Py_IsInitialized())

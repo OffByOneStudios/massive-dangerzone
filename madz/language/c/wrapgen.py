@@ -229,8 +229,8 @@ class WrapperGenerator(object):
             "in_struct_defines" : "/* Defined structs for the incoming plugin variables */\n",
             "in_struct_declares" : "/* Declaring structs for the incoming plugin variables */\n",
             "out_struct_func_assigns" : "/* Assign functions in this plugin into the outgoing variables struct */\n",
-            "in_struct_depends_assigns" : "/* Defined structs for the incoming depends plugin variables */\n\tint in_req=0;\n",
-            "in_struct_imports_assigns" : "/* Defined structs for the incoming imports plugin variables */\n\tint in_req=0;\n",
+            "in_struct_depends_assigns" : "",
+            "in_struct_imports_assigns" : "",
             "output_var_bindings" : "/* Bindings for ease of use in c */\n",
             "output_var_func_declares" : "/* Declare output functions */\n",
             "madz_prefix" : self.prefix,
@@ -250,7 +250,10 @@ class WrapperGenerator(object):
                     name = name)
             code_fragments["in_struct_declares"] += "extern " + type_and_name
             code_fragments["in_struct_defines"] += type_and_name
-            code_fragments["in_struct_depends_assigns" if is_dep else "in_struct_imports_assigns"] += \
+            assigns_key = "in_struct_depends_assigns" if is_dep else "in_struct_imports_assigns"
+            if (code_fragments[assigns_key] == ""):
+                code_fragments[assigns_key] = "/* Defined structs for the incoming requires plugin variables */\n\tint in_req=0;\n"
+            code_fragments[assigns_key] += \
                 "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=name,
                     require_type="depends" if is_dep else "imports")
 
