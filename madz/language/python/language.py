@@ -7,8 +7,10 @@ The language object pulling togeather all of the pieces needed for a plugin of t
 import os
 import glob
 
+from ...compiler import mingw_compiler
 from ...config import *
 from .._base import language
+from .._base.compiler import NewCompilerWrapper
 from . import clean
 from . import load
 from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
@@ -16,14 +18,18 @@ from . import wrapgen
 
 class LanguagePy(language.BaseLanguage):
     """Python language object."""
-    
+
     compilers = {
         "gcc": compiler_gcc.GCCCompiler,
-        "mingw": compiler_mingw.MinGWCompiler,
+        "mingw": NewCompilerWrapper(mingw_compiler.MingwCompiler),
         "clang": compiler_clang.ClangCompiler,
         "cl": compiler_cl.MSCLCompiler,
     }
     default_compiler = "gcc"
+
+    @property
+    def name(self):
+        return "c"
 
     def get_language_name(self):
         """Returns the language name."""

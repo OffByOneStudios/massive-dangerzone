@@ -10,6 +10,7 @@ import re
 from ...compiler import mingw_compiler
 from ...config import *
 from .._base import language
+from .._base.compiler import NewCompilerWrapper
 from . import clean
 from . import load
 from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
@@ -17,7 +18,7 @@ from . import wrapgen
 
 class LanguageC(language.BaseLanguage):
     """Language object for C.s"""
-    
+
     compilers = {
         """List of compatible compilers with C and MADZ."""
         "gcc": compiler_gcc.GCCCompiler,

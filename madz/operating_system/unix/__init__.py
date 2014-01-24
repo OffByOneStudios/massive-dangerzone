@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class UnixOperatingSystem(object):
     """Operating System object for plugin support on Unix based operating system.
-    
+
     Arguments:
         loadedinit_plugins: Dictionary of plugins
         loadedimports_plugins: Dictionary of plugins
@@ -19,10 +19,10 @@ class UnixOperatingSystem(object):
     @staticmethod
     def output_file_location(plugin_stub):
         """Returns the path of a given plugin.
-        
+
         Args:
             plugin_stub: A plugin stub to grab the path from.
-            
+
         Returns:
             A string representation of a the location of a plugin within the plugin system.
         """
@@ -37,9 +37,10 @@ class UnixOperatingSystem(object):
         if plugin_stub in self.loadedinit_plugins:
             return
 
-        logger.debug("LOADING: Opening plugin DLL: {}".format(plugin_stub))
+        module_dll_file = self.output_file_location(plugin_stub)
+        logger.debug("LOADING: Opening plugin DLL: {}".format(module_dll_file))
 
-        plugin_dll = ctypes.cdll.LoadLibrary(self.output_file_location(plugin_stub))
+        plugin_dll = ctypes.cdll.LoadLibrary(module_dll_file)
 
         madz_init = getattr(plugin_dll, "___madz_EXTERN_INIT")
         madz_init.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)]
@@ -106,7 +107,7 @@ class UnixOperatingSystem(object):
     def load(self, plugin_stub, recur=True):
         #TODO(Mason): Make recur do something.
         """Loads a plugin onto the operating system object.
-        
+
         Args:
             plugin_stub: A plugin stub to load onto the OS
         """
@@ -122,11 +123,11 @@ class UnixOperatingSystem(object):
 
     def get_function(self, plugin_stub, name):
         """Returns a function pointer to a function from provided plugin with provided name.
-        
+
         Args:
             plugin_stub: A plugin stub to retrieve the function pointer from
             name: A string representing the name the function
-            
+
         Returns:
             A function pointer
         """

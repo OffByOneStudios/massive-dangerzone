@@ -53,9 +53,9 @@ class SubprocCompilerBase(compiler.BaseCompiler):
     def log_output(self, operation, retcode, output, errput):
         #TODO(Mason): Implement this method and add proper descriptions of input paramaters.
         """Responsible for logging the output from the proccess.
-        
+
         Args:
-            operation: 
+            operation:
             retcode:
             output:
             errput:
@@ -102,7 +102,7 @@ class SubprocCompilerBase(compiler.BaseCompiler):
 
     def build(self, type=compiler.BaseCompiler.BuildType.DynamicPlugin):
         """Compiles and links plugin.
-        
+
         Implementation Notes:
             Hard Coded to use GCC
             Links as Unix Style Shared Objects.

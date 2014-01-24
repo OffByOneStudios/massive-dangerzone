@@ -6,7 +6,6 @@ Code to Build C plugins
 import os, sys, shutil
 import logging
 import subprocess
-
 from ...core.dependency import Dependency
 
 logger = logging.getLogger(__name__)

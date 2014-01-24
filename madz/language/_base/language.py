@@ -9,6 +9,10 @@ class BaseLanguage(object):
     """Base language object."""
     __metaclass__ = abc.ABCMeta
 
+    @property
+    def name(self):
+        return self.get_language_name()
+
     @abc.abstractmethod
     def get_language_name(self):
         """Returns the string name of language."""
