@@ -26,11 +26,11 @@ class MSCLCompiler(base.SubprocCompilerBase):
 
     def _gen_header_include_dirs(self):
         """Returns a list of the header include directories."""
-        return map(lambda d: '/I"{}"'.format(d), self.config.get(OptionHeaderSearchPaths, []))
+        return map(lambda d: '/I"{}"'.format(d), config.get(OptionHeaderSearchPaths, []))
 
     def _gen_link_library_dirs(self):
         """Returns a list of the linked library directories."""
-        return map(lambda d: "/LIBPATH:{}".format(d), self.config.get(OptionLibrarySearchPaths, []))
+        return map(lambda d: "/LIBPATH:{}".format(d), config.get(OptionLibrarySearchPaths, []))
         
     def _gen_link_library_statics(self):
         return map(lambda d: '{}'.format(d), self.config.get(OptionLibraryStaticLinks, []))    

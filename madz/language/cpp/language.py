@@ -8,6 +8,7 @@ import glob
 import re
 
 from ...compiler import mingw_compiler
+from ...compiler import cl_compiler
 from ...config import *
 from .._base import language
 from .clean import Cleaner
@@ -21,7 +22,7 @@ class LanguageCPP(language.BaseLanguage):
         "gcc": compiler_gcc.GCCCompiler,
         "mingw": NewCompilerWrapper(mingw_compiler.MingwCompiler),
         "clang": compiler_clang.ClangCompiler,
-        "cl": compiler_cl.MSCLCompiler,
+        "cl": NewCompilerWrapper(cl_compiler.ClCompiler),
     }
     default_compiler = "gcc"
 
