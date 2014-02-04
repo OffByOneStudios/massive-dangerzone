@@ -151,7 +151,6 @@ class PluginStub(object):
         # Build and save the plugin's MDL:
         with config.and_merge(self.config):
             ast = self._try_get("description")
-            ast = pyMDL.MDLDescription.transform_ast_user_convenience(ast)
             self.description = pyMDL.MDLDescription(ast, 
                 dict((d.id.namespace, d.description) for d in self.loaded_depends),
                 dir=self.directory)

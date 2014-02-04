@@ -12,7 +12,7 @@ import pickle
 from . import nodes
 from . import base_types
 from .extensions.objects import types as ext_objects
-
+from .loaders import *
 from .parser_impl import generate_parser, get_result
 MDLparser = generate_parser()
 
@@ -91,109 +91,20 @@ class MDLDescription(object):
     """An object holding an MDLDescription.
             
     Attributes:
-        ast: A list of nodes which form the description of the plugin.
+        ast: An AST Loader from loaders.py
         dependencies: Dictionary mapping PluginIds to MDLDescription objects.
     """
 
-    def __init__(self, ast, dependencies, dir=""):
-        # AST is in syntax form
-        if isinstance(ast, str):
-            ast = self._parse_cached(ast, dir)
-
+    def __init__(self, ast, dependencies, dir=""):       
         # Init object
-        self.ast = ast
+        self.ast = ast.load(dir)
         self.dependencies = dependencies
 
         # clean up ast order
         self.ast = sorted(self.ast, key=self.keyfunc)
 
-    def _parse_cached(self, ast, dir):
-        # Calculate directory of cache
-        the_dir = os.path.join(dir, ".madz")
-
-        # Set state flag
-        needs_parsing = True
-        # Check for cache pickle file
-        if os.path.exists(the_dir) and "ast.pickle" in os.listdir(the_dir):
-            # Open cache file
-            pickle_file = open(os.path.join(the_dir, "ast.pickle"), "rb")
-
-            # Unpickle original source
-            ast_str = pickle.load(pickle_file)
-            # Check that the current source and original source match
-            if ast_str == ast:
-                logger.debug("Loading MDL...")
-                needs_parsing = False
-
-                # Unpack cached AST
-                ast = pickle.load(pickle_file)
-                # Close the file
-                pickle_file.close()
-
-        # Parse AST syntax
-        if needs_parsing:
-            logger.debug("Parsing MDL...")
-            # Make the directory for the cache file
-            if not os.path.exists(the_dir):
-                os.mkdir(the_dir)
-
-            # Open the cache file
-            pickle_file = open(os.path.join(the_dir, "ast.pickle"), "wb")
-            # Save the original AST
-            ast_str = ast
-
-            #Parse
-            try:
-                ast = get_result(MDLparser.parse(ast))
-            except Exception as e:
-                # Write bad parse and rethrow
-                pickle.dump("", pickle_file)
-                pickle.dump([], pickle_file)
-                pickle_file.close()
-                raise e
-            # Write successful parse
-            pickle.dump(ast_str, pickle_file)
-            pickle.dump(ast, pickle_file)
-            pickle_file.close()
-
-        return ast
-
     def copy(self):
-        return MDLDescription(list(self.ast), dict(self.dependencies))
-
-    @classmethod
-    def transform_ast_named_strs(cls, ast):
-        """Names each subnode of the description.
-        
-        Args:
-            ast: List of subnodes
-            
-        Returns:
-            The MDLDescription object with named subnodes.
-        """
-        def str_to_named(node, name=""):
-            ret_node = node
-            if isinstance(node, str):
-                ret_node = base_types.NamedType(node)
-            if name:
-                return [(name, ret_node)]
-            return [ret_node]
-
-        return cls.map_over(ast, str_to_named)
-
-    @classmethod
-    def transform_ast_user_convenience(cls, ast):
-        """Calls transform_ast_named_strs to name each subnode within the description.
-        
-        Args:
-            ast: List of subnodes.
-            
-        Returns:
-            The MDLDescription object with named subnodes.
-        """
-        if isinstance(ast, str):
-            return ast
-        return cls.transform_ast_named_strs(ast)
+        return MDLDescription(MdlRawLoader(list(self.ast)), dict(self.dependencies))
 
     @staticmethod
     def keyfunc(node):
