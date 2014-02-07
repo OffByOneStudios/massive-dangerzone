@@ -226,4 +226,5 @@ class PluginStub(object):
         """Returns the PluginId described by the description file."""
         return PluginId(self.namespace, self.version, self.implementation_name)
 
-
+    def get_plugin_language_impl(self):
+        pass
