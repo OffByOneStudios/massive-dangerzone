@@ -1,3 +1,11 @@
+Version 0.3.1
+=============
+
+* Improved compiler infrastructure.
+    * Adding support for rudimentary architecture detectiong.
+    * Refactoring compilers and languages relationships (new: many compilers to many languages, used to be: many compilers to one language).
+* Improving support for mdl, namely custom mdl loaders, including ability to place into a file.
+
 Version 0.3.0
 =============
 
