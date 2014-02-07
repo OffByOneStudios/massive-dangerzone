@@ -1,5 +1,5 @@
 Version 0.3.1
-=============
+-------------
 
 * Improved compiler infrastructure.
     * Adding support for rudimentary architecture detectiong.
