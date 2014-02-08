@@ -38,7 +38,7 @@ class CppCodeGenerator(object):
 
     def _sanitize_symbol(self, symbol):
         if symbol in [
-            "class", "this", "struct",
+            "class", "this", "struct", "template",
             "new", "delete",
             "if", "switch", "while", "for", "case", "break", "continue", "do"
             "align"
@@ -97,7 +97,7 @@ class CppCodeGenerator(object):
     def gen_ns_name(self, name, is_type=False, is_func=False):
         ns_list = name.split(".")
         name = self.gen_name(ns_list[-1])
-        target_namespace_list = ns_list[:-1]
+        target_namespace_list = list(map(self._sanitize_symbol, ns_list[:-1]))
 
         if len(ns_list) == 1 :
             return "::".join(
@@ -160,7 +160,7 @@ class CppNamespaceGenerator(object):
 
     def _make_namespaces(self):
         return "".join(map(
-            lambda ns: "namespace {} {{\n".format(ns),
+            lambda ns: "namespace {} {{\n".format(self.gen._sanitize_symbol(ns)),
             self.namespace.split('.')))
 
     def _make_closing_namespaces(self):
@@ -331,15 +331,17 @@ class WrapperGenerator(object):
                     type=gen.gen.gen_ns_name("{}.{}".format(gen.namespace, gen.gen.struct_type_name), is_type=True),
                     require_type="depends" if is_dep else "imports")
 
-        for dep in self.plugin_stub.gen_recursive_loaded_depends():
+        all_deps = self.plugin_stub.gen_recursive_loaded_depends()
+        for dep in all_deps:
             gen = CppNamespaceGenerator(cpp_gen, dep.id.namespace, dep.description)
             code_fragments["depends_declares_vars"] += gen.make()
             make_in_struct(gen, True)
 
         for imp in self.plugin_stub.gen_required_loaded_imports():
-            gen = CppNamespaceGenerator(cpp_gen, imp.id.namespace, imp.description)
-            code_fragments["imports_declares_vars"] += gen.make()
-            make_in_struct(gen, False)
+            if not (imp in all_deps):
+                gen = CppNamespaceGenerator(cpp_gen, imp.id.namespace, imp.description)
+                code_fragments["imports_declares_vars"] += gen.make()
+                make_in_struct(gen, False)
 
         gen = CppNamespaceGenerator(cpp_gen, self.plugin_stub.id.namespace, self.plugin_stub.description, is_current=True)
         code_fragments["current_declares_vars"] += gen.make()

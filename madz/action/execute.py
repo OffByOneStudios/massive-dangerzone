@@ -29,6 +29,12 @@ class ExecuteAction(BaseAction):
         execute_function_name = config.get(OptionSystemExecuteFunctionName)
         execute_function_signature = config.get(OptionSystemExecuteFunctionSignature)
 
+        logger.debug("Executing plugin '{}' function '{}' with signature '{}'".format(
+                execute_plugin_name,
+                execute_function_name,
+                execute_function_signature
+            ))
+
         if execute_plugin_name is None:
             logger.error("ACTION[{}] cannot execute. OptionSystemExecutePlugin is not defined.".format(self.action_name))
             return

@@ -20,8 +20,3 @@ class ClangCompiler(GCCCompiler):
         #TODO(Mason): Add proper description.
         """???"""
         return ["-fPIC"]
-
-    def _gcc_warn_unresolved(self):
-        """Returns the flags for an unresolved warning."""
-        return ["-Wl,--warn-unresolved-symbols"]
-
