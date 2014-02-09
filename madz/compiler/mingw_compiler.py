@@ -82,7 +82,7 @@ class MingwCompiler(GnuCompilerBase):
             list(map(self.sourcefile_to_objectfile, source_files))
 
     def linker_flags_libraries(self, plugin_stub, language):
-        return (list(self._gen_link_library_statics()) * 2)
+        return (list(map(lambda m: "{}.lib".format(m), self._gen_link_library_statics())) * 2)
 
     def process_output(self, name, retcode, output, errput, foutput, ferrput):
         if retcode != 0:

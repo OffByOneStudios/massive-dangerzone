@@ -122,7 +122,7 @@ class ClCompiler(BuildBase):
             list(map(self.sourcefile_to_objectfile, source_files)) 
 
     def linker_flags_libraries(self, plugin_stub, language):
-        return (list(self._gen_link_library_statics()))
+        return (list(map(lambda m: "{}.lib".format(m), self._gen_link_library_statics())))
         
     def generate_compile_args(self, plugin_stub, language, compile_file):
         return [self.binaryname_compiler(plugin_stub, language)] \
