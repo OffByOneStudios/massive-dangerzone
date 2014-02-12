@@ -52,6 +52,7 @@ class BaseLanguage(object):
 
     def get_plugin_description_files(self):
         """Returns the names of the plugin description files attached to the language."""
+        foo = self.plugin_stub.description.ast
         return self.plugin_stub._plugin_loader_files
 
     def get_output_directory(self):

@@ -27,6 +27,8 @@ class Dependency(object):
 
         #Find the newest dependency
         for d in self.dependencies:
+            if not (os.path.isfile(d)):
+                raise Exception("Dependency file {} does not exist.".format(d))
             temp = os.path.getmtime(d)
             if temp > newest_dependency:
                 newest_dependency = temp
