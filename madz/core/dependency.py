@@ -3,7 +3,10 @@
 Code to create and traverse dependency graphs of plugins.
 """
 
+import logging
 import os.path, time
+
+logger = logging.getLogger(__name__)
 
 class Dependency(object):
     """Generates a dependency graph of plugins allowing for generation in the correct order.
@@ -49,6 +52,7 @@ class Dependency(object):
         if len(self._unsatisfied_targets) == 0:
             return True
         else:
+            logger.debug("Dependency failed: {}".format(self._unsatisfied_targets))
             return False
 
     __nonzero__ = __bool__

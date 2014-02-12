@@ -305,4 +305,3 @@ class MDLDescription(object):
             for new_sub_node in new_subs:
                 new_ast.append(new_sub_node.map_over(map_func))
         return new_ast
-

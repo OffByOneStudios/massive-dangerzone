@@ -13,7 +13,9 @@ class IMdlLoader(metaclass=ABCMeta):
     @abstractmethod
     def load(self, dir=""):
         pass
-    
+
+    def dependency_files(self, dir=""):
+        return []
         
 class IMdlPickleable(IMdlLoader):
     @abstractmethod
@@ -25,7 +27,7 @@ class MdlRawLoader(IMdlLoader):
     
     def __init__(self, nodes):
         self.nodes = nodes
-      
+
     def load(self, dir=""):
         return self.nodes
         
@@ -46,14 +48,20 @@ class MdlFileLoader(IMdlPickleable):
     
     def __init__(self, handle):
         self.handle = handle
-      
+
+    def _file(self, dir):
+        return os.path.join(dir, self.handle)
+
+    def dependency_files(self, dir=""):
+        return [self._file(dir)]
+
     def load(self, dir="."):
-        with open("{}/{}".format(dir, handle)) as f:
+        with open(self._file(dir)) as f:
             self.loader = MDLStringLoader(f.read())
             return self.loader.load()
 
     def source(self, dir="."):
-        with open("{}/{}".format(dir, self.handle)) as f:
+        with open(self._file(dir)) as f:
             return f.read()
     
     
@@ -61,13 +69,19 @@ class MdlCachedLoader(IMdlLoader):
 
     def __init__(self, loader):
         self.loader = loader
+
+    def _file(self, dir):
+        return os.path.join(dir, ".madz")
         
     def load(self, dir=""):
         return self._parse_cached(self.loader.source(dir), dir)
-        
+
+    def dependency_files(self, dir=""):
+        return [os.path.join(self._file(dir), "ast.pickle")]
+
     def _parse_cached(self, ast, dir):
         # Calculate directory of cache
-        the_dir = os.path.join(dir, ".madz")
+        the_dir = self._file(dir)
 
         # Set state flag
         needs_parsing = True

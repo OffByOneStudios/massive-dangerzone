@@ -15,7 +15,7 @@ from .clean import Cleaner
 from .._base.compiler import NewCompilerWrapper
 from .load import Loader
 from .wrapgen import WrapperGenerator
-from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
+from . import compiler_gcc, compiler_clang
 
 class LanguageCPP(language.BaseLanguage):
     compilers = {

@@ -33,4 +33,4 @@ class PythonPluginStubFile(object):
         return self._plugin
 
     def get_plugin_loader_files(self):
-        return [self._py_module_filename]
+        return [self._py_module_filename] + self._plugin.description.dependency_files(self.directory)
