@@ -84,6 +84,9 @@ class PluginDirectory(object):
                     tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
                     logger.error("Plugin failed to load, ID per directory is '{}':\n\t{}".format(file_pid, tb_string))
 
+    def __str__(self):
+        return self.directory
+
 """
 #Example Usage of PluginDirectory
 

@@ -7,25 +7,10 @@ from ....config import plugin as plugin_config # for PluginConfig defaults
 from ....MDL import loaders
 from ....MDL import base_types
 
-class PluginDescription(object):
-    """Object Containing description of Plugins.
+class HumanMDLLoader(loaders.IMdlLoader):
+    def __init__(self, nodes):
+        self.ast = self._transform_ast_named_strs(nodes)
 
-    Takes **kwargs of the following
-
-    Attributes:
-        name: String representing the fully qualified name of plugin
-        version: String or SemanticVersion representing  version of plugin
-        implementation: String representing the name of the particular implementation of the plugin
-        language: String representing the language the plugin is written in.
-        libraries: List of libraries used by the plugin.
-        config: A PluginConfig object representing the configuration for the plugin.
-        imports: Strings or [Partial]PluginIds representing the plugins that this plugin makes use of.
-        depends: Strings or [Partial]PluginIds representing the plugins that this plugin uses in it's description as well as potential makes use of.
-        description: The MDL description of what the plugin provides.
-        active: A way to disable the plugin before it hits the system.
-        documentation: A String describing the plugin. The first line should be a short blurb, folowed by a blank line, and then the full description.
-    """
-    
     def _map_over(self, ast, map_func):
         """Applies a map function over this nodes subnodes.
         
@@ -63,6 +48,29 @@ class PluginDescription(object):
 
         return self._map_over(ast, str_to_named)
 
+    def load(self, dir=""):
+        return self.ast
+
+
+class PluginDescription(object):
+    """Object Containing description of Plugins.
+
+    Takes **kwargs of the following
+
+    Attributes:
+        name: String representing the fully qualified name of plugin
+        version: String or SemanticVersion representing  version of plugin
+        implementation: String representing the name of the particular implementation of the plugin
+        language: String representing the language the plugin is written in.
+        libraries: List of libraries used by the plugin.
+        config: A PluginConfig object representing the configuration for the plugin.
+        imports: Strings or [Partial]PluginIds representing the plugins that this plugin makes use of.
+        depends: Strings or [Partial]PluginIds representing the plugins that this plugin uses in it's description as well as potential makes use of.
+        description: The MDL description of what the plugin provides.
+        active: A way to disable the plugin before it hits the system.
+        documentation: A String describing the plugin. The first line should be a short blurb, folowed by a blank line, and then the full description.
+    """
+
     def __init__(self, **kwargs):
         self._args = kwargs
 
@@ -90,7 +98,7 @@ class PluginDescription(object):
         elif isinstance(desc, str):
             self.description = loaders.MdlCachedLoader(loaders.MdlStringLoader(desc))
         elif isinstance(desc, list):
-            self.description = loaders.MdlRawLoader(self._transform_ast_named_strs(desc))
+            self.description = HumanMDLLoader(desc)
         else:
             raise TypeError("Invalid Description Type")
         

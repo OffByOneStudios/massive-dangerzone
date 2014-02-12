@@ -95,16 +95,32 @@ class MDLDescription(object):
         dependencies: Dictionary mapping PluginIds to MDLDescription objects.
     """
 
-    def __init__(self, ast, dependencies, dir=""):       
-        # Init object
-        self.ast = ast.load(dir)
+    def ast():
+        doc = "The ast property."
+        def fget(self):
+            if self._ast is None:
+                ast = self.ast_loader.load(self.dir)
+                # clean up ast order
+                self._ast = sorted(ast, key=self.keyfunc)
+                self.validate()
+            return self._ast
+        def fset(self, v):
+            self._ast = v
+        return locals()
+    ast = property(**ast())
+
+    def __init__(self, ast_loader, dependencies, dir=""):
+        self._ast = None
+        self.dir = dir
+        self.ast_loader = ast_loader
         self.dependencies = dependencies
 
-        # clean up ast order
-        self.ast = sorted(self.ast, key=self.keyfunc)
-
     def copy(self):
-        return MDLDescription(MdlRawLoader(list(self.ast)), dict(self.dependencies))
+        if not (self.ast is None):
+            ast_loader = MdlRawLoader(list(self.ast))
+        else:
+            ast_loader = self.ast_loader
+        return MDLDescription(ast_loader, dict(self.dependencies))
 
     @staticmethod
     def keyfunc(node):
