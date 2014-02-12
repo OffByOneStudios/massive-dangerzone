@@ -132,7 +132,7 @@ class CppCodeGenerator(object):
             self.gen_node("", node.return_type),
             name,
             ", ".join(map(
-                lambda a: self.gen_node(a.name, a.type),
+                lambda a: self.gen_node(self._sanitize_symbol(a.name), a.type),
                 node.args)))
 
 
