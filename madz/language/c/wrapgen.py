@@ -257,15 +257,17 @@ class WrapperGenerator(object):
                 "\t{name} = {require_type}[in_req]; in_req += 1;\n".format(name=name,
                     require_type="depends" if is_dep else "imports")
 
-        for dep in self.plugin_stub.gen_recursive_loaded_depends():
+        all_deps = self.plugin_stub.gen_recursive_loaded_depends()
+        for dep in all_deps:
             gen = CGenerator([], dep.id.namespace, dep.description)
             code_fragments["depends_declares_vars"] += gen.make_declares_and_vars()
             make_in_struct(gen, True)
 
         for imp in self.plugin_stub.gen_required_loaded_imports():
-            gen = CGenerator([], imp.id.namespace, imp.description)
-            code_fragments["imports_declares_vars"] += gen.make_declares_and_vars()
-            make_in_struct(gen, False)
+            if not (imp in all_deps):
+                gen = CGenerator([], imp.id.namespace, imp.description)
+                code_fragments["imports_declares_vars"] += gen.make_declares_and_vars()
+                make_in_struct(gen, False)
 
         gen = CGenerator([], "", self.plugin_stub.description)
         code_fragments["current_declares_vars"] += gen.make_declares_and_vars()

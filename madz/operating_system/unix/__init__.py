@@ -79,7 +79,8 @@ class UnixOperatingSystem(object):
 
         language_loader = plugin_stub.language.make_loader()
 
-        imports = plugin_stub.gen_required_loaded_imports()
+        deps = plugin_stub.gen_recursive_loaded_depends()
+        imports = list(filter(lambda p: p not in deps, plugin_stub.gen_required_loaded_imports()))
         imports_array = (ctypes.c_void_p * len(imports))()
 
         for i, imp in enumerate(imports):

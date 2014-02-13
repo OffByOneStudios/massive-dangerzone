@@ -747,8 +747,9 @@ depends = {{}}
         c_source += py_gen.make_get_python_out_struct()
         c_source += py_gen.make_c_function_stubs()
 
+        all_deps = self.plugin_stub.gen_recursive_loaded_depends()
         # depends plugins python
-        for dep in self.plugin_stub.gen_recursive_loaded_depends():
+        for dep in all_deps:
             gen = PythonGenerator([], dep.id.namespace, dep.description)
 
             code_fragments["imported_functions"] += gen.make_def_function_types()
@@ -761,15 +762,16 @@ depends = {{}}
             
         # imports plugins python   
         for imp in self.plugin_stub.gen_required_loaded_imports():
-            gen = PythonGenerator([], imp.id.namespace, imp.description)
+            if not (imp in all_deps):
+                gen = PythonGenerator([], imp.id.namespace, imp.description)
 
-            code_fragments["imported_functions"] += gen.make_def_function_types()
-            code_fragments["typedefs"] += gen.make_typedefs()
-            code_fragments["in_structs"] += gen.make_out_struct()
-            code_fragments["imp_module_hooks"] += "    " + gen.make_module_hook()
-            code_fragments["imp_cleanup_code"] += gen.make_cleanup_code(True)
+                code_fragments["imported_functions"] += gen.make_def_function_types()
+                code_fragments["typedefs"] += gen.make_typedefs()
+                code_fragments["in_structs"] += gen.make_out_struct()
+                code_fragments["imp_module_hooks"] += "    " + gen.make_module_hook()
+                code_fragments["imp_cleanup_code"] += gen.make_cleanup_code(True)
 
-            c_source += gen.make_get_in_struct()
+                c_source += gen.make_get_in_struct()
 
         # This plugins python
         code_fragments["typedefs"] += py_gen.make_typedefs()
