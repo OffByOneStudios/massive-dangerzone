@@ -24,6 +24,7 @@ class MdlKeywordParseRule(MdlParseRuleBase(ParseRuleLevelBase)):
         super().__init__(**kwargs)
         self._nodetype = kwargs["node_type"]
         self._keyword = kwargs["keyword"]
+        self._attrs = kwargs["attrs"]
         self._subrules = [[self]] + kwargs["subrules"]
 
     def _copy_level(self, new, old):
@@ -42,14 +43,17 @@ class MdlKeywordParseRule(MdlParseRuleBase(ParseRuleLevelBase)):
         super()._update_level(level, state, accepted)
         if accepted is None:
             return
+        rules = []
 
         if accepted.rule in self._subrules[level._i]:
             level._i += 1
-        if level._i == len(self._subrules):
+        if level._i == len(self._subrules) - 1:
+            rules += self._attrs;
+        elif level._i == len(self._subrules):
             level.finish(state)
             return
 
-        rules = self._generate_base_parserules(level, state)
+        rules += self._generate_base_parserules(level, state)
         rules += self._subrules[level._i]
         level.set_parse_rules(state, rules)
 
@@ -127,6 +131,42 @@ class MdlTypeParseRuleBase(MdlParseRuleBase()):
         state_parsetree.current_node.type = self._nodetype()
         state_parsetree.set_current_node_func(lambda r, current_func=state_parsetree.get_current_node_func(): current_func(r).type)
 
+class MdlAttributeParseRuleBase(MdlParseRuleBase()):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.__kwargs = kwargs
+        self._symbol = kwargs["attr_symbol"]
+        self._node = kwargs["attr_node"]
+
+    def _do_parse(self, pstro, state, gen_args):
+        if not pstro.match("+", case_insensitive=True):
+            raise Exception("No '+' marker.")
+
+        while(pstro.cur != None and pstro.cur in string.whitespace): pstro.p()
+
+        if not pstro.match(self._symbol, case_insensitive=True):
+            raise Exception("Wrong Attribute")
+
+        while(pstro.cur != None and pstro.cur in string.whitespace): pstro.p()
+
+        if not pstro.match(":", case_insensitive=True):
+            raise Exception("No ':' marker.")
+
+        while(pstro.cur != None and pstro.cur in string.whitespace): pstro.p()
+
+        if not pstro.match('"', case_insensitive=True):
+            raise Exception("""No start '"' marker.""")
+
+        attr_front = pstro.parsed()
+
+        while(pstro.cur != None and pstro.cur != '"'): pstro.p()
+
+        result = pstro.parsed()[len(attr_front):]
+
+        if not pstro.match('"', case_insensitive=True):
+            raise Exception("""No end '"' marker.""")
+
+        self._node(result)(state[ParseStateParseTree.key()].current_node)
 
 class MdlTypeParseRuleComplex(MdlParseRuleBase(ParseRuleLevelBase)):
     def __init__(self, **kwargs):
@@ -135,6 +175,7 @@ class MdlTypeParseRuleComplex(MdlParseRuleBase(ParseRuleLevelBase)):
         self._chars = kwargs["chars"]
         self._nodetype = kwargs["nodetype"]
         self._subnodetype = kwargs["subnodetype"]
+        self._attrs = kwargs["attrs"]
 
     def _end_rule(self):
         if not hasattr(self, "_endrule"):
@@ -200,7 +241,7 @@ class MdlTypeParseRuleComplex(MdlParseRuleBase(ParseRuleLevelBase)):
         rules = self._generate_base_parserules(level, state)
 
         if (level._i == 0):
-            rules += [self._end_rule()]
+            rules += self._attrs + [self._end_rule()]
 
         rules += self._subrules[level._i]
         level.set_parse_rules(state, rules)
@@ -213,13 +254,12 @@ class MdlTypeParseRuleComplex(MdlParseRuleBase(ParseRuleLevelBase)):
         if not pstro.match(self._chars[0]):
             raise Exception("No Open Symbol")
 
-
 class MdlTypeParseRuleStruct(MdlTypeParseRuleComplex):
     def __init__(self, **kwargs):
         self.__kwargs = kwargs
         kwargs["nodetype"] = TypeStruct
         kwargs["subnodetype"] = TypeStructElement
-        kwargs["chars"] = "{}"
+        kwargs["chars"] = ["{", "}"]
         super().__init__(**kwargs)
 
     def _seprule(self):
@@ -245,7 +285,7 @@ class MdlTypeParseRuleFunc(MdlTypeParseRuleComplex):
         self.__kwargs = kwargs
         kwargs["nodetype"] = TypeFunction
         kwargs["subnodetype"] = TypeFunctionArgument
-        kwargs["chars"] = "()"
+        kwargs["chars"] = ["(", ")"]
         super().__init__(**kwargs)
 
     def _update_level(self, level, state, accepted):
@@ -267,6 +307,9 @@ class MdlTypeParseRuleFunc(MdlTypeParseRuleComplex):
             rules = self._generate_base_parserules(level, state)
 
             rules += self._endrules[level._j]
+            if (level._j == len(self._endrules) - 1):
+                rules += self._attrs
+
             level.set_parse_rules(state, rules)
             return
         super()._update_level(level, state, accepted)
@@ -288,6 +331,7 @@ class MdlTypeParseRuleFunc(MdlTypeParseRuleComplex):
         return super()._gen_levelargs(state, **kwargs)
 
 
+
 def generate_parser():
     config = MdlParserConfig({
         "symbol_chars": string.ascii_letters + "_" + string.digits, 
@@ -296,6 +340,10 @@ def generate_parser():
     specialrules = ParseStateSpecialRules(
         whitespace=ParseRuleNameMod("whitespace", ParseRuleWhitespace(whitespace=string.whitespace + ',')),
         comment=ParseRuleNameMod("comment", ParseRuleFromTillEndOfLine(char="#")))
+
+    rule_a_doc = ParseRuleNameMod("+DOC", MdlAttributeParseRuleBase(attr_symbol="doc", attr_node=DocumentationAttribute))
+
+    attrs = [rule_a_doc]
 
     typerules = [
         ('void', TypeNone),
@@ -325,8 +373,8 @@ def generate_parser():
                     'nodetype': lambda nt=t[1]: nt})) 
             for t in typerules]
             + [
-                ParseRuleNameMod("TypeComplex[Struct]", MdlTypeParseRuleStruct(config=config)),
-                ParseRuleNameMod("TypeComplex[Func]", MdlTypeParseRuleFunc(config=config)),
+                ParseRuleNameMod("TypeComplex[Struct]", MdlTypeParseRuleStruct(config=config, attrs=attrs)),
+                ParseRuleNameMod("TypeComplex[Func]", MdlTypeParseRuleFunc(config=config, attrs=attrs)),
                 ParseRuleNameMod("TypeComplex[Named]", MdlTypeParseRuleNamed(config=config))
             ],
         'config': config
@@ -340,6 +388,7 @@ def generate_parser():
     rule_typedef = ParseRuleNameMod("KeyWord[Type]", MdlKeywordParseRule(
         keyword="type",
         node_type=TypeDeclaration,
+        attrs=attrs,
         subrules=[
             [rule_symbol],
             [rule_type],
@@ -349,6 +398,7 @@ def generate_parser():
     rule_variable = ParseRuleNameMod("KeyWord[Var]", MdlKeywordParseRule(
         keyword="var",
         node_type=VariableDefinition,
+        attrs=attrs,
         subrules=[
             [rule_symbol],
             [rule_type],
