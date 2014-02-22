@@ -118,9 +118,14 @@ class Attribute(BaseNode):
         """Returns the type of the attribute."""
         self.__class__
 
+    def _can_attach(self, node):
+        return True
+
     def __call__(self, node):
         if (not isinstance(node, BaseNode)) and (not node.is_attribute()):
-            raise ValueError("Must be decorated on a node")
+            raise ValueError("Must be decorated on a node.")
+        if not self._can_attach(node):
+            raise ValueError("Cannot be attached to node type '{}'.".format(node.__class__))
         self.on_attach(node)
         return node
 
@@ -135,6 +140,19 @@ class DocumentationAttribute(Attribute):
     def __init__(self, documentation):
         self.documentation = documentation
     
+
+class OntologyAttribute(Attribute):
+    """An attribute which provides ontology relationships for for a node.
+    
+    Attributes:
+        ontology: The ontology syntax string to be parsed.
+    """
+    
+    def __init__(self, ontology):
+        self.ontology = ontology
+
+    def _can_attach(self, node):
+        return isinstance(node, TypeDeclaration)
 
 
 class TypeType(Node):

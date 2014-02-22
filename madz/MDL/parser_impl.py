@@ -342,8 +342,9 @@ def generate_parser():
         comment=ParseRuleNameMod("comment", ParseRuleFromTillEndOfLine(char="#")))
 
     rule_a_doc = ParseRuleNameMod("+DOC", MdlAttributeParseRuleBase(attr_symbol="doc", attr_node=DocumentationAttribute))
+    rule_a_owl = ParseRuleNameMod("+OWL", MdlAttributeParseRuleBase(attr_symbol="owl", attr_node=OntologyAttribute))
 
-    attrs = [rule_a_doc]
+    attrs = [rule_a_doc, rule_a_owl]
 
     typerules = [
         ('void', TypeNone),
