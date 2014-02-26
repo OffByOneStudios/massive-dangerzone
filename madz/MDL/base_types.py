@@ -430,7 +430,7 @@ class TypeFunction(TypeTypeComplex):
         TypeType.type_validate(validation, self.return_type, context)
 
         for arg in self.args:
-            with validation.error_boundry("Function argumen not valid:"):
+            with validation.error_boundry("Function argument not valid:"):
                 if not (isinstance(arg, TypeFunctionArgument)):
                     validation.add_error("Not a TypeFunctionArgument.")
                     return
