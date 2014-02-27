@@ -90,13 +90,12 @@ class ClCompiler(BuildBase):
     def compiler_flags_base(self, plugin_stub, language):
         return (
             #Debug Symbols
-           
             #Use LINK Seperately
             (["/c"]) +
             # Include Directories
             ["/I"+language.get_wrap_directory()] + list(self._gen_header_include_dirs()) +
             # Warnings            
-           (["/ZI", "/W4"] if config.get(OptionCompilerDebug, False) else []) 
+           (["/Zi", "/W4"] if config.get(OptionCompilerDebug, False) else []) 
         )
 
     def compiler_flags_file(self, plugin_stub, language, compile_file):
@@ -111,7 +110,8 @@ class ClCompiler(BuildBase):
     def linker_flags_base(self, plugin_stub, language):
         return (
             # Basic Linker Flags
-            ["/DLL"] +
+            (["/DEBUG"]) +
+            (["/DLL"]) +
             
             # Library Directories
             list(self._gen_link_library_dirs()) 
