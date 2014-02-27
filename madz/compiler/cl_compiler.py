@@ -92,7 +92,7 @@ class ClCompiler(BuildBase):
             #Use LINK Seperately
             (["/c"]) +
             #Debug Symbols
-            (["/DEBUG:Yes"] if config.get(OptionCompilerDebug, False) else []) +
+            (["/DEBUG:Yes", "/W4"] if config.get(OptionCompilerDebug, False) else []) +
             # Include Directories
             ["/I"+language.get_wrap_directory()] + list(self._gen_header_include_dirs())
             # Warnings            
