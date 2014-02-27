@@ -96,3 +96,5 @@ class LanguagePy(language.BaseLanguage):
         """"Returns a list of the source files."""
         return glob.glob(os.path.join(self.plugin_stub.directory, "*.c"))
 
+    def get_debug_files(self):
+        return []

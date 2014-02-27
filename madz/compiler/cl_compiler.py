@@ -1,5 +1,5 @@
 import os
-
+import shutil
 
 from .build_base import BuildBase
 
@@ -69,7 +69,7 @@ class ClCompiler(BuildBase):
         return (".".join(os.path.basename(compile_file).split(".")[:-1])) + ".obj"
         
     @classmethod
-    def _gen_header_include_dirs(cls, formatstring='/I"{}"'):
+    def _gen_header_include_dirs(cls, formatstring='/I{}'):
         """Returns a list of the header include directories."""
         return map(lambda d: formatstring.format(d), config.get(OptionHeaderSearchPaths, []))
 
@@ -89,14 +89,15 @@ class ClCompiler(BuildBase):
     
     def compiler_flags_base(self, plugin_stub, language):
         return (
+            #Debug Symbols
+           
             #Use LINK Seperately
             (["/c"]) +
-            #Debug Symbols
-            (["/DEBUG:Yes", "/W4"] if config.get(OptionCompilerDebug, False) else []) +
             # Include Directories
-            ["/I"+language.get_wrap_directory()] + list(self._gen_header_include_dirs())
+            ["/I"+language.get_wrap_directory()] + list(self._gen_header_include_dirs()) +
             # Warnings            
-            )
+           (["/ZI", "/W4"] if config.get(OptionCompilerDebug, False) else []) 
+        )
 
     def compiler_flags_file(self, plugin_stub, language, compile_file):
         return [str(compile_file)]
@@ -144,3 +145,9 @@ class ClCompiler(BuildBase):
             logger.warning(ferrput)
 
         return retcode == 0
+        
+    def build_plugin(self, plugin_stub, language):
+        BuildBase.build_plugin(self, plugin_stub, language)
+        for debug in language.get_debug_files():
+            shutil.copyfile(debug,
+                language.get_output_directory() + "/" + os.path.basename(debug))

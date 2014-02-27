@@ -56,6 +56,17 @@ class LanguageCPP(language.BaseLanguage):
     def get_internal_source_files(self):
         return [self.get_cpp_code_filename()]
 
+    def get_debug_files(self):
+        glob_pattern = os.path.join(self.get_build_directory(), "*.pdb")
+
+        # replace the left square bracket with [[]
+        glob_pattern = re.sub(r'\[', '[[]', glob_pattern)
+        # replace the right square bracket with []] but be careful not to replace
+        # the right square brackets in the left square bracket's 'escape' sequence.
+        glob_pattern = re.sub(r'(?<!\[)\]', '[]]', glob_pattern)
+
+        return glob.glob(glob_pattern)
+        
     def get_source_files(self):
         glob_pattern = os.path.join(self.plugin_stub.directory, "*.cpp")
 
