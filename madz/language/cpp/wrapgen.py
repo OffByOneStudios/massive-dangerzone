@@ -41,7 +41,7 @@ class CppCodeGenerator(object):
             "class", "this", "struct", "template",
             "new", "delete",
             "if", "switch", "while", "for", "case", "break", "continue", "do"
-            "align"
+            "align", "default",
         ]:
             return "_" + symbol;
         else:
