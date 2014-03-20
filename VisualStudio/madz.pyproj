@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4d281bbe-fe23-4363-8b98-d439feee6f85}</ProjectGuid>
+    <ProjectHome>..\madz\</ProjectHome>
+    <StartupFile>__init__.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Compile Include="fileman\directory.py" />
+    <Compile Include="plugin_stub.py" />
+    <Compile Include="start_script.py" />
+    <Compile Include="system_config.py" />
+    <Compile Include="user_config.py" />
+    <Compile Include="__init__.py" />
+    <Compile Include="action\base.py" />
+    <Compile Include="action\build.py" />
+    <Compile Include="action\clean.py" />
+    <Compile Include="action\execute.py" />
+    <Compile Include="action\load.py" />
+    <Compile Include="action\planner.py" />
+    <Compile Include="action\wrap.py" />
+    <Compile Include="action\__init__.py" />
+    <Compile Include="compiler\build_base.py" />
+    <Compile Include="compiler\cl_compiler.py" />
+    <Compile Include="compiler\compiler_base.py" />
+    <Compile Include="compiler\gnu_compiler_base.py" />
+    <Compile Include="compiler\mingw_compiler.py" />
+    <Compile Include="compiler\subprocess_base.py" />
+    <Compile Include="compiler\__init__.py" />
+    <Compile Include="config\base.py" />
+    <Compile Include="config\command.py" />
+    <Compile Include="config\compiler.py" />
+    <Compile Include="config\current.py" />
+    <Compile Include="config\language.py" />
+    <Compile Include="config\library.py" />
+    <Compile Include="config\loader.py" />
+    <Compile Include="config\mode.py" />
+    <Compile Include="config\platform.py" />
+    <Compile Include="config\plugin.py" />
+    <Compile Include="config\system.py" />
+    <Compile Include="config\user.py" />
+    <Compile Include="config\__init__.py" />
+    <Compile Include="core\dependency.py" />
+    <Compile Include="core\plugin_directory.py" />
+    <Compile Include="core\plugin_id.py" />
+    <Compile Include="core\plugin_resolver.py" />
+    <Compile Include="core\plugin_stub.py" />
+    <Compile Include="core\semver.py" />
+    <Compile Include="core\system.py" />
+    <Compile Include="core\__init__.py" />
+    <Compile Include="fileman\__init__.py" />
+    <Compile Include="helper\arg_parser.py" />
+    <Compile Include="helper\logging_setup.py" />
+    <Compile Include="helper\__init__.py" />
+    <Compile Include="HTN\executer.py" />
+    <Compile Include="HTN\priority.py" />
+    <Compile Include="HTN\rule.py" />
+    <Compile Include="HTN\state.py" />
+    <Compile Include="HTN\terms.py" />
+    <Compile Include="HTN\__init__.py" />
+    <Compile Include="language\__init__.py" />
+    <Compile Include="MDL\base_types.py" />
+    <Compile Include="MDL\description.py" />
+    <Compile Include="MDL\loaders.py" />
+    <Compile Include="MDL\nodes.py" />
+    <Compile Include="MDL\parser_impl.py" />
+    <Compile Include="MDL\py_ctypes_gen.py" />
+    <Compile Include="MDL\__init__.py" />
+    <Compile Include="operating_system\__init__.py" />
+    <Compile Include="plugins\visual_studio_generator.py" />
+    <Compile Include="plugins\__init__.py" />
+    <Compile Include="core\planner\method.py" />
+    <Compile Include="core\planner\method_order_full.py" />
+    <Compile Include="core\planner\method_order_partial.py" />
+    <Compile Include="core\planner\operator.py" />
+    <Compile Include="core\planner\planner_forward.py" />
+    <Compile Include="core\planner\precondition.py" />
+    <Compile Include="core\planner\variables.py" />
+    <Compile Include="core\planner\__init__.py" />
+    <Compile Include="core\plugin_description\__init__.py" />
+    <Compile Include="core\plugin_description\python\file.py" />
+    <Compile Include="core\plugin_description\python\__init__.py" />
+    <Compile Include="core\plugin_description\_base\plugin.py" />
+    <Compile Include="core\plugin_description\_base\__init__.py" />
+    <Compile Include="language\c\clean.py" />
+    <Compile Include="language\c\compiler_cl.py" />
+    <Compile Include="language\c\compiler_clang.py" />
+    <Compile Include="language\c\compiler_gcc.py" />
+    <Compile Include="language\c\compiler_mingw.py" />
+    <Compile Include="language\c\language.py" />
+    <Compile Include="language\c\load.py" />
+    <Compile Include="language\c\wrapgen.py" />
+    <Compile Include="language\c\__init__.py" />
+    <Compile Include="language\c#\clean.py" />
+    <Compile Include="language\c#\compiler_cl.py" />
+    <Compile Include="language\c#\compiler_clang.py" />
+    <Compile Include="language\c#\compiler_gcc.py" />
+    <Compile Include="language\c#\compiler_mingw.py" />
+    <Compile Include="language\c#\language.py" />
+    <Compile Include="language\c#\load.py" />
+    <Compile Include="language\c#\wrapgen.py" />
+    <Compile Include="language\c#\__init__.py" />
+    <Compile Include="language\cpp\clean.py" />
+    <Compile Include="language\cpp\compiler_clang.py" />
+    <Compile Include="language\cpp\compiler_gcc.py" />
+    <Compile Include="language\cpp\language.py" />
+    <Compile Include="language\cpp\load.py" />
+    <Compile Include="language\cpp\wrapgen.py" />
+    <Compile Include="language\cpp\__init__.py" />
+    <Compile Include="language\python\build.py" />
+    <Compile Include="language\python\clean.py" />
+    <Compile Include="language\python\compiler_cl.py" />
+    <Compile Include="language\python\compiler_clang.py" />
+    <Compile Include="language\python\compiler_gcc.py" />
+    <Compile Include="language\python\compiler_mingw.py" />
+    <Compile Include="language\python\language.py" />
+    <Compile Include="language\python\load.py" />
+    <Compile Include="language\python\wrapgen.py" />
+    <Compile Include="language\python\__init__.py" />
+    <Compile Include="language\_base\compiler.py" />
+    <Compile Include="language\_base\language.py" />
+    <Compile Include="language\_base\subproc_compiler.py" />
+    <Compile Include="MDL\extensions\__init__.py" />
+    <Compile Include="MDL\parser\abstract_bases.py" />
+    <Compile Include="MDL\parser\parser.py" />
+    <Compile Include="MDL\parser\parse_rules.py" />
+    <Compile Include="MDL\parser\states.py" />
+    <Compile Include="MDL\parser\__init__.py" />
+    <Compile Include="MDL\extensions\datatypes\__init__.py" />
+    <Compile Include="MDL\extensions\objects\types.py" />
+    <Compile Include="MDL\extensions\objects\__init__.py" />
+    <Compile Include="operating_system\unix\__init__.py" />
+    <Compile Include="operating_system\windows\__init__.py" />
+    <Compile Include="plugins\visualization\dependency_graphviz.py" />
+    <Compile Include="plugins\visualization\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="action" />
+    <Folder Include="compiler" />
+    <Folder Include="config" />
+    <Folder Include="core" />
+    <Folder Include="core\planner" />
+    <Folder Include="core\plugin_description" />
+    <Folder Include="core\plugin_description\_base" />
+    <Folder Include="core\plugin_description\python" />
+    <Folder Include="fileman" />
+    <Folder Include="helper" />
+    <Folder Include="HTN" />
+    <Folder Include="language" />
+    <Folder Include="language\_base" />
+    <Folder Include="language\c" />
+    <Folder Include="language\c#" />
+    <Folder Include="language\cpp" />
+    <Folder Include="language\python" />
+    <Folder Include="MDL" />
+    <Folder Include="MDL\extensions" />
+    <Folder Include="MDL\extensions\datatypes" />
+    <Folder Include="MDL\extensions\objects" />
+    <Folder Include="MDL\parser" />
+    <Folder Include="operating_system" />
+    <Folder Include="operating_system\unix" />
+    <Folder Include="operating_system\windows" />
+    <Folder Include="plugins" />
+    <Folder Include="plugins\visualization" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

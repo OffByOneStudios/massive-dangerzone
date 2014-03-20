@@ -69,7 +69,7 @@ class FreeVariable(IVariable):
         return True
 
     @property
-    def value:
+    def value(self):
         """Return variable value.
 
             Remarks:
@@ -106,7 +106,7 @@ class BoundVariable(IVariable):
         return False
 
     @property
-    def value:
+    def value(self):
         """Return variable value.
 
             Remarks:
