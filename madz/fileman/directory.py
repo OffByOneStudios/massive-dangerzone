@@ -1,9 +1,13 @@
+from ctypes import *
 from abc import *
 import hashlib
+import logging
 import os
 import os.path as path
 
 from .file import File
+
+logger = logging.getLogger(__name__)
 
 def contents_directory(obj):
 
@@ -185,6 +189,14 @@ class ModuleContentsDirectory(ContentsDirectory):
         ContentsDirectory.__init__(self, absolute_path)
 
         self._madz = ContentsDirectory(path.join(absolute_path, ".madz"))
+        if os.name == "nt":
+            try:
+                #Hide the .madz folder on windows logger
+                ret = windll.kernel32.SetFileAttributesW(str(self._madz), 0x02)
+                if ret == 0:
+                    logger.warn("Unable to mark .madz directory as hidden in plugin folder:{}.".format(absolute_path))
+            except Exception as e:
+                logger.warn("Unable to mark .madz directory as hidden in plugin folder:{}.".format(absolute_path))
 
     @property
     def madz(self):
