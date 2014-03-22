@@ -3,6 +3,8 @@ import os
 
 import logging
 
+from ...fileman import *
+
 logger = logging.getLogger(__name__)
 
 class UnixOperatingSystem(object):
@@ -26,7 +28,8 @@ class UnixOperatingSystem(object):
         Returns:
             A string representation of a the location of a plugin within the plugin system.
         """
-        return os.path.join(plugin_stub.directory, ".output", plugin_stub.id.namespace + ".madz")
+        dir = contents_directory(plugin_stub.directory.madz.subdirectory(".output"))
+        return dir.file("{}.madz".format(plugin_stub.id.namespace))
 
     def load_init(self, plugin_stub):
         """Performs the first phase of loading a plugin. Initializes the plugin with it's dependencies.
@@ -38,9 +41,9 @@ class UnixOperatingSystem(object):
             return
 
         module_dll_file = self.output_file_location(plugin_stub)
-        logger.debug("LOADING: Opening plugin DLL: {}".format(module_dll_file))
+        logger.debug("LOADING: Opening plugin DLL: {}".format(str(module_dll_file)))
 
-        plugin_dll = ctypes.cdll.LoadLibrary(module_dll_file)
+        plugin_dll = ctypes.cdll.LoadLibrary(str(module_dll_file))
 
         madz_init = getattr(plugin_dll, "___madz_EXTERN_INIT")
         madz_init.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)]

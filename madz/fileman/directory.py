@@ -3,48 +3,14 @@ import hashlib
 import os
 import os.path as path
 
+from .file import File
 
-class MadzObjectAsDirectory(metaclass=ABCMeta):
-    """Interface for objects which wish to make use of a folder inside the .madz hidden directory"""
-    
-    @classmethod
-    @abstractmethod
-    def madz_folder_name(self):
-        """Return the directory name required by the implementing class
-        
-        This name should be either a folder or a relative folder path from the .madz folder.
-        """
-        pass
+def contents_directory(obj):
 
-class File(object):
-    """Wrapper class representing a file of which madz is aware.
-    
-    This class wraps builtin file for the purpose of representing a file whose stream is not yet  open.
-    """
+    if isinstance(obj, Directory) or isinstance(obj, ModuleContentsDirectory):
+        return ContentsDirectory(obj._directory)
 
-    def __init__(self, abs_path):
-        """Constructor
-
-        args: 
-            abs_path : absolute path to file.
-            file_mode : mode to open file in.
-        """
-
-        self._path = abs_path
-
-    def open(self, file_mode="r"):
-        """Open this file.
-
-        returns:
-            Python builtin file stream.
-        """
-        return open(abs_path, file_mode)
-
-    def __str__(self):
-        return "{} Mode File object".format(self._mode)
-
-    def __repr__(self):
-        return "File(\"{}\",\"{}\")".format(self._path, self._mode)
+    raise TypeError("Cannot convert from type :{} to type ContentsDirectory".format(type(obj)))
 
 
 class Directory(object):
@@ -56,11 +22,28 @@ class Directory(object):
         args:
             absolute_path : string directory path
         """
+        
+        # Ensure path is absolute
+        self._directory = path.abspath(absolute_path)
 
-        self._directory = absolute_path
-        self._files = [ f for f in os.listdir(absolute_path) if path.isfile(path.join(absolute_path,f))]
         if path.exists(absolute_path) == False:
             os.makedirs(absolute_path)
+
+        self._files = [ f for f in os.listdir(absolute_path) if path.isfile(path.join(absolute_path,f))]
+     
+    @staticmethod
+    def _fullname(o):
+        """Fully qualified typename of object o
+        
+            Ref: http://stackoverflow.com/questions/2020014/get-fully-qualified-class-name-of-an-object-in-python
+        """
+        return o.__module__ + "." + o.__name__
+    
+    def subdirectory(self, *args):
+        return Directory(path.join(self._directory, *args))
+
+    def subdirectory_for_type(self, the_type):
+        return Directory(path.join(self._directory, self._fullname(the_type)))
 
     def files(self, extension_filter=[]):
         """Get Files in this directory
@@ -146,6 +129,12 @@ class Directory(object):
             
         return res if len(res) > 0 else None
 
+    def as_string(self):
+        """Returns the absolute path to directory referenced by this object."""
+        return self._directory
+
+    def __str__(self):
+        return self._directory
 
 class ContentsDirectory(Directory):
     """Class representing the directory contents of a Madz plugin."""
@@ -164,11 +153,28 @@ class ContentsDirectory(Directory):
         args:
             file_name : "String relative path of file"
         """
-        return File(path.join(self._directory, file_name)) if file_name in self._files else None
+        return File(path.join(self._directory, file_name))
 
+    def file_exists(self, file_name):
+        """Returns True if file_name exists, false otherwise"""
+        return  path.exists(path.join(self._directory, file_name))
+
+    @classmethod
+    def from_Directory(cls, the_directory):
+        """Coerce a directory into a contents directory
         
+        By default calls to subdirectory constructs Directory objects, which prohibit individual file access.
+        For code which needs to access a specific file, one should use this class method to build a contents directory
+
+        """ 
+        return ContentsDirectory(the_directory._directory)
+
 class ModuleContentsDirectory(ContentsDirectory):
-    """Class Representing the top level folder of a madz module"""
+    """Class Representing the top level folder of a madz module
+    
+    Members:
+        madz : The ".madz" hidden folder. Madz machinery lives here. Not for prying eyes.
+    """
 
     def __init__(self, absolute_path):
         """Constructor
@@ -177,6 +183,7 @@ class ModuleContentsDirectory(ContentsDirectory):
             absolute_path : string directory path
         """
         ContentsDirectory.__init__(self, absolute_path)
+
         self._madz = ContentsDirectory(path.join(absolute_path, ".madz"))
 
     @property
@@ -184,12 +191,8 @@ class ModuleContentsDirectory(ContentsDirectory):
         """Retrieve the MADZ hidden directory"""
         return self._madz
 
-    def madz_directory_for_type(self, the_type):
-        """Get (or create) a madz subdirectory for type.
-        
-        Args:
-            Object Type which implements the MadzObjectAsDirectory interface.
-        """
-        return ContentsDirectory(path.join(
-                path.join(self._directory, ".madz"),
-                the_type.madz_folder_name))
+    def subdirectory(self, *args):
+        if(args[0] == ".madz"):
+            return self.madz
+        else:
+            return super().subdirectory(*args)

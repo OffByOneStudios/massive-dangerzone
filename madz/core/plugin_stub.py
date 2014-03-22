@@ -8,11 +8,13 @@ import imp
 import logging
 import traceback
 import contextlib
+import warnings
 
 from .plugin_id import *
 from ..config import *
 
 from .. import language
+from .. import fileman
 
 from ..MDL import description as pyMDL
 
@@ -43,13 +45,17 @@ class PluginStub(object):
         """Attempts to load a python description from the directory given."""
         # TODO(Mason): Exception for plugin file not found
         self.system = system
-        self.directory = plugin_description_loader.get_directory()
-        self._plugin = plugin_description_loader.get_plugin_description()
+        self._directory = plugin_description_loader.directory
+        self._plugin = plugin_description_loader.plugin_description
         self._plugin_loader_files = plugin_description_loader.get_plugin_loader_files()
 
         self._init_description(plugin_id)
 
         self.inited = False
+
+    @property
+    def directory(self):
+        return self._directory
 
     def __str__(self):
         return "<PluginStub: {!s}>".format(self.id)

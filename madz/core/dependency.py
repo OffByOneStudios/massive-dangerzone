@@ -6,6 +6,8 @@ Code to create and traverse dependency graphs of plugins.
 import logging
 import os.path, time
 
+from ..fileman import *
+
 logger = logging.getLogger(__name__)
 
 class Dependency(object):
@@ -27,19 +29,18 @@ class Dependency(object):
 
         #Find the newest dependency
         for d in self.dependencies:
-            if not (os.path.isfile(d)):
-                raise Exception("Dependency file {} does not exist.".format(d))
-            temp = os.path.getmtime(d)
-            if temp > newest_dependency:
-                newest_dependency = temp
+            if isinstance(d,File):
+                temp = d.modify_date
+                if temp > newest_dependency:
+                    newest_dependency = temp
 
         unsatisfied_targets = []
 
         #Verify each target is newer than the newest dependency, add targets
         #which are older than their dependences to the unsatisfied_targets list
         for t in self.targets:
-            if os.path.isfile(t):
-                if os.path.getmtime(t) <= newest_dependency:
+            if isinstance(t, File) and t.exists():
+                if t.modify_date <= newest_dependency:
                     unsatisfied_targets.append(t)
             else:
                 unsatisfied_targets.append(t)

@@ -5,9 +5,15 @@ import os
 from ...config import *
 from ...config.language import *
 
-class BaseLanguage(object):
+from ...fileman import *
+
+class BaseLanguage(metaclass=abc.ABCMeta):
     """Base language object."""
-    __metaclass__ = abc.ABCMeta
+    
+    # madz fileman interface
+    @classmethod
+    def madz_folder_name(self):
+        return ".output"
 
     @property
     def name(self):
@@ -55,11 +61,12 @@ class BaseLanguage(object):
         foo = self.plugin_stub.description.ast
         return self.plugin_stub._plugin_loader_files
 
-    def get_output_directory(self):
+    @property
+    def output_directory(self):
         """Returns the path of the output directory."""
-        return os.path.join(self.plugin_stub.directory, ".output")
+        return contents_directory(self.plugin_stub.directory.madz.subdirectory(".output"))
 
     def get_output_file(self):
         """Retruns the path of the output file."""
-        return os.path.join(self.get_output_directory(), self.plugin_stub.id.namespace + ".madz")
+        return self.output_directory.file("{}.madz".format(self.plugin_stub.id.namespace))
 

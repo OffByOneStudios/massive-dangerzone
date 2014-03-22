@@ -62,14 +62,6 @@ class SubprocCompilerBase(compiler.BaseCompiler):
         """
         pass
 
-    def _prep(self):
-        """Performs any pre-compile stage prep work for plugin."""
-        if not (os.path.exists(self.language.get_build_directory())):
-            os.makedirs(self.language.get_build_directory())
-
-        if not (os.path.exists(self.language.get_output_directory())):
-            os.makedirs(self.language.get_output_directory())
-
     def _run_subprocess(self, name, dir, args):
         logger.debug("Running command:\n\t\t{}".format(" ".join(args)))
 

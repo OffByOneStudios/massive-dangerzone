@@ -16,6 +16,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="fileman\directory.py" />
+    <Compile Include="fileman\file.py" />
     <Compile Include="plugin_stub.py" />
     <Compile Include="start_script.py" />
     <Compile Include="system_config.py" />

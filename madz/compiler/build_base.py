@@ -28,11 +28,11 @@ class BuildBase(SubprocessBase):
         sourcefiles = self.get_source_files(plugin_stub, language)
         for compile_file in sourcefiles:
             sucsessful = successful and self.invoke("compile",
-                dir=language.get_build_directory(),
+                dir=language.build_directory,
                 args=self.generate_compile_args(plugin_stub, language, compile_file))
         
         sucsessful = successful and self.invoke("link",
-            dir=language.get_build_directory(),
+            dir=language.build_directory,
             args=self.generate_link_args(plugin_stub, language, sourcefiles))
         
         return successful

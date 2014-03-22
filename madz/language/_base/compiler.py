@@ -45,11 +45,9 @@ def NewCompilerWrapper(new_type):
             global config
             tmp_config = config
             try:
-                if not (os.path.exists(self.language.get_build_directory())):
-                    os.makedirs(self.language.get_build_directory())
-
-                if not (os.path.exists(self.language.get_output_directory())):
-                    os.makedirs(self.language.get_output_directory())
+                # Access Directories to construct them
+                self.language.build_directory
+                self.language.output_directory
 
                 config = self.config
                 self._new.build_plugin(self.language.plugin_stub, self.language)

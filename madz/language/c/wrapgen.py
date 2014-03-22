@@ -200,11 +200,6 @@ class WrapperGenerator(object):
         self.language = language
         self.plugin_stub = language.plugin_stub
 
-    def prep(self):
-        """Creates necessary directories for wrapping C files."""
-        if not (os.path.exists(self.language.get_wrap_directory())):
-            os.makedirs(self.language.get_wrap_directory())
-
     def get_dependency(self):
         """Returns a dependency object for this operation."""
         targets = [self.language.get_c_code_filename(),
@@ -218,6 +213,10 @@ class WrapperGenerator(object):
     def _filter_code_fragments(self, code_fragments):
         #TODO(Anyone): Properly implement this function, add proper description.
         return code_fragments
+
+    def prep(self):
+        # Directory is dynam generated on call
+        self.language.wrap_directory
 
     def generate(self):
         """Performs the wrapping process."""
@@ -275,10 +274,10 @@ class WrapperGenerator(object):
 
         code_fragments = self._filter_code_fragments(code_fragments)
 
-        with open(self.language.get_c_header_filename(), "w") as f:
+        with self.language.get_c_header_filename().open("w") as f:
             f.write(self.header_file_template.format(**code_fragments))
 
-        with open(self.language.get_c_code_filename(), "w") as f:
+        with self.language.get_c_code_filename().open("w") as f:
             f.write(self.code_file_template.format(**code_fragments))
 
     do = generate

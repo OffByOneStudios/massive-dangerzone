@@ -9,28 +9,34 @@ from .._base import *
 
 class PythonPluginStubFile(object):
     def __init__(self, directory):
-        self.directory = os.path.abspath(directory)
-        self._py_module_filename = os.path.join(self.directory, "__plugin__.py")
+        """Default Constructor
+        Args:
+            directory: 
+        """
+        self._directory = directory
+        self._py_module_file = directory.file("__plugin__.py")
         self._init_module()
 
     @classmethod
     def can_load_directory(cls, directory):
         """Returns true if the directory contains a potential python plugin description."""
-        return os.path.exists(os.path.join(directory, "__plugin__.py"))
+        return directory.file_exists("__plugin__.py")
 
     def _init_module(self):
-        with open(self._py_module_filename) as module_file:
+        with self._py_module_file.open("r") as module_file:
             # TODO(Mason): Exception for failure to load
             # TODO(Mason): Exception for missing plugin
             # TODO(Mason): Figure out name variable
-            self._module = imp.load_module("test", module_file, self._py_module_filename, ('.py', 'r', imp.PY_SOURCE))
+            self._module = imp.load_module("test", module_file, self._py_module_file._path, ('.py', 'r', imp.PY_SOURCE))
             self._plugin = getattr(self._module, "plugin")
 
-    def get_directory(self):
-        return self.directory
+    @property
+    def directory(self):
+        return self._directory
 
-    def get_plugin_description(self):
+    @property
+    def plugin_description(self):
         return self._plugin
 
     def get_plugin_loader_files(self):
-        return [self._py_module_filename] + self._plugin.description.dependency_files(self.directory)
+        return [self._py_module_file] + self._plugin.description.dependency_files(self.directory)

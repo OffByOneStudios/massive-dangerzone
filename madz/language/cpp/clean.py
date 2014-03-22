@@ -28,17 +28,21 @@ class Cleaner(object):
 
     @classmethod
     def clean_dir(cls, dir):
-        if os.path.exists(dir):
+        """Cleans the inputted directory.
+        
+        Args:
+            dir: fileman.Directory object
+        """
+        if os.path.exists(dir._directory):
             logger.debug("Found and cleaning directory: {}".format(dir))
-            shutil.rmtree(dir)
+            shutil.rmtree(dir._directory)
 
     def clean(self):
         """Cleans a plugin."""
-        self.clean_dir(os.path.join(self.plugin_stub.directory, ".madz"))
-        self.clean_dir(self.language.get_wrap_directory())
-        self.clean_dir(self.language.get_build_directory())
-        self.clean_dir(self.language.get_output_directory())
-        
+        self.clean_dir(self.language.wrap_directory)
+        self.clean_dir(self.language.build_directory)
+        self.clean_dir(self.language.output_directory)
+        self.clean_dir(self.plugin_stub.directory.madz)
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""

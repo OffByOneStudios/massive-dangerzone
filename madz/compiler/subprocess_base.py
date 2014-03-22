@@ -29,10 +29,10 @@ class SubprocessBase(CompilerBase):
         """
         pass
     
-    def invoke_simple(self, args, dir="."):
+    def invoke_simple(self, args, dir):
         compile_process = subprocess.Popen(
             args,
-            cwd=dir,
+            cwd=dir._directory,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 

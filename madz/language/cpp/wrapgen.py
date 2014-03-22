@@ -285,8 +285,8 @@ class WrapperGenerator(object):
         self.plugin_stub = language.plugin_stub
 
     def prep(self):
-        if not (os.path.exists(self.language.get_wrap_directory())):
-            os.makedirs(self.language.get_wrap_directory())
+        # Directory is dynam generated on 
+        self.language.wrap_directory
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""
@@ -349,10 +349,10 @@ class WrapperGenerator(object):
 
         code_fragments = self._filter_code_fragments(code_fragments)
 
-        with open(self.language.get_cpp_header_filename(), "w") as f:
+        with self.language.get_cpp_header_filename().open("w") as f:
             f.write(self.header_file_template.format(**code_fragments))
 
-        with open(self.language.get_cpp_code_filename(), "w") as f:
+        with self.language.get_cpp_code_filename().open("w") as f:
             f.write(self.code_file_template.format(**code_fragments))
 
     do = generate

@@ -65,8 +65,11 @@ class ClCompiler(BuildBase):
     def _format_static_library(cls, libname):
         return libname
         
-    def sourcefile_to_objectfile(self, compile_file):
-        return (".".join(os.path.basename(compile_file).split(".")[:-1])) + ".obj"
+    def sourcefiles_to_objectfiles(self, language, compile_files):
+        """Convert sourcefiles in compile_files File objects into their corresponding object files."""
+        # use basename to get filename, ask build directory for that file, change extension
+        return [language.build_directory.file(f.with_extension("obj").basename) for f in compile_files]
+        
         
     @classmethod
     def _gen_header_include_dirs(cls, formatstring='/I{}'):
@@ -93,7 +96,7 @@ class ClCompiler(BuildBase):
             #Use LINK Seperately
             (["/c"]) +
             # Include Directories
-            ["/I"+language.get_wrap_directory()] + list(self._gen_header_include_dirs()) +
+            ["/I"+language.wrap_directory._directory] + list(self._gen_header_include_dirs()) +
             # Warnings            
            (["/Zi", "/W4"] if config.get(OptionCompilerDebug, False) else []) 
         )
@@ -119,8 +122,8 @@ class ClCompiler(BuildBase):
             )
 
     def linker_flags_files(self, plugin_stub, language, source_files):
-        return ["/OUT:"+language.get_output_file()] + \
-            list(map(self.sourcefile_to_objectfile, source_files)) 
+        return ["/OUT:"+str(language.get_output_file())] + \
+            list(map(str, self.sourcefiles_to_objectfiles(language, source_files)))
 
     def linker_flags_libraries(self, plugin_stub, language):
         return (list(map(lambda m: "{}.lib".format(m), self._gen_link_library_statics())))
@@ -149,5 +152,5 @@ class ClCompiler(BuildBase):
     def build_plugin(self, plugin_stub, language):
         BuildBase.build_plugin(self, plugin_stub, language)
         for debug in language.get_debug_files():
-            shutil.copyfile(debug,
-                language.get_output_directory() + "/" + os.path.basename(debug))
+            shutil.copyfile(str(debug),
+                str(language.output_directory.file(debug.basename)))

@@ -10,8 +10,11 @@ import re
 from ...compiler import mingw_compiler
 from ...compiler import cl_compiler
 from ...config import *
+from ...fileman import *
+
 from .._base import language
 from .._base.compiler import NewCompilerWrapper
+
 from . import clean
 from . import load
 from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
@@ -49,47 +52,31 @@ class LanguageC(language.BaseLanguage):
         """Creates the wrapper object."""
         return wrapgen.WrapperGenerator(self)
 
-    def get_wrap_directory(self):
+    @property
+    def wrap_directory(self):
         """Returns the directory of the wrapper."""
-        return os.path.join(self.plugin_stub.directory, ".wrap-c")
+        return contents_directory(self.plugin_stub.directory.madz.subdirectory("c", ".wrap-c"))
 
-    def get_build_directory(self):
+    @property
+    def build_directory(self):
         """Returns the directory of the builder."""
-        return os.path.join(self.plugin_stub.directory, ".build-c")
+        return contents_directory(self.plugin_stub.directory.madz.subdirectory("c", ".build-c"))
 
     def get_c_header_filename(self):
         """Returns the path to the filename of the madz header."""
-        return os.path.join(self.get_wrap_directory(), "madz.h")
+        return self.wrap_directory.file("madz.h")
 
     def get_c_code_filename(self):
         """Returns the path to the filename of the c code."""
-        return os.path.join(self.get_wrap_directory(), "_madz.c")
+        return self.wrap_directory.file("_madz.c")
 
     def get_internal_source_files(self):
         """Returns a list of the internal c source files."""
         return [self.get_c_code_filename()]
 
     def get_debug_files(self):
-        glob_pattern = os.path.join(self.get_build_directory(), "*.pdb")
-
-        # replace the left square bracket with [[]
-        glob_pattern = re.sub(r'\[', '[[]', glob_pattern)
-        # replace the right square bracket with []] but be careful not to replace
-        # the right square brackets in the left square bracket's 'escape' sequence.
-        glob_pattern = re.sub(r'(?<!\[)\]', '[]]', glob_pattern)
-
-        return glob.glob(glob_pattern)
+        """Returns a list of debug data files"""
+        return self.build_directory.files(["pdb"])
         
     def get_source_files(self):
-        #TODO(Mason): Add proper description to this method.
-        """???"""
-        glob_pattern = os.path.join(self.plugin_stub.directory, "*.c")
-
-        # replace the left square bracket with [[]
-        glob_pattern = re.sub(r'\[', '[[]', glob_pattern)
-        # replace the right square bracket with []] but be careful not to replace
-        # the right square brackets in the left square bracket's 'escape' sequence.
-        glob_pattern = re.sub(r'(?<!\[)\]', '[]]', glob_pattern)
-
-        return glob.glob(glob_pattern)
-
+        return self.plugin_stub.directory.files(["c"])
