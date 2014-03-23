@@ -87,6 +87,7 @@ class UnixOperatingSystem(object):
         imports_array = (ctypes.c_void_p * len(imports))()
 
         for i, imp in enumerate(imports):
+            logger.debug("LOADING.ENUMERATE: ({}, {}, {})".format(i, imp, self.loadedinit_plugins[imp][1]))
             imports_array[i] = self.loadedinit_plugins[imp][1]
 
         logger.debug("LOADING: Initializing plugin imports: {}".format(plugin_stub))
