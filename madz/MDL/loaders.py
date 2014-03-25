@@ -79,20 +79,24 @@ class MdlCachedLoader(IMdlLoader):
         # Set state flag
         needs_parsing = True
         # Check for cache pickle file
-        if dir.madz.file_exists("ast.pickle"):
-            # Open cache file
-            with dir.madz.file("ast.pickle").open("rb") as pickle_file:
-                # Unpickle original source
-                ast_str = pickle.load(pickle_file)
-                # Check that the current source and original source match
-                if ast_str == ast:
-                    logger.debug("Loading MDL...")
-                    needs_parsing = False
+        try:
+            if dir.madz.file_exists("ast.pickle"):
+                # Open cache file
+                with dir.madz.file("ast.pickle").open("rb") as pickle_file:
+                    # Unpickle original source
+                    ast_str = pickle.load(pickle_file)
+                    # Check that the current source and original source match
+                    if ast_str == ast:
+                        logger.debug("Loading MDL...")
 
-                    # Unpack cached AST
-                    ast = pickle.load(pickle_file)
-                    # Close the file
-                    pickle_file.close()
+                        # Unpack cached AST
+                        ast = pickle.load(pickle_file)
+                        # Close the file
+                        pickle_file.close()
+                        needs_parsing = False
+        except:
+            logger.warning("Failed to load cached MDL file.")
+            needs_parsing = True
 
         # Parse AST syntax
         if needs_parsing:
@@ -100,7 +104,7 @@ class MdlCachedLoader(IMdlLoader):
             # Make the directory for the cache file
             
             # Open the cache file
-            with dir.madz.file("ast.pickle").open("wb") as pickle_file:
+            with dir.madz.file("ast.pickle").open("w+b") as pickle_file:
                 # Save the original AST
                 ast_str = ast
 
