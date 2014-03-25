@@ -76,7 +76,7 @@ class GCCCompiler(base.SubprocCompilerBase):
         return [self.binary_name_binary_compiler()] + \
             list(self._gen_compile_flags()) + \
             list(self._gen_specifc_compile_flags()) + \
-            ["-c", "-I"+self.language.get_wrap_directory()] + \
+            ["-c", "-I"+str(self.language.wrap_directory)] + \
             list(self._gen_header_include_dirs()) + \
             list(self._gcc_visibility()) + \
             list(self._gcc_shared_codegen()) + \

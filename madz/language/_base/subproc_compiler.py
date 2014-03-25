@@ -62,7 +62,11 @@ class SubprocCompilerBase(compiler.BaseCompiler):
         """
         pass
 
+    def _prep(self):
+        pass
+
     def _run_subprocess(self, name, dir, args):
+        args = list(map(str, args))
         logger.debug("Running command:\n\t\t{}".format(" ".join(args)))
 
         compile_process = subprocess.Popen(
@@ -101,19 +105,26 @@ class SubprocCompilerBase(compiler.BaseCompiler):
         """
         self._prep()
 
+        self.language.build_directory.require()
+
         source_files = self.language.get_source_files()
         source_files += self.language.get_internal_source_files()
 
         for sf in source_files:
             self._run_subprocess(name="Compile: \"{}\"".format(sf),
                 args=self.args_binary_compile([sf]),
-                dir=self.language.get_build_directory())
+                dir=str(self.language.build_directory))
 
-        object_files = map(lambda c: (os.path.basename(c).split(".")[0]) + self.file_extension_binary_object(), source_files)
+        object_files = map(lambda c: c
+                .with_extension(self.file_extension_binary_object()[1:])
+                .with_directory(self.language.build_directory),
+            source_files)
+
+        self.language.output_directory.require()
 
         self._run_subprocess(name="Link: \"{}\"".format(self.language.get_output_file()),
             args=self.args_shared_link(object_files),
-            dir=self.language.get_build_directory())
+            dir=self.language.build_directory.as_string())
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""

@@ -3,7 +3,9 @@ import os.path as path
 
 import re
 
-class File(object):
+from .core import *
+
+class File(IPathable):
     """Wrapper class representing a file of which madz is aware.
     
     This class wraps builtin file for the purpose of representing a file whose stream is not yet  open.
@@ -17,9 +19,12 @@ class File(object):
             file_mode : mode to open file in.
         """
         # Ensure path is absolute
-        
         self._path = path.abspath(abs_path)
     
+    @property
+    def path(self):
+        return self._path
+
     @property
     def basename(self):
         """Return String base filename (no path)"""
@@ -27,7 +32,10 @@ class File(object):
 
     def exists(self):
         """Returns True if the file pointed to by this path exists False otherwise"""
-        return os.path.exists(self._path) 
+        return FileManager.current.exists(self)
+
+    def modify(self):
+        FileManager.current.modify(self)
 
     def open(self, file_mode="r"):
         """Open this file.
@@ -35,7 +43,16 @@ class File(object):
         returns:
             Python builtin file stream.
         """
-        return open(self._path, file_mode)
+        FileManager.current.ensureDirectory(self)
+
+        return FileManager.current.openFile_Python(self, file_mode)
+
+    def with_directory(self, directory):
+        if not isinstance(directory, IPathable):
+            raise Exception("Can only rebase file to pathable directory, not {}.".format(directory))
+        path, fname = os.path.split(self._path)
+
+        return File(os.path.join(directory.path, fname))
 
     def with_extension(self, extension):
         """Construct a new copy of this file with its extension changed"""
@@ -46,7 +63,9 @@ class File(object):
 
     @property
     def modify_date(self):
-        return path.getmtime(self._path)     
+        if not (self.exists()):
+            return None
+        return path.getmtime(self._path)
 
     def __str__(self):
         return "{}".format(self._path)

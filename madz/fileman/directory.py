@@ -6,6 +6,7 @@ import os
 import os.path as path
 
 from .file import File
+from .core import *
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ def contents_directory(obj):
     raise TypeError("Cannot convert from type :{} to type ContentsDirectory".format(type(obj)))
 
 
-class Directory(object):
+class Directory(IPathable):
     """Class representing a folder of which madz is aware."""
 
     def __init__(self, absolute_path):
@@ -28,13 +29,16 @@ class Directory(object):
         """
         
         # Ensure path is absolute
-        self._directory = path.abspath(absolute_path)
+        self._directory = path.abspath(absolute_path) + "/"
 
-        if path.exists(absolute_path) == False:
-            os.makedirs(absolute_path)
+    @property
+    def path(self):
+        return self._directory
 
-        self._files = [ f for f in os.listdir(absolute_path) if path.isfile(path.join(absolute_path,f))]
-     
+    @property
+    def _files(self):
+        return FileManager.current.filesInDirectory(self)
+
     @staticmethod
     def _fullname(o):
         """Fully qualified typename of object o
@@ -65,36 +69,8 @@ class Directory(object):
         """
         return [f for f in self._files if len(extension_filter) == 0 or f.split(".")[1] in extension_filter]
 
-    def file_hashes(self):
-        """Calculate hashes of files. Used to test file changes. 
-        
-        Returns:
-            Dictionary of file path, hash pairs.
-        """
-
-        res = dict()
-
-        for f in self._files:
-            m = hashlib.sha256()
-            with open(path.join(self._directory, f)) as o:
-                m.update(o.read().encode('utf-8'))
-
-            res[f] = m.hexdigest()
-
-        return res
-
-    def files_modified(self):
-        """Calculate date modified of files. Used to test file changes. 
-        
-        Returns:
-            Dictionary of file path, date modified pairs.
-        """
-        res = dict()
-
-        for f in self._files:
-            res[f] = path.getmtime(path.join(self._directory, f))
-
-        return res
+    def require(self):
+        FileManager.current.ensureDirectory(self)
 
     def hashes_changed(self, hash_table):
         """ Returns a list of file objects whose hashes differ from the provided hash table.
