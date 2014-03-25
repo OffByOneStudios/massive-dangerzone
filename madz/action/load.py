@@ -8,11 +8,15 @@ from .. import operating_system
 
 from .base import *
 
+import os
+
 logger = logging.getLogger(__name__)
 
 class LoadAction(BaseAction):
     """Loads plugins into the program's memory space and provides access to them."""
     action_name = "load"
+
+    forked = False
 
     def __init__(self, system):
         BaseAction.__init__(self, system)
@@ -33,3 +37,12 @@ class LoadAction(BaseAction):
     def _get_provider(self, language):
         return self.LoadProvider(language.plugin_stub, self._operating)
 
+    def do(self, *args, **kwargs):
+        if not (self.forked):
+            print("!!!! -- PREFORK -- !!!!")
+            LoadAction.forked = True
+            ret = os.fork()
+            if (ret != 0):
+                os.waitpid(ret, 0)
+                exit()
+        return super().do(*args, **kwargs)
