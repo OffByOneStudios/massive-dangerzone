@@ -63,6 +63,15 @@ class PluginStub(object):
     def __repr__(self):
         return "<PluginStub: {!r}>".format(self.id)
 
+    def _key(self):
+        return (self.id, self.directory)
+
+    def __hash__(self):
+        return hash(self._key())
+
+    def __eq__(self, other):
+        return isinstance(other, PluginStub) and self._key() == other._key()
+
     class PluginDescriptionError(PluginError): pass
     class PluginDescriptionKeyError(PluginDescriptionError): pass
 

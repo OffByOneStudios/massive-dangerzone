@@ -24,7 +24,7 @@ class CommandHandler(IHandler):
 
         try:
             execute_args_across(argv, Server.system, user_config)
-        except e:
+        except Exception as e:
             return e
 
 Server.handlers[CommandHandler.handler_name] = CommandHandler()
@@ -60,13 +60,19 @@ def generate_parser(valid_commands):
         default=None,
         nargs='*',
         help="The plugins to perform the action on, not recommended for some actions.")
-
     parser.add_argument("--plugins-from-file",
         action='append',
         default=None,
         nargs='*',
         help="A file who's associated plugin actions are to be performed on"
         )
+
+    def exit(self, status=0, message=None): raise Exception("Argparse Exit!:\n" + str(message))
+    def error(self, message=None): raise Exception("Argparse Error!\n" + str(message))
+
+    parser.exit = exit
+    parser.error = error
+
     return parser
 
 def _plugin_names_from_file(file_path):

@@ -72,3 +72,12 @@ class File(IPathable):
 
     def __repr__(self):
         return "File(\"{}\")".format(self._path)
+
+    def _key(self):
+        return (self._path,)
+
+    def __hash__(self):
+        return hash(self._key())
+
+    def __eq__(self, other):
+        return isinstance(other, File) and self._key() == other._key()

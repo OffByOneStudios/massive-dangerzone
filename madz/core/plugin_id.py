@@ -79,7 +79,7 @@ class PluginId(object):
         return PluginId(*map(lambda a, b: a or b, self.as_tuple(), other.as_tuple()))
 
     def __eq__(self, other):
-        return self.as_tuple() == other.as_tuple()
+        return isinstance(other, PluginId) and self.as_tuple() == other.as_tuple()
 
     def __str__(self):
         return "{}{}{}".format(

@@ -29,7 +29,7 @@ class PluginSystem(object):
         self.config = config
 
         self.directories = []
-        self._plugin_stubs = []
+        self._plugin_stubs = set()
 
         # TODO: Use config system to generate:
         self.plugin_resolver = PluginResolver()
@@ -50,7 +50,9 @@ class PluginSystem(object):
             directory: The directory object responsible for reporting the plugin.
             plugin_stub: the PluginStub object to add
         """
-        self._plugin_stubs.append((plugin_stub, directory))
+        if ((plugin_stub, directory) in self._plugin_stubs):
+            return
+        self._plugin_stubs.add((plugin_stub, directory))
         self.plugin_resolver.add_plugin_stub(plugin_stub)
 
     def resolve_plugin(self, string):

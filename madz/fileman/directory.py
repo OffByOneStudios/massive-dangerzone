@@ -116,6 +116,15 @@ class Directory(IPathable):
     def __str__(self):
         return self._directory
 
+    def _key(self):
+        return (self._directory,)
+
+    def __hash__(self):
+        return hash(self._key())
+
+    def __eq__(self, other):
+        return isinstance(other, Directory) and self._key() == other._key()
+
 class ContentsDirectory(Directory):
     """Class representing the directory contents of a Madz plugin."""
 

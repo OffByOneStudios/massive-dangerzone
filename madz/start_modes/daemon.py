@@ -27,6 +27,7 @@ class IHandler(metaclass=abc.ABCMeta):
         control_socket.connect("tcp://127.0.0.1:{port}".format(port=daemon_port))
 
         control_socket.send_pyobj((cls.handler_name, (args, kwargs)))
+        our_args.get("between", lambda: None)()
         res = control_socket.recv_pyobj()
 
         control_socket.close(-1)
