@@ -17,7 +17,14 @@
   <ItemGroup>
     <Compile Include="fileman\directory.py" />
     <Compile Include="fileman\file.py" />
+    <Compile Include="live_script.py" />
     <Compile Include="plugin_stub.py" />
+    <Compile Include="start_modes\command.py" />
+    <Compile Include="start_modes\daemon.py" />
+    <Compile Include="start_modes\ipython.py" />
+    <Compile Include="start_modes\kill.py" />
+    <Compile Include="start_modes\terminal.py" />
+    <Compile Include="start_modes\__init__.py" />
     <Compile Include="start_script.py" />
     <Compile Include="system_config.py" />
     <Compile Include="user_config.py" />
@@ -172,6 +179,18 @@
     <Folder Include="operating_system\windows" />
     <Folder Include="plugins" />
     <Folder Include="plugins\visualization" />
+    <Folder Include="start_modes\" />
+    <Folder Include="start_modes\__pycache__\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="start_modes\__pycache__\command.cpython-34.pyc" />
+    <Content Include="start_modes\__pycache__\daemon.cpython-33.pyc" />
+    <Content Include="start_modes\__pycache__\daemon.cpython-34.pyc" />
+    <Content Include="start_modes\__pycache__\ipython.cpython-34.pyc" />
+    <Content Include="start_modes\__pycache__\kill.cpython-34.pyc" />
+    <Content Include="start_modes\__pycache__\terminal.cpython-34.pyc" />
+    <Content Include="start_modes\__pycache__\__init__.cpython-33.pyc" />
+    <Content Include="start_modes\__pycache__\__init__.cpython-34.pyc" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
 </Project>

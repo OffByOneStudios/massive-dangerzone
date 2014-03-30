@@ -101,7 +101,8 @@ class Client(object):
         self.madz = madz
         self._log_level = "info"
         self._log_levels = ["error", "warn", "info", "debug"]
-        self._executable = config_args.get("executable_directories", None)
+        self._executables = config_args.get("executable_directories", None)
+        self._executable = None
         self.config_args = config_args
         
     @property
@@ -150,12 +151,15 @@ class Client(object):
         if self.executable != None:
             args.append(self.executable)
 
-        args += [command, "-l{}".format(self.log_level)]
+        if command in ['init', 'wrap', 'clean', 'make', 'execute']:
+            args.append("command")
+            
+        args.extend([command, "-l{}".format(self.log_level)])
 
         if not namespace is None:
-            args += ["-p", namespace]
+            args.extend(["-p", namespace])
 
-        return args
+        return list(args)
 
     def run_raw(self, args):
         """Send a raw query to Daemon

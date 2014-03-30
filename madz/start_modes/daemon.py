@@ -21,7 +21,7 @@ class IHandler(metaclass=abc.ABCMeta):
             with open(daemon_filename, "r") as f:
                 daemon_port = int(f.read(8))
         else:
-            raise Exception("No port info.")
+            raise Exception("Daemon port file:{} does not exists".format(os.path.abspath(daemon_filename)))
 
         control_socket = context.socket(zmq.REQ)
         control_socket.connect("tcp://127.0.0.1:{port}".format(port=daemon_port))
