@@ -7,7 +7,7 @@ An import for startup scripts.
 from .helper import logging_setup as logging 
 
 # config namespace
-class config:
+class config(object):
     from .config import UserConfig, config
 
     user_config = UserConfig()
@@ -20,7 +20,7 @@ class config:
         config.user_config = user_config
 
 # core namespace
-class core:
+class core(object):
     from .core.system import PluginSystem
     from .core.plugin_directory import PluginDirectory
     def make_system(system_config):
@@ -30,7 +30,7 @@ class core:
         return core.PluginDirectory(directory)
 
 # helper namespace
-class helper:
+class helper(object):
     from .helper import execute_args_across as _execute_args_across
     def execute_system(system, argv):
        helper._execute_args_across(argv, system, config.user_config)
