@@ -30,6 +30,7 @@ class SubprocessBase(CompilerBase):
         pass
     
     def invoke_simple(self, args, dir):
+        dir.require()
         compile_process = subprocess.Popen(
             args,
             cwd=dir._directory,
