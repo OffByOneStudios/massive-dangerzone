@@ -1,7 +1,10 @@
-
 import os
 import abc
 import logging
+import threading
+import time
+
+from .. import daemon_tools
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +40,12 @@ class IHandler(metaclass=abc.ABCMeta):
 
 import zmq
 
+class IFork(object):
+    """Temporary Class which takes controll of the message loop"""
+    @abc.abstractmethod
+    def run(self):
+        pass
+
 class Server(object):
     current = None
 
@@ -66,7 +75,12 @@ class Server(object):
         logger.info("Bound to: {}.".format(port))
 
         while True:
-            (handler, obj) = self.control_socket.recv_pyobj()
+            try:
+                (handler, obj) = self.control_socket.recv_pyobj(zmq.NOBLOCK)
+            except zmq.ZMQError:
+                time.sleep(0)
+                continue 
+
             if not (handler in self.handlers):
                 logger.warning("Handler '{}': Attempted but does not exist.")
                 continue
@@ -74,6 +88,11 @@ class Server(object):
             handler = self.handlers[handler]
             logger.info("Handling {}.".format(handler.handler_name))
             res = handler.handle(obj)
+
+            if isinstance(res, IFork):
+                self.control_socket.send_pyobj(None)
+                res.run()
+
             logger.info("Done {}.".format(handler.handler_name))
 
             self.control_socket.send_pyobj(res)
@@ -82,6 +101,7 @@ class Server(object):
 def start(argv, system, user_config):
     try:
         Server.current = Server(system)
+        daemon_tools.CurrentSystem = system
         Server.current.start()
     finally:
         if os.path.exists(daemon_filename):

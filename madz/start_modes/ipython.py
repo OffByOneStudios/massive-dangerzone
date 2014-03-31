@@ -1,7 +1,23 @@
 
 import IPython
+import threading
+from .daemon import IHandler, Server, IFork
 
-from .daemon import IHandler, Server
+from .. import daemon_tools
+
+
+class IPythonThread(threading.Thread):
+    """Thread for the IPython repl"""
+    def run(self):
+        try:
+            IPython.embed_kernel(module=daemon_tools, local_ns=daemon_tools.__dict__)
+        except:
+            print("Unable to Start IPython kernel")
+
+class IPythonFork(IFork):
+    """tmp class to keep zmq threads from hanging"""
+    def run(self):
+        IPython.embed_kernel(module=daemon_tools, local_ns=daemon_tools.__dict__)
 
 class InteractivePythonHandler(IHandler):
     handler_name = "ipython"
@@ -14,7 +30,10 @@ class InteractivePythonHandler(IHandler):
         argv, user_config = args
 
         try:
-            IPython.embed_kernel()
+            #t = IPythonThread()
+            #t.start()
+            return IPythonFork()
+
         except Exception as e:
             return e
 
