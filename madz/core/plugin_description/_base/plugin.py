@@ -69,6 +69,7 @@ class PluginDescription(object):
         description: The MDL description of what the plugin provides.
         active: A way to disable the plugin before it hits the system.
         documentation: A String describing the plugin. The first line should be a short blurb, folowed by a blank line, and then the full description.
+        executable: Generate an execute method madzout_exec, in analogue to madzout_init
     """
 
     def __init__(self, **kwargs):
@@ -91,6 +92,8 @@ class PluginDescription(object):
         self.active = init_get("active", True)
         self.imports = init_get("imports",[])
         self.depends = init_get("depends",[])
+
+        self.executable = init_get("executable", False)
 
         desc = init_get("description",[])
         if isinstance(desc, loaders.IMdlLoader):

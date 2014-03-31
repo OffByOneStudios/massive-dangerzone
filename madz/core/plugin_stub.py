@@ -40,6 +40,7 @@ class PluginStub(object):
         loaded_imports: The plugins corresponding to imports. (Monkeypatched by init_requires)
         loaded_requires: The plugins corresponding to requires. (Monkeypatched by init_requires)
         description: Contains a PluginDescription object wrapping the MDL for this plugin. (Monkeypatched by init_requires)
+        executable: True if this plugin is executable, false otherwise.
     """
     def __init__(self, system, plugin_description_loader, plugin_id):
         """Attempts to load a python description from the directory given."""
@@ -141,6 +142,8 @@ class PluginStub(object):
 
         # Build requirements names
         self.requires = self.depends + self.imports
+
+        self.executable = self._try_get("executable", False)
 
     def check_platform(self, target_platform):
         """Calls the check platform function, if one does not exist returns false."""

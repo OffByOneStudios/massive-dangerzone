@@ -156,7 +156,6 @@ class CGenerator(object):
         declares_vars += "\n\n"
 
         return declares_vars
-
     def build_current_output(self, code_fragments):
         """Constructs output text from functions and variables.
         
@@ -188,6 +187,7 @@ class CGenerator(object):
                 code_fragments["output_var_bindings"] += \
                     "#define MADZOUT_{} {}\n".format(var.name, "___madz_OUTPUT." + var.name)
 
+        
 class WrapperGenerator(object):
     """Responsible for driving the generation of wrapper files for C code.
     
@@ -234,6 +234,7 @@ class WrapperGenerator(object):
             "output_var_func_declares" : "/* Declare output functions */\n",
             "madz_prefix" : self.prefix,
             "type_prefix" : self.type_prefix,
+            "madz_executable" : "#define MADZEXECUTE void {}_execute()\nMADZEXECUTE;".format(self.prefix) if self.plugin_stub.executable else "",
             "depends_declares_vars" : "",
             "imports_declares_vars" : "",
             "current_declares_vars" : "",
@@ -308,8 +309,10 @@ typedef unsigned long long   uint64_t;
 #define MADZ(namespace) (*{madz_prefix}_IN_##namespace)
 #define MADZTYPE(namespace,symbol) {type_prefix}_##namespace##_##symbol
 
-#define MADZINIT void {madz_prefix}_init()
+#define MADZINIT void {madz_prefix}_init() 
 MADZINIT;
+{madz_executable}
+ 
 
 /******************************
 |********* Depends ***********|
