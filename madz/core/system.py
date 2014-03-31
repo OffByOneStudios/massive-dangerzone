@@ -41,6 +41,7 @@ class PluginSystem(object):
             directory: A PluginDirectory
             partial_root: A string representing a path from PluginDirectory's path to plugins' root directory.
         """
+
         if (directory, partial_root) in self.directories:
            return
         self.directories.append((directory, partial_root))
