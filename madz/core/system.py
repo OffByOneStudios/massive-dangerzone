@@ -38,10 +38,21 @@ class PluginSystem(object):
         """Adds a PluginDirectory to the list of directories to retrieve plugins from.
 
         Args:
-            directory: A string representing the directory path
-            partial_root: A string representing the partial root to the directory, if neccessary.
+            directory: A PluginDirectory
+            partial_root: A string representing a path from PluginDirectory's path to plugins' root directory.
         """
+        if (directory, partial_root) in self.directories:
+           return
         self.directories.append((directory, partial_root))
+
+    def remove_directory(self, directory, partial_root=""):
+        """Remove a PluginDirectory from system.
+        
+            Performs no action if directory not in system.
+        """
+        if not (directory, partial_root) in self.directories:
+           return
+        self.directories.remove((directory, partial_root))
 
     def add_plugin_stub(self, directory, plugin_stub):
         """Add plugin_stub to the system, only PluginDirectories or virtual plugin providers should call this function.
@@ -54,6 +65,18 @@ class PluginSystem(object):
             return
         self._plugin_stubs.add((plugin_stub, directory))
         self.plugin_resolver.add_plugin_stub(plugin_stub)
+
+    def remove_plugin_stub(self, directory, plugin_stub):
+        """Remove plugin_stub to the system, only PluginDirectories or virtual plugin providers should call this function.
+
+        Args:
+            directory: The directory object responsible for reporting the plugin.
+            plugin_stub: the PluginStub object to add
+        """
+        if not ((plugin_stub, directory) in self._plugin_stubs):
+            return
+        self._plugin_stubs.remove((plugin_stub, directory))
+        self.plugin_resolver.remove_plugin_stub(plugin_stub)
 
     def resolve_plugin(self, string):
         """Retrieve a plugin by namespace.

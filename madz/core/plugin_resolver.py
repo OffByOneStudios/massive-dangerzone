@@ -176,6 +176,24 @@ class PluginResolver(object):
 
         self.namespaces[namespace].append(plugin_stub)
 
+    def remove_plugin_stub(self, plugin_stub):
+        """Remove Plugin Stub from system.
+
+        Args:
+            plugin_stub: plugin.PythonPluginStub object
+        """
+        if not plugin_stub in self.plugin_stubs:
+            return
+
+        self.plugin_stubs.remove(plugin_stub)
+        namespace = plugin_stub.id.namespace 
+        self.namespaces[namespace].remove(plugin_stub)
+        if len(self.namespaces[namespace]) == 0:
+            del self.namespaces[namespace]
+
+        return
+        
+
     def alias(self, alias_name, namespace):
         """Alias a namespace.
 
