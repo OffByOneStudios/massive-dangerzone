@@ -18,7 +18,7 @@ class CppCodeGenerator(object):
         self.func_namespace = kwargs.get("func_namespace", "_f")
         self.struct_type_name = kwargs.get("struct_type_name", "_")
         self.struct_var_name = kwargs.get("struct_var_name", "_")
-
+        self.executable = kwargs.get("executable", False)
         self._in_type = False
         self._in_func = False
         self._in_namespace = ""
@@ -244,6 +244,7 @@ class CppNamespaceGenerator(object):
 /* Helpers */
 {helpers}
 {init_if_current}
+{madz_executable}
 /* Actual Functions */
 namespace {func_namespace} {{
 {funcactual}
@@ -261,6 +262,7 @@ namespace {func_namespace} {{
     var_struct=self._make_variables_struct(),
     helpers=self._make_variables_helpers(),
     init_if_current="\n/* INIT */\nvoid _init();\n" if self.is_current else "",
+    madz_executable="void _execute();\n" if self.gen.executable else "",
     funcactual=(self._make_current_actual_funcs() if self.is_current else ""),
     closing_namespaces=self._make_closing_namespaces())
 
@@ -303,7 +305,7 @@ class WrapperGenerator(object):
     def generate(self):
         self.prep()
 
-        cpp_gen = CppCodeGenerator()
+        cpp_gen = CppCodeGenerator(**{"executable":self.plugin_stub.executable})
 
         code_fragments = {
             "in_struct_defines" : "/* Definied structs for the incoming plugin variables */\n",
