@@ -40,7 +40,6 @@ class InteractivePythonHandler(IHandler):
 Server.handlers[InteractivePythonHandler.handler_name] = InteractivePythonHandler()
 
 def start(argv, system, user_config):
-    # TODO: Replace
-    res = InteractivePythonHandler.invoke({"between": lambda: IPython.start_ipython()}, argv, user_config)
+    res = client.invoke_minion("ipython", (argv, user_config))
 
     print(res)
