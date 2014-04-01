@@ -15,6 +15,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="core\interface\library.py" />
+    <Compile Include="core\interface\plugin.py" />
     <Compile Include="daemon_tools.py" />
     <Compile Include="fileman\directory.py" />
     <Compile Include="fileman\file.py" />
@@ -157,6 +159,7 @@
     <Folder Include="compiler" />
     <Folder Include="config" />
     <Folder Include="core" />
+    <Folder Include="core\interface\" />
     <Folder Include="core\planner" />
     <Folder Include="core\plugin_description" />
     <Folder Include="core\plugin_description\_base" />

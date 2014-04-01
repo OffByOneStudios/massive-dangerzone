@@ -37,16 +37,10 @@ class Daemon(object):
         if not logging_file is None:
             madz.logging.bind_to_file(logging_file)
         
-        user_config_env = self.args.get("user_config_env")
-        if not user_config_env is None:
-            madz.config.bind_user_config(user_config_env)
-            # Switch logging over to the config information it now has avalible from the
-            # user config.
-            madz.logging.use_config()
-          
+        
         system_config = None
         # Build Config
-        for config_path in self.args.get("system_configs", []):
+        for config_path in self.args.get("plugin_configs", []):
             with open(config_path) as module_file:
                 config_tmp = imp.load_module("engine_config", module_file, config_path, ('.py', 'r', imp.PY_SOURCE))
                 if system_config is None:
@@ -63,6 +57,7 @@ class Daemon(object):
                 else:
                     system_config = system_config.merge(config_tmp.config)
                     
+        print(system_config)
         # Build the System
         self.system = madz.core.make_system(system_config)
         
@@ -104,6 +99,10 @@ class Client(object):
         self._executables = config_args.get("executable_directories", None)
         self._executable = None
         self.config_args = config_args
+
+        user_config_env = self.config_args.get("user_config_env")
+        if not user_config_env is None:
+            madz.config.bind_user_config(user_config_env)
         
     @property
     def log_level(self):

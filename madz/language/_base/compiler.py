@@ -46,8 +46,8 @@ def NewCompilerWrapper(new_type):
             tmp_config = config
             try:
                 # Access Directories to construct them
-                self.language.build_directory
-                self.language.output_directory
+                self.language.build_directory.require()
+                self.language.output_directory.require()
 
                 config = self.config
                 self._new.build_plugin(self.language.plugin_stub, self.language)
