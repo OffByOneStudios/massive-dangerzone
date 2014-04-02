@@ -24,6 +24,7 @@ class Daemon(object):
         self.context = zmq.Context()
         self.system = system
         self.minions = []
+        self._ohshit = False
 
     @classmethod
     def next_minion_port(cls):
@@ -31,6 +32,9 @@ class Daemon(object):
         return cls.port
 
     def _sigint_handler(self, signum, frame):
+        if (self._ohshit == True):
+            exit(1)
+        self._ohshit = True
         logger.critical("DAEMON[^]: Recieved SIGINT, shutting down now!")
         self.banish_minions()
         logger.critical("DAEMON[^]: Minions banished, one moment...")
