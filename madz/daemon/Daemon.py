@@ -85,7 +85,10 @@ class Daemon(object):
                 try:
                     invocation = self.control_socket.recv_multipart(zmq.NOBLOCK)
                 except zmq.ZMQError:
-                    time.sleep(0.1)
+                    try:
+                        time.sleep(0.1)
+                    except InterruptedError:
+                        pass
                     continue
                 invocation_command = invocation[0].decode("utf-8")
 
