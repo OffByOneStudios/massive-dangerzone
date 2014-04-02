@@ -31,7 +31,7 @@ class Dependency(object):
         for d in self.dependencies:
             if isinstance(d,File):
                 temp = d.modify_date
-                if temp > newest_dependency:
+                if not temp is None and temp > newest_dependency:
                     newest_dependency = temp
 
         unsatisfied_targets = []
