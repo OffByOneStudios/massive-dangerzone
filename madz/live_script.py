@@ -7,7 +7,7 @@ import os, sys, imp
 # logging namespace
 from .helper import logging_setup as logging
 from . import start_script as madz
-
+    
 class Daemon(object):
     """Class which runs madz in live mode"""
     
@@ -57,7 +57,6 @@ class Daemon(object):
                 else:
                     system_config = system_config.merge(config_tmp.config)
                     
-        print(system_config)
         # Build the System
         self.system = madz.core.make_system(system_config)
         
@@ -168,6 +167,8 @@ class Client(object):
         """
         self.madz.helper.execute_system(None, args)
 
+    def kill(self):
+        self.madz.helper.execute_system(None, ["main.py", "kill"])
     def init(self, namespace=None):
         """Init namespace, or all plugins if namespace is None"""
         self.madz.helper.execute_system(None, self._make_raw_command("init", namespace))
@@ -190,3 +191,4 @@ class Client(object):
             raise AttributeError("Madz Project contains no Executables.")
 
         self.madz.helper.execute_system(None, self._make_raw_command("execute", namespace))
+        
