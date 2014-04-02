@@ -3,16 +3,14 @@
 Forwards and indexs all the actions.
 """
 
-from .build import BuildAction
-from .clean import CleanAction
-from .load import LoadAction
-from .wrap import WrapAction
-from .execute import ExecuteAction
+from .clean import *
+from .wrap import *
+from .build import *
+from .execute import *
 
 actions = {
     "build": BuildAction,
     "clean": CleanAction,
-    "load": LoadAction,
     "wrap": WrapAction,
     "execute": ExecuteAction
 }

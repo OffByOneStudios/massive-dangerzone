@@ -43,7 +43,7 @@ class BaseAction(object):
         with plugin_stub.and_configs():
             language = plugin_stub.language
             provider = self._get_provider(language)
-            
+
             try:
                 if self._check_dependency(provider):
                     logger.info("ACTION[{}] on plugin '{}'".format(self.action_name, plugin_stub))

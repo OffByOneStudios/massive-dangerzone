@@ -5,6 +5,7 @@ Action to clean temporary files in plugins.
 import logging
 
 from ..config import *
+from ..core import *
 from .base import *
 
 logger = logging.getLogger(__name__)
@@ -18,4 +19,5 @@ class CleanAction(BaseAction):
 
     def _get_provider(self, language):
         return language.make_cleaner()
+
 

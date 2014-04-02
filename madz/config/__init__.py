@@ -25,7 +25,6 @@ DefaultConfig.default_options = [
     ## System options
     OptionSystemSkipDependencies(),
     OptionSystemExecuteFunctionName(),
-    OptionSystemExecuteFunctionSignature(),
 
     ## Compiler defaults
     OptionImposter(lambda: {
@@ -68,11 +67,8 @@ DefaultConfig.default_options = [
     CommandConfig("remake", [
         OptionCommandActions(["clean", "wrap", "build"]),
     ]),
-    CommandConfig("load", [
-        OptionCommandActions(["load"]),
-    ]),
     CommandConfig("execute", [
-        OptionCommandActions(["load", "execute"]),
+        OptionCommandActions(["execute"]),
     ]),
     CommandConfig("clean", [
         OptionCommandActions(["clean"]),

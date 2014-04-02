@@ -44,7 +44,7 @@ class Daemon(object):
     def spawn_minion(self, minion_class):
         minion, report = minion_class.spawn()
         self.minions.append(minion)
-        return report
+        return (minion, report)
 
     def describe_minions(self):
         return list(map(str, self.minions))
@@ -106,7 +106,7 @@ class Daemon(object):
                 elif invocation_command == "minion":
                     minion_name = invocation[1].decode("utf-8")
                     logger.info("DAEMON[^]: Spawning minion {}.".format(minion_name))
-                    minion_report = self.spawn_minion(raw_handlers[minion_name])
+                    minion_report = self.spawn_minion(raw_handlers[minion_name])[1]
                     self.control_socket.send_pyobj(minion_report)
 
                 elif invocation_command == "describe-minions":

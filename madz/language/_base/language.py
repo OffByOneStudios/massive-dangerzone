@@ -42,10 +42,6 @@ class BaseLanguage(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def make_loader(self):
-        pass
-
-    @abc.abstractmethod
     def make_builder(self):
         pass
 

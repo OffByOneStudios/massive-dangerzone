@@ -31,11 +31,6 @@ class OptionSystemExecuteFunctionName(BaseOption):
     """This option determines the name of the function to execute."""
     default_value = "main"
 
-class OptionSystemExecuteFunctionSignature(BaseOption):
-    """This option provides the MDL signature of the function."""
-    from .. import MDL as MDL
-    default_value = MDL.TypeFunction(MDL.TypeNone, [])
-
 #
 # Default Options
 #

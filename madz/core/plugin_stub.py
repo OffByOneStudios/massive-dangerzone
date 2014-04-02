@@ -246,3 +246,21 @@ class PluginStub(object):
 
     def get_plugin_language_impl(self):
         pass
+
+    #TODO: Place on artifact class
+    def get_function_index(self, name):
+        func_loc = -1
+        for i, n in enumerate(plugin_stub.description.definitions()):
+            if n.name == name:
+                func_loc = i
+
+        if func_loc == -1:
+            raise KeyError("Function of name '{}' not found".format(name))
+        return func_loc
+
+    #TODO: Place on artifact class
+    def output_file_location(self):
+        """Returns the path of this plugin's artifact
+        """
+        dir = contents_directory(plugin_stub.directory.madz.subdirectory(".output"))
+        return dir.file("{}.madz".format(plugin_stub.id.namespace))

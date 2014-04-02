@@ -16,7 +16,6 @@ from .._base import language
 from .._base.compiler import NewCompilerWrapper
 
 from . import clean
-from . import load
 from . import compiler_gcc, compiler_mingw, compiler_clang, compiler_cl
 from . import wrapgen
 
@@ -46,10 +45,6 @@ class LanguagePy(language.BaseLanguage):
     def make_cleaner(self):
         """Creates the cleaner."""
         return clean.Cleaner(self)
-
-    def make_loader(self):
-        """Creates the loader."""
-        return load.Loader(self)
 
     def make_builder(self):
         """Creates the builder."""

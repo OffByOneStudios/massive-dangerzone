@@ -16,7 +16,6 @@ from .._base import language
 from .._base.compiler import NewCompilerWrapper
 
 from .clean import Cleaner
-from .load import Loader
 from .wrapgen import WrapperGenerator
 from . import compiler_gcc, compiler_clang
 
@@ -34,9 +33,6 @@ class LanguageCPP(language.BaseLanguage):
 
     def make_cleaner(self):
         return Cleaner(self)
-
-    def make_loader(self):
-        return Loader(self)
 
     def make_builder(self):
         return self.get_compiler()
