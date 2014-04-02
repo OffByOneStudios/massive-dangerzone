@@ -23,8 +23,8 @@ class CommandMinion(IMinion):
             socket.bind("tcp://127.0.0.1:{port}".format(port=self._minion.port))
             while not self._minion.banished:
                 try:
-                    command = socket.recv_pyobj()
-                except ZMQError:
+                    command = socket.recv_pyobj(zmq.NOBLOCK)
+                except zmq.ZMQError:
                     time.sleep(0.1)
                     continue
                 report = None
@@ -58,7 +58,7 @@ class CommandMinion(IMinion):
         return (self, [self.port])
 
     def banish(self):
-        banished = True
+        self.banished = True
         self._thread.join()
 
     @classmethod

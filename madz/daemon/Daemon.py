@@ -3,6 +3,7 @@ import abc
 import logging
 import threading
 import time
+import signal
 
 import zmq
 
@@ -29,6 +30,13 @@ class Daemon(object):
         cls.port += 1
         return cls.port
 
+    def _sigint_handler(self, signum, frame):
+        logger.critical("DAEMON[^]: Recieved SIGINT, shutting down now!")
+        self.banish_minions()
+        logger.critical("DAEMON[^]: Minions banished, one moment...")
+        self.banish_daemon()
+        logger.critical("DAEMON[^]: Daemon banished, have a nice day!")
+
     def spawn_minion(self, minion_class):
         minion, report = minion_class.spawn()
         self.minions.append(minion)
@@ -44,6 +52,7 @@ class Daemon(object):
         return res
         
     def banish_daemon(self):
+        self._banished = True
         return []
         
     def start(self, **kwargs):
@@ -61,18 +70,21 @@ class Daemon(object):
         except Exception as e:
             raise Exception("Failed to write daemon file.") from e
 
+        # overriding signal:
+        _old_sig = signal.signal(signal.SIGINT, self._sigint_handler)
+
         self.control_socket = self.context.socket(zmq.REP)
         bind_str = "tcp://127.0.0.1:{port}".format(port=Daemon.port)
         self.control_socket.bind(bind_str)
         logger.info("DAEMON[^]: Started and bound to {}.".format(bind_str))
 
-        banished = False
+        self._banished = False
 
         try:
-            while not banished:
+            while not self._banished:
                 try:
-                    invocation = self.control_socket.recv_multipart()
-                except ZMQError:
+                    invocation = self.control_socket.recv_multipart(zmq.NOBLOCK)
+                except zmq.ZMQError:
                     time.sleep(0.1)
                     continue
                 invocation_command = invocation[0].decode("utf-8")
@@ -100,11 +112,13 @@ class Daemon(object):
                     banish_report = self.banish_minions()
                     banish_report += self.banish_daemon()
                     self.control_socket.send_pyobj(banish_report)
-                    banished = True
         finally:
             if os.path.exists(daemon_filename):
                 os.remove(daemon_filename)
             self.control_socket.close()
             self.context.term()
+
+            # fixing signal:
+            signal.signal(signal.SIGINT, _old_sig)
 
 from .minions import *
