@@ -21,7 +21,9 @@ class ExecuterMinion(IMinion):
 
         self.port = Daemon.next_minion_port()
         self._bind_str = "tcp://127.0.0.1:{port}".format(port=self.port)
-        self._proc_bootstrapper = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        self._proc_bootstrapper = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "executer_bootstrap.py"))
+
+        self._banished = False
 
     def execute(self, dir=None):
         self.context = zmq.Context()
@@ -30,9 +32,10 @@ class ExecuterMinion(IMinion):
 
         subproc = subprocess.Popen(
             [sys.executable, self._proc_bootstrapper, self._bind_str],
-            cwd=os.path.dirname(self._proc_bootstrapper) if dir is None else dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            cwd=os.path.dirname(self._proc_bootstrapper) if dir is None else dir #,
+            #stdout=subprocess.PIPE,
+            #stderr=subprocess.PIPE
+            )
 
     @staticmethod
     def _gen_load_pattern(plugin_stub, until="final"):
@@ -58,25 +61,41 @@ class ExecuterMinion(IMinion):
         if until == "final":
             return res
 
-    def load(plugin_stub):
-        for p in ExecuterMinion._gen_load_pattern(plugin_strub):
+    def load(self, plugin_stub):
+        for p in ExecuterMinion._gen_load_pattern(plugin_stub):
             # Cleanup object for sending:
             load_type, plugin_stub, requires = p
             sending = (
-                "load", 
+                "load-artifact", 
                 load_type, 
                 plugin_stub.output_file_location(), 
                 list(map(lambda p: p.output_file_location(), requires)))
 
-            self.socket.send_pyobj(p)
-            res = self.socket.recv_pyobj()
+            while not self._banished:
+                try:
+                    self.socket.send_pyobj(sending)
+                    break
+                except zmq.ZMQError:
+                    if self._banished:
+                        raise Exception()
+                    time.sleep(0.1)
+                    continue
+            while not self._banished:
+                try:
+                    res = self.socket.recv_pyobj()
+                    break
+                except zmq.ZMQError:
+                    if self._banished:
+                        raise Exception()
+                    time.sleep(0.1)
+                    continue
 
             # Executer responded with traceback
             if (isinstance(res, str)):
                 logger.error("DAEMON[{}] Encountered problem loading {}:\n\t{}".format(self.identity(), plugin_stub, res))
                 raise Exception("Encountered problem loading {}!".format(plugin_stub))
 
-    def call_func(plugin_stub, func):
+    def call_func(self, plugin_stub, func):
         index = plugin_stub.get_function_index(func)
         self.socket.send_pyobj(("execute", plugin_stub.output_file_location(), index))
 
@@ -85,10 +104,11 @@ class ExecuterMinion(IMinion):
 
     @classmethod
     def spawn(cls):
-        raise NotImplementedError()
+        instance = cls()
+        return (instance, instance.port)
 
     def banish(self):
-        pass
+        self._banished = True
         # OS kill?
 
     @classmethod

@@ -65,7 +65,7 @@ class Daemon(object):
             self.system.add_directory(madz.core.make_directory(directory))
         
         # Add Executable Plugins
-        for directory in self.args.get("executable_directory", []):
+        for directory in self.args.get("executable_directories", []):
             self.system.add_directory(madz.core.make_directory(directory))
             
     def start(self):

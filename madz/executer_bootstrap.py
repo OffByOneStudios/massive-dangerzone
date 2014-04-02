@@ -39,7 +39,7 @@ while to_execute is None:
 
         # Load artifact
         elif command == "load-artifact":
-            artifact, state, requires = request[1,2,3]
+            artifact, state, requires = request[1:4]
             if state == "in-mem":
                 mos.load_memory(artifact)
             elif state == "inited":
@@ -47,6 +47,8 @@ while to_execute is None:
             elif state == "final":
                 mos.load_final(artifact, requires)
             socket.send_pyobj(True)
+        else:
+            raise Exception("Unknown command: '{}'!".format(command))
     except:
         tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
         socket.send_pyobj(tb_string)

@@ -250,7 +250,7 @@ class PluginStub(object):
     #TODO: Place on artifact class
     def get_function_index(self, name):
         func_loc = -1
-        for i, n in enumerate(plugin_stub.description.definitions()):
+        for i, n in enumerate(self.description.definitions()):
             if n.name == name:
                 func_loc = i
 
@@ -262,5 +262,5 @@ class PluginStub(object):
     def output_file_location(self):
         """Returns the path of this plugin's artifact
         """
-        dir = contents_directory(plugin_stub.directory.madz.subdirectory(".output"))
-        return dir.file("{}.madz".format(plugin_stub.id.namespace))
+        dir = fileman.contents_directory(self.directory.madz.subdirectory(".output"))
+        return dir.file("{}.madz".format(self.id.namespace))
