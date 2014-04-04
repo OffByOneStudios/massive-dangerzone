@@ -116,7 +116,7 @@ class Attribute(BaseNode):
 
     def get_attr_type(self):
         """Returns the type of the attribute."""
-        self.__class__
+        return self.__class__
 
     def _can_attach(self, node):
         return True
