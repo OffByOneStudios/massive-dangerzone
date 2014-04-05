@@ -45,10 +45,7 @@ DefaultConfig.default_options = [
     ## Commands
     # Main commands
     CommandConfig("all", [
-        OptionCommandActions(["clean", "wrap", "build", "load", "execute"]),
-    ]),
-    CommandConfig("main", [
-        OptionCommandActions(["wrap", "build", "load", "execute"]),
+        OptionCommandActions(["clean", "wrap", "build"]),
     ]),
 
     # Piecemeal commands
@@ -66,9 +63,6 @@ DefaultConfig.default_options = [
     ]),
     CommandConfig("remake", [
         OptionCommandActions(["clean", "wrap", "build"]),
-    ]),
-    CommandConfig("execute", [
-        OptionCommandActions(["execute"]),
     ]),
     CommandConfig("clean", [
         OptionCommandActions(["clean"]),

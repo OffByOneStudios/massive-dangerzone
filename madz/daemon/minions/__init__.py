@@ -6,7 +6,8 @@ from .search import SearchMinion
 
 raw_handlers={
     "command": CommandMinion,
-    "search": SearchMinion
+    "search": SearchMinion,
+    "execute": ExecuterMinion
 }
 
 try:

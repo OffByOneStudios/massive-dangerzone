@@ -12,5 +12,4 @@ actions = {
     "build": BuildAction,
     "clean": CleanAction,
     "wrap": WrapAction,
-    "execute": ExecuteAction
 }

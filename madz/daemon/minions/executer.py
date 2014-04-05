@@ -2,9 +2,11 @@
 import sys
 import os
 import threading
+import queue
 import time
 import subprocess
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -12,30 +14,178 @@ import zmq
 
 from .IMinion import IMinion
 from ..Daemon import Daemon
+from ...config import *
 
-class ExecuterMinion(IMinion):
-    current = []
+# from: http://stackoverflow.com/questions/2554514/asynchronous-subprocess-on-windows
+def simple_io_thread(pipe, queue, tag, stop_event):
+    """
+    Read line-by-line from pipe, writing (tag, line) to the
+    queue. Also checks for a stop_event to give up before
+    the end of the stream.
+    """
+    while True:
+        line = os.read(pipe.fileno(), 1024)
 
-    def __init__(self):
-        self.current.append(self)
+        while True:
+            try:
+                # Post to the queue with a large timeout in case the
+                # queue is full.
+                queue.put((tag, line), block=True, timeout=0.1)
+                break
+            except Queue.Full:
+                if stop_event.isSet():
+                    break
+                continue
+        if stop_event.isSet():
+            queue.put((tag, ""), block=True)
+            break
+        
+        if len(line) == 0:
+            break
 
-        self.port = Daemon.next_minion_port()
-        self._bind_str = "tcp://127.0.0.1:{port}".format(port=self.port)
+class ExecuteStreamSpitterThread(threading.Thread):
+    def __init__(self, minion):
+        super().__init__()
+        self._minion = minion
+
+        # Build networking, should probably be done on thread with an event
+        self.context = zmq.Context()
+        self.stdin = self.context.socket(zmq.SUB)
+        self.stdout = self.context.socket(zmq.PUB)
+        self.stderr = self.context.socket(zmq.PUB)
+
+        self.stdin.setsockopt(zmq.SUBSCRIBE, b'')
+
+        bind_fmt = "tcp://127.0.0.1:{port}"
+        self.stdin.bind(bind_fmt.format(port=self._minion.stdin_port))
+        self.stdout.bind(bind_fmt.format(port=self._minion.stdout_port))
+        self.stderr.bind(bind_fmt.format(port=self._minion.stderr_port))
+
+    def run(self):
+        # Start subprocess
+        self.subproc = subprocess.Popen(
+            [sys.executable, self._minion._proc_bootstrapper, self._minion._bind_str],
+            cwd=os.path.dirname(self._minion._proc_bootstrapper),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+            )
+
+        # Build async subproc communication threads
+        commqueue = queue.Queue()
+        stop_event = threading.Event()
+
+        procin = self.subproc.stdin
+        procout = self.subproc.stdout
+        procerr = self.subproc.stderr
+
+        stderr_thread = threading.Thread(
+            target=simple_io_thread,
+            args=(procerr, commqueue, "STDERR", stop_event)
+        )
+        stdout_thread = threading.Thread(
+            target=simple_io_thread,
+            args=(procout, commqueue, "STDOUT", stop_event)
+        )
+
+        stderr_thread.daemon = True
+        stdout_thread.daemon = True
+
+        stderr_thread.start()
+        stdout_thread.start()
+
+        # Main loop
+        joined = False
+        empty = False
+        while True:
+            # Forward output
+            try:
+                tag, line = commqueue.get(False)
+                if tag == "STDOUT":
+                    self.stdout.send_pyobj(line)
+                elif tag == "STDERR":
+                    self.stderr.send_pyobj(line)
+            except queue.Empty:
+                empty = True
+
+            # Forward input
+            if not joined:
+                try:
+                    inp = self.stdin.recv_pyobj(zmq.NOBLOCK)
+                    procin.write(inp)
+                    procin.flush()
+                except zmq.ZMQError:
+                    pass
+            # Check subproc not finished finished
+            if self.subproc.poll() is None:
+                continue
+            # If the subproc is finished we need to join, and then empty the queue
+            elif not joined:
+                stop_event.set()
+                self.stdin.close()
+                procin.close()
+
+                stderr_thread.join()
+                stdout_thread.join()
+
+                procout.close()
+                procerr.close()
+
+                joined = True
+                empty = False
+            # We have finished, we can exit now:
+            else:
+                self.stdout.close()
+                self.stderr.close()
+                self.context.term()
+                break;
+
+
+class ExecuterMinionSubprocess(object):
+    def __init__(self, minion):
+        self.bootstrap_port = Daemon.next_minion_port()
+        self.stdin_port = Daemon.next_minion_port()
+        self.stdout_port = Daemon.next_minion_port()
+        self.stderr_port = Daemon.next_minion_port()
+
+        self._bind_str = "tcp://127.0.0.1:{port}".format(port=self.bootstrap_port)
         self._proc_bootstrapper = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "executer_bootstrap.py"))
 
-        self._banished = False
-
-    def execute(self, dir=None):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
         self.socket.bind(self._bind_str)
 
-        subproc = subprocess.Popen(
-            [sys.executable, self._proc_bootstrapper, self._bind_str],
-            cwd=os.path.dirname(self._proc_bootstrapper) if dir is None else dir #,
-            #stdout=subprocess.PIPE,
-            #stderr=subprocess.PIPE
-            )
+        self._thread = ExecuteStreamSpitterThread(self)
+        self._minion = minion._minion
+
+    def execute(self, argv, userconfig):
+        system = Daemon.current.system
+        self._thread.start()
+
+        with config.and_merge(system.config):
+            with config.and_merge(userconfig):
+                system.index()
+
+                execute_plugin_name = argv[0] if len(argv) > 0 else config.get(OptionSystemExecutePlugin)
+                execute_function_name = argv[1] if len(argv) > 1 else config.get(OptionSystemExecuteFunctionName)
+
+                if execute_plugin_name is None:
+                    logger.error("DAEMON[{}] cannot execute. OptionSystemExecutePlugin is not defined.".format(self._minion.identity()))
+                    return
+
+                plugin_stub = system.resolve_plugin(execute_plugin_name)
+
+                logger.debug("DAEMON[{}] Loading plugins for '{}' targeting function '{}'.".format(
+                        self._minion.identity(),
+                        execute_plugin_name,
+                        execute_function_name
+                    ))
+                self.load(plugin_stub)
+
+                logger.info("DAEMON[{}] Calling function '{}' from plugin '{}'.".format(self._minion.identity(), execute_function_name, execute_plugin_name))
+                self.call_func(plugin_stub, execute_function_name)
+
+                logger.info("DAEMON[{}] Completed, new instance started!".format(self._minion.identity()))
 
     @staticmethod
     def _gen_load_pattern(plugin_stub, until="final"):
@@ -49,20 +199,20 @@ class ExecuterMinion(IMinion):
 
         # init:
         depends = plugin_stub.gen_recursive_loaded_depends()
-        res += [load_pattern for require in depends for load_pattern in ExecuterMinion._gen_load_pattern(require, "inited")]
+        res += [load_pattern for require in depends for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "inited")]
         res += [("inited", plugin_stub, depends)]
         if until == "inited":
             return res
 
         # final
         imports = list(filter(lambda p: p not in depends, plugin_stub.gen_required_loaded_imports()))
-        res += [load_pattern for require in imports for load_pattern in ExecuterMinion._gen_load_pattern(require, "final")]
+        res += [load_pattern for require in imports for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "final")]
         res += [("final", plugin_stub, imports)]
         if until == "final":
             return res
 
     def load(self, plugin_stub):
-        for p in ExecuterMinion._gen_load_pattern(plugin_stub):
+        for p in ExecuterMinionSubprocess._gen_load_pattern(plugin_stub):
             # Cleanup object for sending:
             load_type, plugin_stub, requires = p
             sending = (
@@ -71,23 +221,22 @@ class ExecuterMinion(IMinion):
                 plugin_stub.output_file_location(), 
                 list(map(lambda p: p.output_file_location(), requires)))
 
-            while not self._banished:
+            while True:
                 try:
-                    self.socket.send_pyobj(sending)
+                    self.socket.send_pyobj(sending, zmq.NOBLOCK)
                     break
                 except zmq.ZMQError:
-                    if self._banished:
+                    if self._minion.banished:
                         raise Exception()
-                    time.sleep(0.1)
                     continue
-            while not self._banished:
+
+            while True:
                 try:
-                    res = self.socket.recv_pyobj()
+                    res = self.socket.recv_pyobj(zmq.NOBLOCK)
                     break
                 except zmq.ZMQError:
-                    if self._banished:
+                    if self._minion.banished:
                         raise Exception()
-                    time.sleep(0.1)
                     continue
 
             # Executer responded with traceback
@@ -102,10 +251,61 @@ class ExecuterMinion(IMinion):
         self.socket.close()
         self.context.term()
 
+
+class ExecuterMinion(IMinion):
+    current = None
+
+    class ExecuteControlThread(threading.Thread):
+        def __init__(self, minion):
+            super().__init__()
+            self._minion = minion
+
+        def run(self):
+            context = zmq.Context()
+            socket = context.socket(zmq.REP)
+            socket.bind("tcp://127.0.0.1:{port}".format(port=self._minion.port))
+            while not self._minion.banished:
+                try:
+                    command = socket.recv_pyobj(zmq.NOBLOCK)
+                except zmq.ZMQError:
+                    time.sleep(0.1)
+                    continue
+                report = None
+                try:
+                    #TODO: set up logging report
+                    logger.info("DAEMON[{}] Starting execute of '{}'.".format(self._minion.identity(), " ".join(command[0])))
+                    
+                    subproc = ExecuterMinionSubprocess(self)
+                    self._minion.subprocs.append(subproc)
+
+                    report = (subproc.stdin_port, subproc.stdout_port, subproc.stderr_port)
+                    socket.send_pyobj(report)
+
+                    time.sleep(0.01)
+
+                    subproc.execute(*command)
+                except Exception as e:
+                    tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+                    logger.error("DAEMON[{}] Failed on execute of '{}':\n\t{}".format(self._minion.identity(), " ".join(command[0]), tb_string))
+
+    def __init__(self):
+        self.banished = False
+        self.spawned = False
+        self.subprocs = []
+        self._thread = ExecuterMinion.ExecuteControlThread(self)
+        self.port = Daemon.next_minion_port()
+
     @classmethod
     def spawn(cls):
-        instance = cls()
-        return (instance, instance.port)
+        if (cls.current is None):
+            cls.current = ExecuterMinion()
+        return cls.current._spawn()
+
+    def _spawn(self):
+        if not (self.spawned):
+            self.spawned = True
+            self._thread.start()
+        return (self, [self.port])
 
     def banish(self):
         self._banished = True

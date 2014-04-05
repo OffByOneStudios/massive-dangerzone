@@ -35,23 +35,27 @@ while to_execute is None:
         if command == "execute":
             artifact, index = request[1:3]
             to_execute = mos.get_function(artifact, index)
-            socket.send_pyobj(True)
-
         # Load artifact
         elif command == "load-artifact":
-            artifact, state, requires = request[1:4]
+            state, artifact, requires = request[1:4]
             if state == "in-mem":
                 mos.load_memory(artifact)
             elif state == "inited":
                 mos.load_init(artifact, requires)
             elif state == "final":
                 mos.load_final(artifact, requires)
+            else:
+                raise Exception("Unknown state: '{}'!".format(state))
             socket.send_pyobj(True)
         else:
             raise Exception("Unknown command: '{}'!".format(command))
     except:
         tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
-        socket.send_pyobj(tb_string)
+        print(tb_string)
+        sys.stdout.flush()
+        if (command != "execute"):
+            socket.send_pyobj(True) #TODO make false/exception string
+        #exit()
 
 socket.close()
 context.term()

@@ -106,6 +106,9 @@ class Daemon(object):
                 elif invocation_command == "minion":
                     minion_name = invocation[1].decode("utf-8")
                     logger.info("DAEMON[^]: Spawning minion {}.".format(minion_name))
+                    if not (minion_name in raw_handlers):
+                        self.control_socket.send_pyobj("Minion not found!")
+                        continue
                     minion_report = self.spawn_minion(raw_handlers[minion_name])[1]
                     self.control_socket.send_pyobj(minion_report)
 
