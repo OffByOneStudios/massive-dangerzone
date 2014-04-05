@@ -76,6 +76,11 @@ class Node(BaseNode):
             return self.attributes.get(type, None)
         return None
 
+    def _map_over(self, new_node):
+        if hasattr(self, "attributes"):
+            new_node.attributes = dict(self.attributes)
+        return new_node
+
     def set_attribute(self, type, value):
         """Sets the attributes of the provided type.
         
@@ -140,6 +145,8 @@ class DocumentationAttribute(Attribute):
     def __init__(self, documentation):
         self.documentation = documentation
     
+    def __call__(self, node):
+        super().__call__(node)
 
 class OntologyAttribute(Attribute):
     """An attribute which provides ontology relationships for for a node.
@@ -259,7 +266,7 @@ class TypeDeclaration(Declaration):
         Returns:
             The node after having the map function applied to it.
         """
-        return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
+        return self._map_over(self.__class__(self.name, self._map_over_single_val(self, map_func, self.type)))
 
     class NamespaceKey(object): pass
 
@@ -313,7 +320,7 @@ class VariableDefinition(Definition):
         Returns:
             The node after having the map function applied to it.
         """
-        return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
+        return self._map_over(self.__class__(self.name, self._map_over_single_val(self, map_func, self.type)))
 
     class NamespaceKey(object): pass
 

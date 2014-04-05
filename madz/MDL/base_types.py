@@ -139,7 +139,7 @@ class TypePointer(TypeTypeComplex):
         return "TypePointer({!r})".format(self.type)
 
     def copy(self):
-        return self.__class__(type=None if self.type is None else self.type.copy())
+        return self._map_over(self.__class__(type=None if self.type is None else self.type.copy()))
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -159,7 +159,7 @@ class TypePointer(TypeTypeComplex):
         Returns:
             The node after having the map function applied to it.
         """
-        return self.__class__(self._map_over_single_val(self, map_func, self.type))
+        return self._map_over(__class__(self._map_over_single_val(self, map_func, self.type)))
 
 class TypeArray(TypeTypeComplex):
     """Fixed length array of homogeneous components.
@@ -188,7 +188,7 @@ class TypeArray(TypeTypeComplex):
         return "TypeArray({!r}, {!r})".format(self.type, self.length)
 
     def copy(self):
-        return self.__class__(length=self.length, type=None if self.type is None else self.type.copy())
+        return self._map_over(self.__class__(length=self.length, type=None if self.type is None else self.type.copy()))
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -212,7 +212,7 @@ class TypeArray(TypeTypeComplex):
         Returns:
             The node after having the map function applied to it.
         """
-        return self.__class__(self._map_over_single_val(self, map_func, self.type), self.length)
+        return self._map_over(self.__class__(self._map_over_single_val(self, map_func, self.type), self.length))
 
 
 class TypeStructElement(TypeTypeComplex):
@@ -241,7 +241,7 @@ class TypeStructElement(TypeTypeComplex):
         return "TypeStructMember({!r}, {!r})".format(self.name, self.type)
 
     def copy(self):
-        return self.__class__(name=self.name, type=None if self.type is None else self.type.copy())
+        return self._map_over(self.__class__(name=self.name, type=None if self.type is None else self.type.copy()))
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -264,7 +264,7 @@ class TypeStructElement(TypeTypeComplex):
         Returns:
             The node after having the map function applied to it.
         """
-        return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
+        return self._map_over(self.__class__(self.name, self._map_over_single_val(self, map_func, self.type)))
 
 
 class TypeStruct(TypeTypeComplex):
@@ -298,7 +298,7 @@ class TypeStruct(TypeTypeComplex):
         return self.elements
 
     def copy(self):
-        return self.__class__(elements=[v.copy() for v in self.elements])
+        return self._map_over(self.__class__(elements=[v.copy() for v in self.elements]))
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -331,7 +331,7 @@ class TypeStruct(TypeTypeComplex):
             new_subs = map_func(node)
             for new_sub_node in new_subs:
                 new_elements.append(new_sub_node.map_over(map_func))
-        return self.__class__(new_elements)
+        return self._map_over(self.__class__(new_elements))
 
 
 class TypeFunctionArgument(TypeTypeComplex):
@@ -354,7 +354,7 @@ class TypeFunctionArgument(TypeTypeComplex):
         return "TypeFunctionArgument({!r}, {!r})".format(self.name, self.type)
 
     def copy(self):
-        return self.__class__(name=self.name, type=None if self.type is None else self.type.copy())
+        return self._map_over(self.__class__(name=self.name, type=None if self.type is None else self.type.copy()))
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -377,7 +377,7 @@ class TypeFunctionArgument(TypeTypeComplex):
         Returns:
             The node after having the map function applied to it.
         """
-        return self.__class__(self.name, self._map_over_single_val(self, map_func, self.type))
+        return self._map_over(self.__class__(self.name, self._map_over_single_val(self, map_func, self.type)))
 
 
 class TypeFunction(TypeTypeComplex):
@@ -418,7 +418,7 @@ class TypeFunction(TypeTypeComplex):
         return self.args
 
     def copy(self):
-        return self.__class__(return_type=None if self.return_type is None else self.return_type.copy(), args=[v.copy() for v in self.args])
+        return self._map_over(self.__class__(return_type=None if self.return_type is None else self.return_type.copy(), args=[v.copy() for v in self.args]))
 
     def validate(self, validation, context):
         """Validates this node and its subnodes in the given context
@@ -452,7 +452,7 @@ class TypeFunction(TypeTypeComplex):
             new_subs = map_func(node)
             for new_sub_node in new_subs:
                 new_args.append(new_sub_node.map_over(map_func))
-        return self.__class__(return_type=new_return_type, args=new_args)
+        return self._map_over(self.__class__(return_type=new_return_type, args=new_args))
 
     def get_arg(self, name):
         return self.args[self._arg_lookup[name]]
@@ -487,7 +487,7 @@ class NamedType(TypeTypeComplex):
         return "{}({!r})".format(self.__class__.__name__, self.symbol)
 
     def copy(self):
-        return self.__class__(symbol=self.symbol)
+        return self._map_over(self.__class__(symbol=self.symbol))
 
     class SymbolResolutionError(Exception): pass
 

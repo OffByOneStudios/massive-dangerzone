@@ -1,10 +1,11 @@
-from . import daemon, command, terminal, kill
+from . import daemon, command, terminal, kill, search
 
 start_modes = {
     "daemon": daemon.start,
     "command": command.start,
     "terminal": terminal.start,
     "kill": kill.start,
+    "search": search.start
 }
 
 try:

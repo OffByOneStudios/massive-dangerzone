@@ -2,9 +2,11 @@
 
 from .command import CommandMinion
 from .executer import ExecuterMinion
+from .search import SearchMinion
 
 raw_handlers={
-    "command": CommandMinion
+    "command": CommandMinion,
+    "search": SearchMinion
 }
 
 try:

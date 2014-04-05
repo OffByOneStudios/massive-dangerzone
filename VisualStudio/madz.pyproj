@@ -17,15 +17,27 @@
   <ItemGroup>
     <Compile Include="core\interface\library.py" />
     <Compile Include="core\interface\plugin.py" />
+    <Compile Include="daemon\client.py" />
+    <Compile Include="daemon\Daemon.py" />
+    <Compile Include="daemon\minions\command.py" />
+    <Compile Include="daemon\minions\executer.py" />
+    <Compile Include="daemon\minions\IMinion.py" />
+    <Compile Include="daemon\minions\ipython.py" />
+    <Compile Include="daemon\minions\search.py" />
+    <Compile Include="daemon\minions\__init__.py" />
+    <Compile Include="daemon\__init__.py" />
     <Compile Include="daemon_tools.py" />
     <Compile Include="fileman\directory.py" />
     <Compile Include="fileman\file.py" />
     <Compile Include="live_script.py" />
+    <Compile Include="plugins\query_tools\query_db.py" />
+    <Compile Include="plugins\query_tools\__init__.py" />
     <Compile Include="plugin_stub.py" />
     <Compile Include="start_modes\command.py" />
     <Compile Include="start_modes\daemon.py" />
     <Compile Include="start_modes\ipython.py" />
     <Compile Include="start_modes\kill.py" />
+    <Compile Include="start_modes\search.py" />
     <Compile Include="start_modes\terminal.py" />
     <Compile Include="start_modes\__init__.py" />
     <Compile Include="start_script.py" />
@@ -164,6 +176,10 @@
     <Folder Include="core\plugin_description" />
     <Folder Include="core\plugin_description\_base" />
     <Folder Include="core\plugin_description\python" />
+    <Folder Include="daemon\" />
+    <Folder Include="daemon\minions\" />
+    <Folder Include="daemon\minions\__pycache__\" />
+    <Folder Include="daemon\__pycache__\" />
     <Folder Include="fileman" />
     <Folder Include="helper" />
     <Folder Include="HTN" />
@@ -182,11 +198,21 @@
     <Folder Include="operating_system\unix" />
     <Folder Include="operating_system\windows" />
     <Folder Include="plugins" />
+    <Folder Include="plugins\query_tools\" />
     <Folder Include="plugins\visualization" />
     <Folder Include="start_modes\" />
     <Folder Include="start_modes\__pycache__\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="daemon\minions\__pycache__\command.cpython-34.pyc" />
+    <Content Include="daemon\minions\__pycache__\executer.cpython-34.pyc" />
+    <Content Include="daemon\minions\__pycache__\IMinion.cpython-34.pyc" />
+    <Content Include="daemon\minions\__pycache__\ipython.cpython-34.pyc" />
+    <Content Include="daemon\minions\__pycache__\search.cpython-34.pyc" />
+    <Content Include="daemon\minions\__pycache__\__init__.cpython-34.pyc" />
+    <Content Include="daemon\__pycache__\client.cpython-34.pyc" />
+    <Content Include="daemon\__pycache__\Daemon.cpython-34.pyc" />
+    <Content Include="daemon\__pycache__\__init__.cpython-34.pyc" />
     <Content Include="start_modes\__pycache__\command.cpython-34.pyc" />
     <Content Include="start_modes\__pycache__\daemon.cpython-33.pyc" />
     <Content Include="start_modes\__pycache__\daemon.cpython-34.pyc" />
