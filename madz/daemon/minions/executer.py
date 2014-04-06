@@ -44,9 +44,9 @@ def simple_io_thread(pipe, queue, tag, stop_event):
             break
 
 class ExecuteStreamSpitterThread(threading.Thread):
-    def __init__(self, minion):
+    def __init__(self, subproc_control):
         super().__init__()
-        self._minion = minion
+        self._control = subproc_control
 
         # Build networking, should probably be done on thread with an event
         self.context = zmq.Context()
@@ -57,27 +57,18 @@ class ExecuteStreamSpitterThread(threading.Thread):
         self.stdin.setsockopt(zmq.SUBSCRIBE, b'')
 
         bind_fmt = "tcp://127.0.0.1:{port}"
-        self.stdin.bind(bind_fmt.format(port=self._minion.stdin_port))
-        self.stdout.bind(bind_fmt.format(port=self._minion.stdout_port))
-        self.stderr.bind(bind_fmt.format(port=self._minion.stderr_port))
+        self.stdin.bind(bind_fmt.format(port=self._control.stdin_port))
+        self.stdout.bind(bind_fmt.format(port=self._control.stdout_port))
+        self.stderr.bind(bind_fmt.format(port=self._control.stderr_port))
 
     def run(self):
-        # Start subprocess
-        self.subproc = subprocess.Popen(
-            [sys.executable, self._minion._proc_bootstrapper, self._minion._bind_str],
-            cwd=os.path.dirname(self._minion._proc_bootstrapper),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-            )
-
         # Build async subproc communication threads
         commqueue = queue.Queue()
         stop_event = threading.Event()
 
-        procin = self.subproc.stdin
-        procout = self.subproc.stdout
-        procerr = self.subproc.stderr
+        procin = self._control.subproc.stdin
+        procout = self._control.subproc.stdout
+        procerr = self._control.subproc.stderr
 
         stderr_thread = threading.Thread(
             target=simple_io_thread,
@@ -95,6 +86,7 @@ class ExecuteStreamSpitterThread(threading.Thread):
         stdout_thread.start()
 
         # Main loop
+        exiting = False
         joined = False
         empty = False
         while True:
@@ -117,33 +109,54 @@ class ExecuteStreamSpitterThread(threading.Thread):
                 except zmq.ZMQError:
                     pass
             # Check subproc not finished finished
-            if self.subproc.poll() is None:
-                continue
+            if (not (self._control.subproc.returncode is None)) \
+                or self._control._minion.banished:
+                exiting = True
+
             # If the subproc is finished we need to join, and then empty the queue
-            elif not joined:
-                stop_event.set()
-                self.stdin.close()
-                procin.close()
+            if exiting:
+                if not joined:
+                    stop_event.set()
+                    self.stdin.close()
+                    procin.close()
 
-                stderr_thread.join()
-                stdout_thread.join()
+                    stderr_thread.join()
+                    stdout_thread.join()
 
-                procout.close()
-                procerr.close()
+                    procout.close()
+                    procerr.close()
 
-                joined = True
-                empty = False
-            # We have finished, we can exit now:
-            else:
-                self.stdout.close()
-                self.stderr.close()
-                self.context.term()
-                break;
+                    joined = True
+                    empty = False
+                # We have finished, we can exit now:
+                elif empty:
+                    break;
+
+        self.stdout.close()
+        self.stderr.close()
+        self.context.term()
 
 
 class ExecuterMinionSubprocess(object):
+    class ControlThread(threading.Thread):
+        def __init__(self, control):
+            super().__init__()
+            self._control = control
+
+        def run(self):
+            while True:
+                if hasattr(self._control) and not (self._control.subproc.poll() is None):
+                    break;
+                if self._control._minion.banished:
+                    self._control.subproc.kill()
+                    break;
+            # clean up
+
     def __init__(self, minion):
+        self._minion = minion._minion
+
         self.bootstrap_port = Daemon.next_minion_port()
+        self.control_port = Daemon.next_minion_port()
         self.stdin_port = Daemon.next_minion_port()
         self.stdout_port = Daemon.next_minion_port()
         self.stderr_port = Daemon.next_minion_port()
@@ -155,12 +168,28 @@ class ExecuterMinionSubprocess(object):
         self.socket = self.context.socket(zmq.PAIR)
         self.socket.bind(self._bind_str)
 
-        self._thread = ExecuteStreamSpitterThread(self)
-        self._minion = minion._minion
+        self._spitter = ExecuteStreamSpitterThread(self)
+        self._thread = ExecuterMinionSubprocess.ControlThread(self)
+        self._thread.start()
+
+    def banish(self):
+        self._thread.join()
+        if self._spitter.isAlive():
+            self._spitter.join()
 
     def execute(self, argv, userconfig):
         system = Daemon.current.system
-        self._thread.start()
+
+        # Start subprocess
+        self.subproc = subprocess.Popen(
+            [sys.executable, self._proc_bootstrapper, self._bind_str],
+            cwd=os.path.dirname(self._proc_bootstrapper),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+            )
+
+        self._spitter.start()
 
         with config.and_merge(system.config):
             with config.and_merge(userconfig):
@@ -188,6 +217,15 @@ class ExecuterMinionSubprocess(object):
                 logger.info("DAEMON[{}] Completed, new instance started!".format(self._minion.identity()))
 
     @staticmethod
+    def _unique(seq):
+        seen = set()
+        for x in seq:
+            if x in seen:
+                continue
+            seen.add(x)
+            yield x
+
+    @staticmethod
     def _gen_load_pattern(plugin_stub, until="final"):
         # base:
         res = []
@@ -212,14 +250,15 @@ class ExecuterMinionSubprocess(object):
             return res
 
     def load(self, plugin_stub):
-        for p in ExecuterMinionSubprocess._gen_load_pattern(plugin_stub):
+        for p in ExecuterMinionSubprocess._unique(
+            map(lambda e: (
+                    "load-artifact", 
+                    e[0], 
+                    e[1].output_file_location(), 
+                    tuple(map(lambda p: p.output_file_location(), e[2]))),
+                ExecuterMinionSubprocess._gen_load_pattern(plugin_stub))):
             # Cleanup object for sending:
-            load_type, plugin_stub, requires = p
-            sending = (
-                "load-artifact", 
-                load_type, 
-                plugin_stub.output_file_location(), 
-                list(map(lambda p: p.output_file_location(), requires)))
+            sending = p
 
             while True:
                 try:
@@ -308,8 +347,10 @@ class ExecuterMinion(IMinion):
         return (self, [self.port])
 
     def banish(self):
-        self._banished = True
-        # OS kill?
+        self.banished = True
+        for subproc in self.subprocs:
+            subproc.banish()
+        self._thread.join()
 
     @classmethod
     def identity(cls):

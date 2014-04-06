@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -u
 
 ## Set up environment:
 import sys
@@ -24,9 +24,15 @@ socket = context.socket(zmq.PAIR)
 socket.connect(bind)
 
 # The goal of this is to setup an environment where we can call to_execute
+command_count = 0
 to_execute = None
 while to_execute is None:
     request = socket.recv_pyobj()
+
+    command_count += 1
+    if (command_count % 100 == 0):
+        sys.stderr.write("Bootstrapped {} commands...\n".format(command_count))
+        sys.stderr.flush()
 
     command = request[0]
 
