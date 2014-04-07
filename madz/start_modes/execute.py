@@ -101,14 +101,13 @@ def start(argv, system, user_config):
             except zmq.ZMQError:
                 pass
 
-        if not (finished_out and finished_err):
-            continue
-        else:
-            stop_event.set()
-            stdin_thread.join()
-            pstdin.close()
+        if finished_out and finished_err:
+            break;
+    
+    stop_event.set()
+    pstdin.close()
 
-            pstdout.close()
-            pstderr.close()
+    pstdout.close()
+    pstderr.close()
 
-            context.term()
+    context.term()

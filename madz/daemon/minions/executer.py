@@ -172,10 +172,12 @@ class ExecuterMinionSubprocess(object):
         self._thread = ExecuterMinionSubprocess.ControlThread(self)
         self._thread.start()
 
+
     def banish(self):
         self._thread.join()
         if self._spitter.isAlive():
             self._spitter.join()
+
 
     def execute(self, argv, userconfig):
         system = Daemon.current.system
@@ -215,6 +217,7 @@ class ExecuterMinionSubprocess(object):
                 self.call_func(plugin_stub, execute_function_name)
 
                 logger.info("DAEMON[{}] Completed, new instance started!".format(self._minion.identity()))
+
 
     @staticmethod
     def _unique(seq):
@@ -283,12 +286,14 @@ class ExecuterMinionSubprocess(object):
                 logger.error("DAEMON[{}] Encountered problem loading {}:\n\t{}".format(self.identity(), plugin_stub, res))
                 raise Exception("Encountered problem loading {}!".format(plugin_stub))
 
+
     def call_func(self, plugin_stub, func):
         index = plugin_stub.get_function_index(func)
         self.socket.send_pyobj(("execute", plugin_stub.output_file_location(), index))
 
         self.socket.close()
         self.context.term()
+
 
 
 class ExecuterMinion(IMinion):
