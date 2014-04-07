@@ -184,8 +184,8 @@ class ExecuterMinionSubprocess(object):
 
         # Start subprocess
         self.subproc = subprocess.Popen(
-            [sys.executable, self._proc_bootstrapper, self._bind_str],
-            cwd=os.path.dirname(self._proc_bootstrapper),
+            [sys.executable, self._proc_bootstrapper, os.path.dirname(self._proc_bootstrapper), self._bind_str],
+            cwd=os.getcwd(),
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
@@ -257,8 +257,8 @@ class ExecuterMinionSubprocess(object):
             map(lambda e: (
                     "load-artifact", 
                     e[0], 
-                    e[1].output_file_location(), 
-                    tuple(map(lambda p: p.output_file_location(), e[2]))),
+                    str(e[1].output_file_location()), 
+                    tuple(map(lambda p: str(p.output_file_location()), e[2]))),
                 ExecuterMinionSubprocess._gen_load_pattern(plugin_stub))):
             # Cleanup object for sending:
             sending = p
@@ -289,7 +289,7 @@ class ExecuterMinionSubprocess(object):
 
     def call_func(self, plugin_stub, func):
         index = plugin_stub.get_function_index(func)
-        self.socket.send_pyobj(("execute", plugin_stub.output_file_location(), index))
+        self.socket.send_pyobj(("execute", str(plugin_stub.output_file_location()), index))
 
         self.socket.close()
         self.context.term()

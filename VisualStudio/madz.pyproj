@@ -48,8 +48,6 @@
     <Compile Include="action\build.py" />
     <Compile Include="action\clean.py" />
     <Compile Include="action\execute.py" />
-    <Compile Include="action\load.py" />
-    <Compile Include="action\planner.py" />
     <Compile Include="action\wrap.py" />
     <Compile Include="action\__init__.py" />
     <Compile Include="compiler\build_base.py" />

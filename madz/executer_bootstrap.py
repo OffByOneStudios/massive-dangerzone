@@ -1,12 +1,18 @@
 #!/usr/bin/env python3 -u
 
+
 ## Set up environment:
 import sys
+
+print("Starting Bootstrap")
+sys.stdout.flush()
+
 import os
 import traceback
 
-sys.path.append(os.path.abspath(".."))
-bind = sys.argv[1]
+cwd = sys.argv[1]
+sys.path.append(os.path.join(cwd, ".."))
+bind = sys.argv[2]
 
 ## Get libs and objects:
 
@@ -26,6 +32,8 @@ socket.connect(bind)
 # The goal of this is to setup an environment where we can call to_execute
 command_count = 0
 to_execute = None
+print("Bootstrap accepting commands")
+sys.stdout.flush()
 while to_execute is None:
     request = socket.recv_pyobj()
 
