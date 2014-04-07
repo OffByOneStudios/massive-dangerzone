@@ -98,18 +98,14 @@ CREATE TABLE TypeTable(
         """Fill this table with madz data"""
         plugins = list(system.all_plugins())
         for plugin in plugins:
-            for definition in plugin.description.declarations():
-                try:
-                    doc = str(definition.attributes)
-                except:
-                    doc =""
-                query = "INSERT INTO TypeTable VALUES('{}', '{}', '{}', '{}')".format(
-                    plugin.id.namespace,
-                    definition.name,
-                    "", # TODO find a a way to generate MDL from Parse tree
-                    doc)
+            for declaration in plugin.description.declarations():
+                doc_attr = declaration.get_attribute(DocumentationAttribute)
                 
-                connection.execute(query)
+                connection.execute("INSERT INTO TypeTable VALUES(?, ?, ?, ?)", (
+                    plugin.id.namespace,
+                    declaration.name,
+                    "", # TODO find a a way to generate MDL from Parse tree
+                    str(None if doc_attr is None else doc_attr.documentation)))
 
 
 class MdlVarTable(ITableHandler):
@@ -135,13 +131,13 @@ CREATE TABLE VarTable(
         plugins = list(system.all_plugins())
         for plugin in plugins:
             for definition in plugin.description.definitions():
-                query = "INSERT INTO VarTable VALUES('{}', '{}', '{}', '{}')".format(
+                doc_attr = definition.get_attribute(DocumentationAttribute)
+                
+                connection.execute("INSERT INTO VarTable VALUES(?, ?, ?, ?)", (
                     plugin.id.namespace,
                     definition.name,
                     "", # TODO find a a way to generate MDL from Parse tree
-                    str(definition.get_attribute("doc")))
-                
-                connection.execute(query)
+                    str(None if doc_attr is None else doc_attr.documentation)))
 
 
 class MdlTypeTableQueryManager(ITableQueryHandler):

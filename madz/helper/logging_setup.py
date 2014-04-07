@@ -2,7 +2,7 @@ import madz
 import logging
 import sys
 
-_logging_default_formatter = logging.Formatter('%(asctime)-15s - %(levelname)s - %(name)-8s\n\t%(message)s')
+_logging_default_formatter = logging.Formatter('%(asctime)-15s | %(levelname)-8s | %(name)-32s | %(message)s')
 
 _log_level_name_index = {
     "debug": logging.DEBUG,
