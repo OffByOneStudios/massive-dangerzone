@@ -52,7 +52,8 @@ class MingwCompiler(GnuCompilerBase):
             # Include Directories
             ["-I"+language.get_wrap_directory()] + list(self._gen_header_include_dirs()) +
             # Linker Prep (position independant code and visibility)
-            ["-fvisibility=hidden", "-fpic"] +
+            ["-fvisibility=hidden"] +
+            #["-fpic"] + # Not needed for some MinGW compilers?
             # Warnings
             ["-Wall"])
 
@@ -82,7 +83,7 @@ class MingwCompiler(GnuCompilerBase):
             list(map(self.sourcefile_to_objectfile, source_files))
 
     def linker_flags_libraries(self, plugin_stub, language):
-        return (list(map(lambda m: "{}.lib".format(m), self._gen_link_library_statics())) * 2)
+        return (list(map(lambda m: "{}".format(m), self._gen_link_library_statics())) * 2)
 
     def process_output(self, name, retcode, output, errput, foutput, ferrput):
         if retcode != 0:
