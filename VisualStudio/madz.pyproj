@@ -27,6 +27,7 @@
     <Compile Include="daemon\minions\__init__.py" />
     <Compile Include="daemon\__init__.py" />
     <Compile Include="daemon_tools.py" />
+    <Compile Include="executer_bootstrap.py" />
     <Compile Include="fileman\directory.py" />
     <Compile Include="fileman\file.py" />
     <Compile Include="live_script.py" />

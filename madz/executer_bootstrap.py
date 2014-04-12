@@ -73,6 +73,7 @@ while to_execute is None:
 
 socket.close()
 context.term()
-
+print("Starting Function:{}, {}".format(artifact, index))
+sys.stdout.flush()
 # End of script, bootstrap done!
 to_execute()

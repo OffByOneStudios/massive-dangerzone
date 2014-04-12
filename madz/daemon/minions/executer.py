@@ -145,7 +145,7 @@ class ExecuterMinionSubprocess(object):
 
         def run(self):
             while True:
-                if hasattr(self._control) and not (self._control.subproc.poll() is None):
+                if hasattr(self._control, "subproc") and not (self._control.subproc.poll() is None):
                     break;
                 if self._control._minion.banished:
                     self._control.subproc.kill()
@@ -186,6 +186,7 @@ class ExecuterMinionSubprocess(object):
         self.subproc = subprocess.Popen(
             [sys.executable, self._proc_bootstrapper, os.path.dirname(self._proc_bootstrapper), self._bind_str],
             cwd=os.getcwd(),
+            bufsize=1,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
