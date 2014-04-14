@@ -1,7 +1,7 @@
 Massive Dangerzone
 ==================
 
-### Version: 0.3.2 ([CHANGES](https://github.com/OffByOneStudios/massive-dangerzone/blob/master/CHANGES.md))
+### Version: 0.4.0 ([CHANGES](https://github.com/OffByOneStudios/massive-dangerzone/blob/master/CHANGES.md))
 
 Summary
 ------------------

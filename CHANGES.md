@@ -1,3 +1,13 @@
+
+Version 0.4.0
+=============
+
+* Rebuilt as a live daemon/client architecture.
+    * Command, kill, execute, search, and (optional) ipython functions.
+    * Cleaned up logging output.
+* Added new execution model.
+* New requirement: pyzmq.
+
 Version 0.3.2
 -------------
 
