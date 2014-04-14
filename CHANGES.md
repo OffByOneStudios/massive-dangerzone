@@ -1,3 +1,9 @@
+Version 0.3.2
+-------------
+
+* Improved file manipulation infrastructure.
+* Various compiler and bug fixies.
+
 Version 0.3.1
 -------------
 

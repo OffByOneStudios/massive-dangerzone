@@ -1,7 +1,7 @@
 Massive Dangerzone
 ==================
 
-### Version: 0.3.1 ([CHANGES](https://github.com/OffByOneStudios/massive-dangerzone/blob/master/CHANGES.md))
+### Version: 0.3.2 ([CHANGES](https://github.com/OffByOneStudios/massive-dangerzone/blob/master/CHANGES.md))
 
 Summary
 ------------------
@@ -10,8 +10,8 @@ Massive-Dangerzone, abbreviated madz, is a plugin management system built on pyt
 
 Currently supported languages:
 * C
-* C++
-* Python (v3)
+* C++ (C++11)
+* Python (v3.3+)
 
 Purpose
 ------------------
