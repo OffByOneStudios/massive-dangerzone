@@ -96,7 +96,7 @@ class ClCompiler(BuildBase):
             #Use LINK Seperately
             (["/c"]) +
             # Include Directories
-            ["/I"+language.wrap_directory._directory] + list(self._gen_header_include_dirs()) +
+            ["/I"+str(language.wrap_directory)] + list(self._gen_header_include_dirs()) +
             # Warnings            
            (["/Zi", "/W4"] if config.get(OptionCompilerDebug, False) else []) 
         )

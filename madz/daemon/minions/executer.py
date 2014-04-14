@@ -1,4 +1,3 @@
-
 import sys
 import os
 import threading
@@ -69,6 +68,14 @@ class ExecuteStreamSpitterThread(threading.Thread):
         procin = self._control.subproc.stdin
         procout = self._control.subproc.stdout
         procerr = self._control.subproc.stderr
+
+        if (procin is None) or (procout is None) or (procerr is None):
+            self.stdout.send_pyobj("")
+            self.stderr.send_pyobj("")
+            self.stdin.close()
+            self.stdout.close()
+            self.stderr.close()
+            return
 
         stderr_thread = threading.Thread(
             target=simple_io_thread,
@@ -182,15 +189,23 @@ class ExecuterMinionSubprocess(object):
     def execute(self, argv, userconfig):
         system = Daemon.current.system
 
+        subproc_sys_args = {
+            "stdin": subprocess.PIPE,
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE
+        }
+        if os.name == "nt":
+           subproc_sys_args["creationflags"] = subprocess.CREATE_NEW_CONSOLE
+           del subproc_sys_args["stdin"]
+           del subproc_sys_args["stdout"]
+           del subproc_sys_args["stderr"]
+
         # Start subprocess
         self.subproc = subprocess.Popen(
             [sys.executable, self._proc_bootstrapper, os.path.dirname(self._proc_bootstrapper), self._bind_str],
             cwd=os.getcwd(),
             bufsize=1,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-            )
+            **subproc_sys_args)
 
         self._spitter.start()
 

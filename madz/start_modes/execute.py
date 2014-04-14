@@ -86,6 +86,7 @@ def start(argv, system, user_config):
                 out = pstdout.recv_pyobj(zmq.NOBLOCK)
                 if len(out) == 0:
                     finished_out = True
+                    continue
                 stdout.write(out)
                 stdout.flush()
             except zmq.ZMQError:
@@ -96,6 +97,7 @@ def start(argv, system, user_config):
                 err = pstderr.recv_pyobj(zmq.NOBLOCK)
                 if len(err) == 0:
                     finished_err = True
+                    continue
                 stderr.write(err)
                 stderr.flush()
             except zmq.ZMQError:

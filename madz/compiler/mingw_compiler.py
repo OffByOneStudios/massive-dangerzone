@@ -29,7 +29,7 @@ class MingwCompiler(GnuCompilerBase):
         return libname
 
     def sourcefile_to_objectfile(self, compile_file):
-        return (".".join(os.path.basename(compile_file).split(".")[:-1])) + ".o"
+        return compile_file.with_extension("obj").basename
 
     def binaryname_compiler(self, plugin_stub, language):
         return {
@@ -50,7 +50,7 @@ class MingwCompiler(GnuCompilerBase):
                 "cpp": ["-std=c++11", "-xc++"],
             }[language.name]) +
             # Include Directories
-            ["-I"+language.get_wrap_directory()] + list(self._gen_header_include_dirs()) +
+            ["-I"+str(language.wrap_directory)] + list(self._gen_header_include_dirs()) +
             # Linker Prep (position independant code and visibility)
             ["-fvisibility=hidden"] +
             #["-fpic"] + # Not needed for some MinGW compilers?
@@ -79,7 +79,7 @@ class MingwCompiler(GnuCompilerBase):
             ["-Wl,--warn-unresolved-symbols"])
 
     def linker_flags_files(self, plugin_stub, language, source_files):
-        return ["-o", language.get_output_file()] + \
+        return ["-o", str(language.get_output_file())] + \
             list(map(self.sourcefile_to_objectfile, source_files))
 
     def linker_flags_libraries(self, plugin_stub, language):
