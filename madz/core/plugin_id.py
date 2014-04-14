@@ -72,7 +72,7 @@ class PluginId(object):
         return \
             functools.reduce(lambda a, i: a and i,
                 map(lambda a, b: ((a is None) != (b is None)) or a == b,
-                    self.as_tuple(), other.as_tuple()))
+                    self.as_tuple()[1:], other.as_tuple()[1:]))
 
     def merge(self, other):
         """Merges the PluginId with another PluginId."""
