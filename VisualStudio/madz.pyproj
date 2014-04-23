@@ -24,6 +24,7 @@
     <Compile Include="daemon\minions\IMinion.py" />
     <Compile Include="daemon\minions\ipython.py" />
     <Compile Include="daemon\minions\search.py" />
+    <Compile Include="daemon\minions\visual_studio.py" />
     <Compile Include="daemon\minions\__init__.py" />
     <Compile Include="daemon\__init__.py" />
     <Compile Include="daemon_tools.py" />
@@ -31,6 +32,7 @@
     <Compile Include="fileman\directory.py" />
     <Compile Include="fileman\file.py" />
     <Compile Include="live_script.py" />
+    <Compile Include="plugins\editors\__init__.py" />
     <Compile Include="plugins\query_tools\query_db.py" />
     <Compile Include="plugins\query_tools\__init__.py" />
     <Compile Include="plugin_stub.py" />
@@ -40,6 +42,7 @@
     <Compile Include="start_modes\kill.py" />
     <Compile Include="start_modes\search.py" />
     <Compile Include="start_modes\terminal.py" />
+    <Compile Include="start_modes\visual_studio.py" />
     <Compile Include="start_modes\__init__.py" />
     <Compile Include="start_script.py" />
     <Compile Include="system_config.py" />
@@ -98,7 +101,7 @@
     <Compile Include="MDL\py_ctypes_gen.py" />
     <Compile Include="MDL\__init__.py" />
     <Compile Include="operating_system\__init__.py" />
-    <Compile Include="plugins\visual_studio_generator.py" />
+    <Compile Include="plugins\editors\visual_studio_generator.py" />
     <Compile Include="plugins\__init__.py" />
     <Compile Include="core\planner\method.py" />
     <Compile Include="core\planner\method_order_full.py" />
@@ -197,6 +200,7 @@
     <Folder Include="operating_system\unix" />
     <Folder Include="operating_system\windows" />
     <Folder Include="plugins" />
+    <Folder Include="plugins\editors\" />
     <Folder Include="plugins\query_tools\" />
     <Folder Include="plugins\visualization" />
     <Folder Include="start_modes\" />

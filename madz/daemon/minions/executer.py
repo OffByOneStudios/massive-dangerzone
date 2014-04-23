@@ -222,6 +222,10 @@ class ExecuterMinionSubprocess(object):
 
                 plugin_stub = system.resolve_plugin(execute_plugin_name)
 
+                if(plugin_stub.executable == False):
+                    logger.error("DAEMON[{}] cannot execute {}. executable flag not set to True.".format(self._minion.identity(), plugin_stub.id.namespace))
+                    return
+
                 logger.debug("DAEMON[{}] Loading plugins for '{}' targeting function '{}'.".format(
                         self._minion.identity(),
                         execute_plugin_name,

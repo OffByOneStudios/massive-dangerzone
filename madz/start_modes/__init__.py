@@ -1,4 +1,4 @@
-from . import daemon, command, terminal, kill, execute, search
+from . import daemon, command, terminal, kill, execute, search, visual_studio
 
 start_modes = {
     "daemon": daemon.start,
@@ -6,7 +6,8 @@ start_modes = {
     "terminal": terminal.start,
     "execute": execute.start,
     "kill": kill.start,
-    "search": search.start
+    "search": search.start,
+    "visual_studio" : visual_studio.start,
 }
 
 try:

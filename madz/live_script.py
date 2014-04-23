@@ -48,15 +48,6 @@ class Daemon(object):
                 else:
                     system_config = system_config.merge(config_tmp.config)
         
-        # Build executable config
-        for config_path in self.args.get("executable_configs", []):
-            with open(config_path) as module_file:
-                config_tmp = imp.load_module("executable_config", module_file, config_path, ('.py', 'r', imp.PY_SOURCE))
-                if system_config is None:
-                    system_config = config_tmp.config
-                else:
-                    system_config = system_config.merge(config_tmp.config)
-                    
         # Build the System
         self.system = madz.core.make_system(system_config)
         
@@ -64,10 +55,6 @@ class Daemon(object):
         for directory in self.args.get("plugin_directories", []):
             self.system.add_directory(madz.core.make_directory(directory))
         
-        # Add Executable Plugins
-        for directory in self.args.get("executable_directories", []):
-            self.system.add_directory(madz.core.make_directory(directory))
-            
     def start(self):
         madz.helper.execute_system(self.system, ["live_daemon.py", "daemon"])
 
@@ -118,12 +105,6 @@ class Client(object):
         Arguments:
             exectuable : string executable directory, string in executable list
         """
-        if len(self.config_args.get("executable_directories", [])) == 0:
-            raise AttributeError("Madz Project contains no Executables.")
-
-        if not os.path.normpath(executable) in map(os.path.normpath, self.config_args["executable_directories"]):
-            raise AttributeError("Invalid executable, use {}".format(self.config_args["executable_directories"]))
-        
         self._executable = executable
 
     def set_log_level(self, level):

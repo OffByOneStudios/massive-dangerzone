@@ -3,11 +3,12 @@
 from .command import CommandMinion
 from .executer import ExecuterMinion
 from .search import SearchMinion
-
+from .visual_studio import VisualStudioMinion
 raw_handlers={
     "command": CommandMinion,
     "search": SearchMinion,
-    "execute": ExecuterMinion
+    "execute": ExecuterMinion,
+    "visual_studio" : VisualStudioMinion,
 }
 
 try:

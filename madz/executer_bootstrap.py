@@ -77,3 +77,5 @@ print("Starting Function:{}, {}".format(artifact, index))
 sys.stdout.flush()
 # End of script, bootstrap done!
 to_execute()
+if os.name == "nt":
+    input("Any Closes Stops the Party")
