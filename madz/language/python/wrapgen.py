@@ -936,7 +936,6 @@ def internal_madz_type(c_type):
     """
     
     if inspect.isclass(c_type) and issubclass(c_type, _ctypes.CFuncPtr):
-        print("Rapping Function", c_type)
         def wrap_type_this(func):
             def type_this(*args):
                 print("ARGS before", args)
@@ -1001,8 +1000,7 @@ def internal_madz_type(c_type):
             def __init__(self, actual = None):
                 #todo if ctypes is reftype set madzobject to contents, save copy of ref
                 # Pointer test isinstance(self.__madz_object__, _ctypes._Pointer)
-                if isinstance(actual, _ctypes._Pointer):
-                    self.__madz_is_pointer__ = True
+                self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer)
                     
                 if actual is None:
                     self.__madz_object__ = Actual.__madz_allocate__()
@@ -1023,7 +1021,7 @@ def internal_madz_type(c_type):
                         return None
                     from_object = from_object.contents
                 if hasattr(from_object, name):
-                    return getattr(self.__madz_object__, name)
+                    return getattr(from_object, name)
             
             def __call__(self, *args, **kwargs):
                 return self.__madz_object__(*args, **kwargs)
