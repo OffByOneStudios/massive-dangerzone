@@ -40,8 +40,8 @@ class MingwCompiler(GnuCompilerBase):
     def compiler_flags_base(self, plugin_stub, language):
         return (
             # Basic Config Flags
-            (["-O0"] if (config.get(OptionCompilerDebug, 0.0) < 0.5) else ["-O4"]) +
-            (["-g"] if (config.get(OptionCompilerDebug, False)) else []) +
+            (["-O0"] if (config.get(OptionCompilerDebug, 0.0) > 0.5) else ["-O4"]) +
+            (["-g"] if (bool(config.get(OptionCompilerDebug, 0.0))) else []) +
             # Platform Compiler Flags
             (["-DMS_WIN64"] if config_target.get(OptionPlatformProcessorFamily) == "x86_64" else []) +
             # Language Compiler Flags
