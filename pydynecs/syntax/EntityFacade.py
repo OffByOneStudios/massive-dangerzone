@@ -1,3 +1,8 @@
+"""pyext/syntax/EntityFacade.py
+@OffbyOne Studios 2014
+A useful abstraction to automatically use component managers like they were part of the entity object.
+"""
+
 from .. import abstract
 from .exceptions import *
 
@@ -5,7 +10,7 @@ class EntityFacade(abstract.IEntity):
     """Pretends to be an entity in an object form."""
     @classmethod
     def _get_current_system(cls):
-        return abstract.ISystem.current.get()
+        return abstract.ISystem.current
     
     def __init__(self, system=None, entity=None):
         if (system is None):
@@ -14,7 +19,7 @@ class EntityFacade(abstract.IEntity):
             self.system = system
         else:
             raise EcsSyntaxArgumentError("system: not an ISystem.")
-        
+
         if (entity is None):
             self.entity = self.system.new_entity()
         elif (self.system.valid_entity(entity)):

@@ -1,5 +1,4 @@
 import abc
-import pyext
 
 from .IEntityAllocator import *
 
@@ -28,5 +27,3 @@ class ISystem(IEntityAllocator, metaclass=abc.ABCMeta):
     
     def components_of(self, entity):
         return {key: m.get(entity) for key, m in self.managers_of(entity)}
-ISystem.current = pyext.ContextVariable(ISystem)    
-

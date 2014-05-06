@@ -1,7 +1,12 @@
+
+import pyext
+
 from .. import abstract
 from . import SimplePyAllocator
 
-class System(abstract.ISystem):
+class System(abstract.ISystem, metaclass=pyext.ContextMetaGen(abstract.ISystem.__class__)):
+    __pyext_context_base__ = True
+
     def __init__(self, allocator=None):
         if (allocator is None):
             self._allocator = SimplePyAllocator.SimplePyAllocator()
@@ -28,4 +33,3 @@ class System(abstract.ISystem):
     
     def managers(self):
         return self._managers.items()
-

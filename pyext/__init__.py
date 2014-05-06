@@ -5,3 +5,4 @@ A library of common extensions to python, eventually to be provided by madz.
 
 from .context import *
 from .event import *
+from .imposter import *

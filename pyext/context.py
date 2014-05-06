@@ -94,4 +94,25 @@ class ContextVariable(object):
     def __repr__(self):
         return "{}({!r}, {!r})".format(self.__class__.__name__, self._key, self.get())
 
-        
+class ContextDescriptor(ContextVariable):
+    def __init__(self, var):
+        self.__var = var
+    def __get__(self, obj, type):
+        return self.__var.get()
+    def __set__(self, obj, value):
+        return self.__var.set(value)
+
+def ContextMetaGen(base_meta = type):
+    class ContextMeta(base_meta):
+        def __new__(cls, name, bases, attrs):
+            res = super().__new__(cls, name, bases, attrs)
+            
+            if "__pyext_context_base__" in attrs:
+                return res
+
+            res._current_var = ContextVariable(res)
+            res.current = ContextDescriptor(res._current_var)
+
+            return res
+    
+    return ContextMeta
