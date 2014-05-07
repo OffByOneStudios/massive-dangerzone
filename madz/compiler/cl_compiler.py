@@ -93,12 +93,15 @@ class ClCompiler(BuildBase):
     def compiler_flags_base(self, plugin_stub, language):
         return (
             #Debug Symbols
+
+            #Compile Flags
+            (["/EHsc"]) +
             #Use LINK Seperately
             (["/c"]) +
             # Include Directories
             ["/I"+str(language.wrap_directory)] + list(self._gen_header_include_dirs()) +
             # Warnings            
-           (["/Zi", "/W4"] if config.get(OptionCompilerDebug, False) else []) 
+           (["/Zi", "/W4"] if config.get(OptionCompilerDebug, False) else [])
         )
 
     def compiler_flags_file(self, plugin_stub, language, compile_file):

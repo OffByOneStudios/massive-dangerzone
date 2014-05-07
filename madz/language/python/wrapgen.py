@@ -697,20 +697,12 @@ def _madz_init():
     
     {type_accessors}
 
-    try:
-        imp = importlib.machinery.SourceFileLoader({module_namespace!r}, {init_path!r})
-        user_code_module = imp.load_module({module_namespace!r})
-    except Exception as e:
-        traceback.print_exc()
-        return
-        
     {module_hooks}
 
     # Fill In Dependency Modules
 {dep_module_hooks}
 
-    # Fill in plugin's function pointers with callbacks
-{function_callbacks}
+
 
     # Reconfigure plugin to point at real output struct
     {fix_plugin}
@@ -720,7 +712,16 @@ def _madz_init():
 
     {cleanup_code}
     
-    
+    try:
+        imp = importlib.machinery.SourceFileLoader({module_namespace!r}, {init_path!r})
+        user_code_module = imp.load_module({module_namespace!r})
+    except Exception as e:
+        traceback.print_exc()
+        return
+        
+    # Fill in plugin's function pointers with callbacks
+{function_callbacks}
+        
 """
 
     ctypes_wrapper_template = \
