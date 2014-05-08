@@ -626,7 +626,7 @@ class _new_struct_accessor(object):
             type = None
             for _name, _type in struct._fields_:
                 if name == _name:
-                    type = ctypes_wrappers.internal_madz_type(_type)
+                    type = ctypes_wrapper.internal_madz_type(_type)
                     break
             if not type is None:
                 return type(getattr(struct, name))
@@ -939,9 +939,7 @@ def internal_madz_type(c_type):
     if inspect.isclass(c_type) and issubclass(c_type, _ctypes.CFuncPtr):
         def wrap_type_this(func):
             def type_this(*args):
-                print("ARGS before", args)
                 args = list(map(lambda a, t : a.__madz_cast_to__(t) if hasattr(a, "__madz_cast_to__") else a, args, func._argtypes_))
-                print("ARGS after", args)
                 _res = func(*args)
                 _type = internal_madz_type(type(_res))
                 if not(_type is None):
