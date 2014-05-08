@@ -621,6 +621,9 @@ class _new_struct_accessor(object):
         self.__pointer = pointer
 
     def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError()
+            
         struct = self.__pointer.contents
         if hasattr(struct, name):
             type = None
@@ -632,6 +635,20 @@ class _new_struct_accessor(object):
                 return type(getattr(struct, name))
             else:
                 return getattr(struct, name)
+        else:
+            # Default behaviour
+            raise AttributeError()
+            
+    def __setattr__(self, name, value):
+        if name.startswith("_"):
+            return super().__setattr__(name, value)
+            
+        struct = self.__pointer.contents
+        if hasattr(struct, name):
+            if hasattr(value, "__madz_object__"):
+                setattr(struct, name, value.__madz_object__)
+            else:
+                setattr(struct, name, value)
         else:
             # Default behaviour
             raise AttributeError()
