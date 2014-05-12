@@ -84,6 +84,9 @@ class ClCompiler(BuildBase):
     def _gen_link_library_statics(cls, formatstring="{}"):
         return map(lambda d: formatstring.format(d), config.get(OptionLibraryStaticLinks, []))
     
+    def _gen_link_library_dynamics(cls, formatstring="{}"):
+        return map(lambda d: formatstring.format(d), config.get(OptionLibraryDynamicLinks, []))
+        
     def binaryname_compiler(self, plugin_stub, language):
         return {
             "c": "cl",
@@ -129,7 +132,7 @@ class ClCompiler(BuildBase):
             list(map(str, self.sourcefiles_to_objectfiles(language, source_files)))
 
     def linker_flags_libraries(self, plugin_stub, language):
-        return (list(map(lambda m: "{}.lib".format(m), self._gen_link_library_statics())))
+        return (list(map(lambda m: "{}.lib".format(m), list(self._gen_link_library_dynamics()) + list(self._gen_link_library_statics())))) 
         
     def generate_compile_args(self, plugin_stub, language, compile_file):
         return [self.binaryname_compiler(plugin_stub, language)] \
