@@ -1,3 +1,8 @@
+"""pydynecs/core/BasicComponentManager.py
+@OffbyOne Studios 2014
+A dictionary based dynamic component manager.
+"""
+
 from .. import abstract
 
 class BasicComponentManager(abstract.IComponentManager):

@@ -22,3 +22,18 @@ def inject_syntax_for(name, system):
     for attr, value in syntax_vars:
         value.__module__ = module.__name__
         setattr(module, attr, value)
+
+def inject_syntax_manager(name, system, key, manager):
+    import sys
+    
+    from .. import abstract as abstract
+    if not isinstance(manager, abstract.IComponentManager):
+        raise Exception("Manager argument '{}' is not an instance of IComponentManager.".format(manager))
+
+    full_key = "{}.{}".format(name, key)
+
+    system.add_manager(full_key, manager)
+
+    module = sys.modules[name]
+
+    setattr(module, key, full_key)

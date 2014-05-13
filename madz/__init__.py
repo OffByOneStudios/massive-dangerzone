@@ -7,3 +7,5 @@ logging.getLogger(__name__).setLevel(logging.DEBUG)
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "htn"))
+
+from . import bootstrap
