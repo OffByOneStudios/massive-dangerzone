@@ -1,4 +1,4 @@
 from .System import *
 from .BasicComponentManager import *
-from .TypedComponentManager import *
+from .CheckedComponentManager import *
 from .CoercingComponentManager import *
