@@ -14,4 +14,7 @@ Features
 The Features provided by this library currently:
 * Contexts (including TLS via python)
 * Events
+* Imposters (Specifically as modules)
+* Tasks (for multithreaded tasks)
+* Multimethods (ala clojure/common lisp)
 

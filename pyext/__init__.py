@@ -7,3 +7,4 @@ from .context import *
 from .event import *
 from .imposter import *
 from .tasks import *
+from .multimethod import *
