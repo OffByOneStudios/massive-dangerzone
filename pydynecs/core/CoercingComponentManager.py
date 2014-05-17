@@ -9,8 +9,8 @@ from .BasicComponentManager import BasicComponentManager
 class CoercingComponentManager(BasicComponentManager):
     def __init__(self, coerce):
         super().__init__()
-        self._coerce = coerce
+        self.coerce = coerce
     
     def set(self, key, value):
-        v = self._coerce(value)
+        v = self.coerce(value)
         super().set(key, v)

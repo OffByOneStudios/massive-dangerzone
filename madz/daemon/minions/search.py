@@ -6,10 +6,12 @@ import traceback
 
 import zmq
 
-from .IMinion import IMinion
+from madz.bootstrap import *
+from ...plugins import query_tools
+from ..IMinion import IMinion
 from ..Daemon import Daemon
-from ...plugins import query_tools 
 
+@bootstrap_plugin("madz.minion.Search")
 class SearchMinion(IMinion):
     current = None
     

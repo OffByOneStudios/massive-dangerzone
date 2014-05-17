@@ -6,9 +6,11 @@ import traceback
 
 import zmq
 
-from .IMinion import IMinion
+from madz.bootstrap import *
+from ..IMinion import IMinion
 from ..Daemon import Daemon
 
+@bootstrap_plugin("madz.minion.Command")
 class CommandMinion(IMinion):
     current = None
 

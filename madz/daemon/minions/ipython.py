@@ -4,9 +4,11 @@ import time
 import zmq
 import ipython
 
-from .IMinion import IMinion
+from madz.bootstrap import *
+from ..IMinion import IMinion
 from ..Daemon import Daemon
 
+@bootstrap_plugin("madz.minion.InteractivePython")
 class InteractivePythonMinion(IMinion):
     current = None
 
@@ -42,4 +44,4 @@ class InteractivePythonMinion(IMinion):
 
     @classmethod
     def identity(cls):
-        return "command"
+        return "ipython"

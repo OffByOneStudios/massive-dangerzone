@@ -1,17 +1,14 @@
 import abc
 
-class IComponentManager(metaclass=abc.ABCMeta):
+#TODO: May be able to be merged with readonly component managers
+class IComponentIndex(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def attach(self, manager):
+        """May only be called once."""
+        pass
     
     @abc.abstractmethod
     def get(self, key):
-        pass
-    
-    @abc.abstractmethod
-    def set(self, key, value):
-        pass
-    
-    @abc.abstractmethod
-    def des(self, key):
         pass
     
     @abc.abstractmethod
@@ -33,12 +30,6 @@ class IComponentManager(metaclass=abc.ABCMeta):
     def __getitem__(self, key):
         return self.get(key)
     
-    def __setitem__(self, key, item):
-        return self.set(key, item)
-    
-    def __delitem__(self, key):
-        return self.des(key)
-    
     def __contains__(self, item):
         return self.has(item)
 
@@ -49,4 +40,4 @@ class IComponentManager(metaclass=abc.ABCMeta):
         return self.entities()
     
     def __repr__(self):
-        return "<IComponentManager: {} entries>".format(len(self))
+        return "<IComponentIndex: {} entries>".format(len(self))

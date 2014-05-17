@@ -2,17 +2,19 @@ import sys
 import threading
 import time
 import traceback
+import argparse
 
 import zmq
 
-from .IMinion import IMinion
+from madz.bootstrap import *
+from ..IMinion import IMinion
 from ..Daemon import Daemon
 from ...plugins import editors
 from ...config import *
 from ...helper import logging_setup
 from ...action import *
-import argparse
 
+@bootstrap_plugin("madz.minion.VisualStudio")
 class VisualStudioMinion(IMinion):
     current = None
     

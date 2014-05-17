@@ -6,6 +6,10 @@ import time
 import signal
 
 import zmq
+import pydynecs
+
+from .. import bootstrap
+from . import *
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +17,6 @@ daemon_filename = ".madz-daemon"
 
 class Daemon(object):
     current = None
-
-    handlers = {}
 
     def __init__(self, system):
         if not (Daemon.current is None):
@@ -106,10 +108,11 @@ class Daemon(object):
                 elif invocation_command == "minion":
                     minion_name = invocation[1].decode("utf-8")
                     logger.info("DAEMON[^]: Spawning minion {}.".format(minion_name))
-                    if not (minion_name in raw_handlers):
+                    if not (minion_name in bootstrap.EcsBootstrap[Minion.identity]):
                         self.control_socket.send_pyobj("Minion not found!")
                         continue
-                    minion_report = self.spawn_minion(raw_handlers[minion_name])[1]
+                    minion_plugin = bootstrap.EcsBootstrap[Minion.identity][minion_name]
+                    minion_report = self.spawn_minion(minion_plugin[Minion])[1]
                     self.control_socket.send_pyobj(minion_report)
 
                 elif invocation_command == "describe-minions":
@@ -131,4 +134,3 @@ class Daemon(object):
             # fixing signal:
             signal.signal(signal.SIGINT, _old_sig)
 
-from .minions import *

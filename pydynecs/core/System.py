@@ -16,6 +16,7 @@ class System(abstract.ISystem, metaclass=pyext.ContextMetaGen(abstract.ISystem._
             raise Exception("allocator: not a valid IEntityAllocator for system.")
     
         self._managers = {}
+        self._indicies = {}
     
     def new_entity(self, *args, **kwargs): return self._allocator.new_entity(*args, **kwargs)
     def last_entity(self, *args, **kwargs): return self._allocator.last_entity(*args, **kwargs)
@@ -23,7 +24,7 @@ class System(abstract.ISystem, metaclass=pyext.ContextMetaGen(abstract.ISystem._
     def reclaim_entity(self, *args, **kwargs): return self._allocator.reclaim_entity(*args, **kwargs)
 
     def get_manager(self, key):
-        return self._managers.get(key, None)
+        return self._managers[key]
     
     def add_manager(self, key, manager):
         if key in self._managers:
@@ -33,3 +34,15 @@ class System(abstract.ISystem, metaclass=pyext.ContextMetaGen(abstract.ISystem._
     
     def managers(self):
         return self._managers.items()
+
+    def get_index(self, key):
+        return self._indicies[key]
+    
+    def add_index(self, key, index):
+        if key in self._indicies:
+            raise Exception("key: an index already associated with key '{}'.".format(key))
+        self._indicies[key] = index
+        return index
+    
+    def indicies(self):
+        return self._indicies.items()
