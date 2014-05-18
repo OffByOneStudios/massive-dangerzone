@@ -19,7 +19,7 @@ def binding(port=None):
             pass
     
     if daemon_port is None:
-        raise Exception("Daemon port file '{}'' does not exist, and port '{}' is not port.".format(
+        raise Exception("Daemon port file '{}' does not exist, and port '{}' is not port.".format(
             os.path.abspath(daemon_filename),
             port))
 

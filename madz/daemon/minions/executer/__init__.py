@@ -43,7 +43,7 @@ class ExecuterMinionSubprocess(object):
         self.stderr_port = Daemon.next_minion_port()
 
         self._bind_str = "tcp://127.0.0.1:{port}".format(port=self.bootstrap_port)
-        self._proc_bootstrapper = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "executer_bootstrap.py"))
+        self._proc_bootstrapper = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "executer_bootstrap.py"))
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
@@ -252,5 +252,5 @@ class ExecuterMinion(IMinion):
 
     @classmethod
     def identity(cls):
-        return "executer"
+        return "execute"
 
