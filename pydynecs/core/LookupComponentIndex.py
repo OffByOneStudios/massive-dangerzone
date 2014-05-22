@@ -16,7 +16,9 @@ class LookupComponentIndex(abstract.IComponentIndex):
         pass
     
     def _update_index(self, entity, value):
-        self._dict[self.key(value)] = entity
+        key = self.key(value)
+        if not (key is None):
+            self._dict[key] = entity
     
     def _attach(self, manager):
         for entity, value in manager.items():
