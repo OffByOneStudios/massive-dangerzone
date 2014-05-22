@@ -1,37 +1,61 @@
-import os, sys
-sys.path.append("../../")
+#!/usr/bin/python3
+import os, sys, imp
 
-import madz
+# Configuration info.
+madz_config = {
+    "user_config_file": "user_config.py",
+    "log_to_stdout": True,
+    "logging_file": "./example.log",
+    "plugin_directories" : ["./modules/", "./executables/"],
+    "plugin_configs" : ["system_config.py"],
+}
 
-madz.logging_add_console()
-madz.logging_add_file(os.path.join(os.path.dirname(__file__), "madz_test.log"))
+attached = False
+def attach_madz():
+    """Add Madz to your system path"""
+    global attached
+    if not attached:
+        os.chdir(os.path.split(os.path.realpath(__file__))[0])
+        sys.path.append(os.path.abspath("../../"))
+    attached = True
 
-import madz.system
+def start_daemon():
+    """Start a Madz Server"""
+    attach_madz()
 
-test_plugin_system = madz.system.PluginSystem("madztests")
-test_plugin_system.load_plugin_directory("plugins")
+    import madz.live_script as madz
 
-test_plugin_system.init_plugins()
+    daemon = madz.Daemon(**madz_config)
+    print("Configuring Server...")
+    daemon.configure()
+    print("Starting Server")
+    daemon.start()
 
-if len(sys.argv) > 1 and sys.argv[1] == "clean":
-    import madz.cleaner
+def create_client():
+    attach_madz()
+    import madz.live_script as madz
+    return madz.Client(madz_config)
 
-    test_cleaner = madz.cleaner.CleanerSystem(test_plugin_system)
-    test_cleaner.clean()
+def send_kill():
+    import madz.live_script as madz
+    madz.kill()
 
-import madz.wrapper
+def _usage():
+    print("Usage: main.py {daemon} | command {command_name} [-p {plugin_namespace}] [-l{log_level}]}")
+    exit(1)
+        
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        _usage()
 
-test_wrap_gen = madz.wrapper.WrapperSystem(test_plugin_system)
-test_wrap_gen.wrap()
+    attach_madz()
 
-import madz.builder
-
-test_builder = madz.builder.BuilderSystem(test_plugin_system)
-test_builder.build()
-
-import madz.loader
-
-test_loader = madz.loader.LoaderSystem(test_plugin_system)
-test_loader.load()
-
-
+    if sys.argv[1] == "daemon":
+        start_daemon()
+    
+    elif sys.argv[1] == "kill":
+        client = create_client()
+        client.kill()
+    else:
+        client = create_client()
+        client.run_raw(sys.argv)

@@ -42,7 +42,7 @@ class Daemon(object):
         # Build Config
         for config_path in self.args.get("plugin_configs", []):
             with open(config_path) as module_file:
-                config_tmp = imp.load_module("engine_config", module_file, config_path, ('.py', 'r', imp.PY_SOURCE))
+                config_tmp = imp.load_module("config", module_file, config_path, ('.py', 'r', imp.PY_SOURCE))
                 if system_config is None:
                     system_config = config_tmp.config
                 else:
@@ -86,9 +86,12 @@ class Client(object):
         self._executable = None
         self.config_args = config_args
 
-        user_config_env = self.config_args.get("user_config_env")
+        user_config_env = self.config_args.get("user_config_env", None)
         if not user_config_env is None:
             madz.config.bind_user_config(user_config_env)
+        user_config_file = self.config_args.get("user_config_file", None)
+        if not user_config_file is None:
+            madz.config.bind_user_config(user_config_file)
         
     @property
     def log_level(self):
