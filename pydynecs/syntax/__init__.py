@@ -30,37 +30,32 @@ def syntax_for(system):
 
 class ManagerKey(str): pass
 
-def syntax_manager(system, key, manager):
-    import inspect
-
+def manager_for(system):
     from .. import abstract as abstract
 
     system = system.current
 
-    if not isinstance(manager, abstract.IComponentManager):
-        raise Exception("Manager argument '{}' is not an instance of IComponentManager.".format(manager))
+    def dec(cls, _system=system):
+        if not issubclass(cls, abstract.IComponentManager):
+            raise Exception("Decorated class '{}' is not a subclass of IComponentManager.".format(cls))
 
-    frm = inspect.stack()[1]
-    module = inspect.getmodule(frm[0])
-    
-    full_key = ManagerKey("{}/{}".format(module.__name__, key))
+        _system.add_manager(cls, cls())
 
-    system.add_manager(full_key, manager)
+        return cls
+    return dec
 
-    setattr(module, key, full_key)
-
-def syntax_index(system, manager_key, key, index):
+def index_for(system, manager_key):
     from .. import abstract as abstract
 
     system = system.current
-
-    if not isinstance(index, abstract.IComponentIndex):
-        raise Exception("Index argument '{}' is not an instance of IComponentIndex.".format(manager))
-
-    index_key = ManagerKey("{}#{}".format(manager_key, key))
-    
     manager = system.get_manager(manager_key)
-    index.attach(manager)
-    system.add_index(index_key, index)
-    
-    setattr(manager_key, key, index_key)
+
+    def dec(cls, _system=system, _manager=manager):
+        if not issubclass(cls, abstract.IComponentIndex):
+            raise Exception("Decorated class '{}' is not a subclass of IComponentIndex.".format(cls))
+
+        index = cls(_manager)
+        _system.add_index(cls, index)
+        
+        return cls
+    return dec

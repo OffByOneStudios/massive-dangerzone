@@ -1,15 +1,14 @@
 import madz.bootstrap
 from .IMinion import *
 
-madz.bootstrap.syntax_manager(
-    madz.bootstrap.EcsBootstrap,
-    "Minion",
-    madz.bootstrap.BootstrapPluginImplementationComponentManager(IMinion))
-madz.bootstrap.syntax_index(
-    madz.bootstrap.EcsBootstrap,
-    Minion,
-    "identity",
-    madz.bootstrap.LookupComponentIndex(lambda p: p.identity()))
+@madz.bootstrap.manager
+class Minion(madz.bootstrap.BootstrapPluginImplementationComponentManager):
+    interface = IMinion
+    
+    class identity(madz.bootstrap.LookupComponentIndex):
+        def key(self, plugin):
+            return plugin.identity()
+madz.bootstrap.index(Minion)(Minion.identity)
 
 from .Daemon import *
 from .minions import *

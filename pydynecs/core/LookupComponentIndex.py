@@ -2,18 +2,23 @@
 @OffbyOne Studios 2014
 A dictionary based dynamic index manager.
 """
+import abc
 
 from .. import abstract
 
 class LookupComponentIndex(abstract.IComponentIndex):
-    def __init__(self, key_func):
+    def __init__(self, manager):
         self._dict = {}
-        self._key_func = key_func
+        self._attach(manager)
+    
+    @abc.abstractmethod
+    def key(self, value):
+        pass
     
     def _update_index(self, entity, value):
-        self._dict[self._key_func(value)] = entity
+        self._dict[self.key(value)] = entity
     
-    def attach(self, manager):
+    def _attach(self, manager):
         for entity, value in manager.items():
             self._update_index(entity, value)
         def set(entity, value, _index=self, _pre_set=manager.set):

@@ -2,14 +2,18 @@
 @OffbyOne Studios 2014
 A dictionary based typed component manager.
 """
+import abc
 
 from .. import abstract
 from .BasicComponentManager import BasicComponentManager
 
 class CoercingComponentManager(BasicComponentManager):
-    def __init__(self, coerce):
+    def __init__(self):
         super().__init__()
-        self.coerce = coerce
+    
+    @abc.abstractmethod
+    def coerce(self, value):
+        pass
     
     def set(self, key, value):
         v = self.coerce(value)

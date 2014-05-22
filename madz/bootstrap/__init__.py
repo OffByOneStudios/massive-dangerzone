@@ -8,23 +8,24 @@ class EcsBootstrapSystem(System): pass
 EcsBootstrap = EcsBootstrapSystem()
 syntax_for(EcsBootstrap)
 
-syntax_manager(
-    EcsBootstrap,
-    "Name",
-    CoercingComponentManager(str))
-syntax_manager(
-    EcsBootstrap,
-    "Object",
-    BasicComponentManager())
-syntax_manager(
-    EcsBootstrap,
-    "Dependencies",
-    CoercingComponentManager(list))
+manager = manager_for(EcsBootstrap)
+index = lambda m: index_for(EcsBootstrap, m)
+
+@manager
+class Name(CoercingComponentManager):
+    coerce = str
+
+@manager
+class Object(BasicComponentManager): pass
+
+@manager
+class Dependencies(CoercingComponentManager):
+    coerce = list
 
 class BootstrapPluginImplementationComponentManager(CheckedComponentManager):
-    def __init__(self, interface=type):
-        super().__init__(lambda t, inter=interface: issubclass(t, inter))
-        self.interface = interface
+    interface = type
+    def check(self, value):
+        return issubclass(value, self.interface)
     
     def instances(self, *args, **kwargs):
         for implementation in self.values():
@@ -32,9 +33,9 @@ class BootstrapPluginImplementationComponentManager(CheckedComponentManager):
             yield implementation(*args, **kwargs)
 
 class BootstrapPluginInstanceComponentManager(CheckedComponentManager):
-    def __init__(self, interface=object):
-        super().__init__(lambda t, inter=interface: isinstance(t, inter))
-        self.interface = interface
+    interface = type
+    def check(self, value):
+        return isinstance(value, self.interface)
 
 def add_bootstrap_plugin(name, plugin):
     sys = EcsBootstrap.current

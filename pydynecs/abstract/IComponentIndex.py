@@ -2,10 +2,6 @@ import abc
 
 #TODO: May be able to be merged with readonly component managers
 class IComponentIndex(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def attach(self, manager):
-        """May only be called once."""
-        pass
     
     @abc.abstractmethod
     def get(self, key):
