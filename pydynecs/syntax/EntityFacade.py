@@ -12,7 +12,7 @@ class EntityFacade(abstract.IEntity):
     def _get_current_system(cls):
         return abstract.ISystem.current
     
-    def __init__(self, system=None, entity=None):
+    def __init__(self, entity=None, system=None):
         if (system is None):
             self.system = self._get_current_system()
         elif (isinstance(system, abstract.ISystem)):

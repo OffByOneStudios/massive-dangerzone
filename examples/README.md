@@ -4,6 +4,10 @@ Examples
 ------------------
 Madz is not currently designed to be used for smaller projects, however there is simple example project in the folder `simple_example` with a readme and a simple project for use.
 
+Tools
+------------------
+Madz is designed to be part of the development toolchain, as such there are various tools that can be created for use with madz. The `tools` folder contains examples using python's built in GUI library.
+
 Tests
 ------------------
 Internal python libraries used by madz are tested using python's unittest framework:

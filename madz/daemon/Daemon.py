@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 daemon_filename = ".madz-daemon"
 
+# Use better binding: http://stackoverflow.com/questions/16699890/connect-to-first-free-port-with-tcp-using-0mq
 class Daemon(object):
     current = None
 
