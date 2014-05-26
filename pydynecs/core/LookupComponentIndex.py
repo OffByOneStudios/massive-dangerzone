@@ -6,10 +6,14 @@ import abc
 
 from .. import abstract
 
-class LookupComponentIndex(abstract.IComponentIndex):
+class LookupComponentIndex(abstract.IIndexManager):
     def __init__(self, manager):
         self._dict = {}
         self._attach(manager)
+        self._dependencies = [manager]
+    
+    def dependencies(self):
+        return list(map(lambda t: (t, {}), self._dependencies))
     
     @abc.abstractmethod
     def key(self, value):
@@ -34,10 +38,13 @@ class LookupComponentIndex(abstract.IComponentIndex):
     def has(self, key):
         return key in self._dict
     
+    def has_entity(self, entity):
+        return entity in self._dict.values()
+    
     def entities(self):
         return self._dict.values()
     
-    def values(self):
+    def keys(self):
         return self._dict.keys()
     
     def items(self):

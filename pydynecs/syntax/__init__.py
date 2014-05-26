@@ -28,8 +28,6 @@ def syntax_for(system):
         value.__module__ = module.__name__
         setattr(module, attr, value)
 
-class ManagerKey(str): pass
-
 def manager_for(system):
     from .. import abstract as abstract
 
@@ -51,8 +49,8 @@ def index_for(system, manager_key):
     manager = system.get_manager(manager_key)
 
     def dec(cls, _system=system, _manager=manager):
-        if not issubclass(cls, abstract.IComponentIndex):
-            raise Exception("Decorated class '{}' is not a subclass of IComponentIndex.".format(cls))
+        if not issubclass(cls, abstract.IIndexManager):
+            raise Exception("Decorated class '{}' is not a subclass of IIndexManager.".format(cls))
 
         index = cls(_manager)
         _system.add_index(cls, index)

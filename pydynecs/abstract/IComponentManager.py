@@ -1,26 +1,26 @@
+"""pydynecs/abstract/IComponentManager.py
+@OffbyOne Studios 2014
+Abstract class used for managing data related to entities.
+"""
 import abc
 
-class IComponentManager(metaclass=abc.ABCMeta):
-    
+from . import *
+
+class IComponentManager(IEntityManager, metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def get(self, key):
+    def get(self, entity):
         pass
     
     @abc.abstractmethod
-    def set(self, key, value):
+    def set(self, entity, value):
         pass
     
     @abc.abstractmethod
-    def des(self, key):
+    def des(self, entity):
         pass
     
-    @abc.abstractmethod
-    def has(self, key):
-        pass
-    
-    @abc.abstractmethod
-    def entities(self):
-        pass
+    def has(self, entity):
+        return has_entity(entity)
     
     @abc.abstractmethod
     def values(self):
@@ -38,15 +38,6 @@ class IComponentManager(metaclass=abc.ABCMeta):
     
     def __delitem__(self, key):
         return self.des(key)
-    
-    def __contains__(self, item):
-        return self.has(item)
-
-    def __len__(self):
-        return len(self.entities())
-    
-    def __iter__(self):
-        return self.entities()
     
     def __repr__(self):
         return "<IComponentManager: {} entries>".format(len(self))
