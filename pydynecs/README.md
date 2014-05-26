@@ -52,8 +52,8 @@ The following is the organization of the pyDynECS library:
 
 * abstract: Abstract Base Classes.
 * core: Core feature implementations.
-* entity_class: Entitiy class features.
-* entity_graph: Graphs and trees from components refrencing entities.
-* component_type: Extended component types.
+* entityclass: Entitiy class features.
+* entitygraph: Graphs and trees from components refrencing entities.
+* managers: Extended and specialized types.
 * serilization: Serialization implementations.
 * syntax: Syntax wrappers.
