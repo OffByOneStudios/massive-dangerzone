@@ -6,7 +6,7 @@ Madz is not currently designed to be used for smaller projects, however there is
 
 Tools
 ------------------
-Madz is designed to be part of the development toolchain, as such there are various tools that can be created for use with madz. The `tools` folder contains examples using python's built in GUI library.
+Madz is designed to be part of the development toolchain, as such there are various tools that can be created for use with madz. The `tools` folder contains examples using pyQt4 (which we hope to abstract away eventually).
 
 Tests
 ------------------

@@ -8,8 +8,8 @@ class ITool(metaclass=abc.ABCMeta):
         pass
     
     @abc.abstractmethod
-    def tkinter_toplevel(self, *args, **kwargs):
-        """Returns a toplevel Tkinter window."""
+    def qtWidgetClass(self):
+        """Returns a qtWidget class for this tool instance."""
         pass
     
     @abc.abstractmethod

@@ -1,3 +1,5 @@
+import sys
+
 import madz.bootstrap
 from .ITool import *
 
@@ -10,22 +12,23 @@ class Tool(madz.bootstrap.BootstrapPluginImplementationComponentManager):
             return plugin.identity()
 madz.bootstrap.index(Tool)(Tool.identity)
 
-tkinter_root = None
+from PyQt4 import QtGui
+qtApp = None
 def launch(tool_plugin):
-    import tkinter as tk
+    global qtApp
     
     do_main = False
-    if tkinter_root is None:
-        global tkinter_root
-        tkinter_root = tk.Tk()
-        tkinter_root.wm_withdraw()
+    if qtApp is None:
+        qtApp = QtGui.QApplication(sys.argv)
         do_main = True
     
     tool = madz.bootstrap.Entity(tool_plugin)[Tool]()
 
-    frame = tool.tkinter_toplevel(master=tkinter_root)
+    window = tool.qtWidgetClass()()
+    
+    window.show()
     
     if do_main:
-        tkinter_root.mainloop()
+        sys.exit(qtApp.exec_())
 
 from .ToolChooser import *

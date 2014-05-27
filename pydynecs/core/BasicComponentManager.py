@@ -16,7 +16,7 @@ class BasicComponentManager(abstract.IComponentManager):
         return self._dict[key]
     
     def set(self, key, value):
-        self._dict[key] = value
+        self._dict[abstract.entity(key)] = value
     
     def des(self, key):
         del self._dict[key]
@@ -32,4 +32,3 @@ class BasicComponentManager(abstract.IComponentManager):
     
     def items(self):
         return self._dict.items()
-    

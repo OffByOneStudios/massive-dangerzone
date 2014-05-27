@@ -1,8 +1,5 @@
 from .. import abstract
 
-abstract.IEntity.register(tuple)
-abstract.IEntity.register(int)
-
 class SimplePyAllocator(abstract.IEntityAllocator):
     class SimpleEntity(abstract.IEntity):
         def __init__(self, tup):
@@ -39,11 +36,8 @@ class SimplePyAllocator(abstract.IEntityAllocator):
     def last_entity(self):
         return SimplePyAllocator.SimpleEntity(self._save_last)
 
-    def valid_entity(self, entity):
-        if isinstance(entity, abstract.IEntity):
-            tup = entity.entity_id()
-        else:
-            return False
+    def valid_entity(self, potential_e):
+        tup = abstract.entity(potential_e)
         
         if isinstance(tup, int) and tup <= self._last_entity:
             return True

@@ -20,7 +20,7 @@ class IComponentManager(IEntityManager, metaclass=abc.ABCMeta):
         pass
     
     def has(self, entity):
-        return has_entity(entity)
+        return self.has_entity(entity)
     
     @abc.abstractmethod
     def values(self):

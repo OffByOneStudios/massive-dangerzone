@@ -10,7 +10,7 @@ class IEntity(metaclass=abc.ABCMeta):
         return hash(self.entity_id())
     
     def __eq__(self, other):
-        return isinstance(other, IEntity) and other.entity_id() == self.entity_id() 
+        return self.entity_id() == other
     
     def __repr__(self):
         return "<IEntity: {}>".format(self.entity_id())

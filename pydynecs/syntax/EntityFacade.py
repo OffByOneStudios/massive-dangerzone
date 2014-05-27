@@ -21,14 +21,14 @@ class EntityFacade(abstract.IEntity):
             raise EcsSyntaxArgumentError("system: not an ISystem.")
 
         if (entity is None):
-            self.entity = self.system.new_entity()
+            self.entity = abstract.entity(self.system.new_entity())
         elif (self.system.valid_entity(entity)):
-            self.entity = entity
+            self.entity = abstract.entity(entity)
         else:
             raise EcsSyntaxArgumentError("entity: not a valid IEntity for system.")
 
     def entity_id(self):
-        return self.entity.entity_id()
+        return self.entity
 
     def __getitem__(self, key):
         comp = self.system.get_manager(key)
@@ -56,7 +56,7 @@ class EntityFacade(abstract.IEntity):
         return comp.has(self.entity)
 
     def __iter__(self):
-        return self.system.managers_of(self.entity)
+        return iter(self.system.managers_of(self.entity))
 
     def __len__(self):
         return len(self.system.managers_of(self.entity))
