@@ -188,10 +188,11 @@ class TypeType(Node):
             validation.add_error("Node not of TypeType, type_validate failed.")
             return 
 
+        e = False
         with validation.error_boundry("Type {} is not valid:".format(type)):
             type.validate(validation, context)
-        if not validation.valid:
-            return
+            
+        if not validation.valid: return
 
         if type.get_type() is None:
             validation.add_error("Type {} failed to resolve.".format(type))
@@ -238,7 +239,7 @@ class TypeDeclaration(Declaration):
         return hash((self.__class__, self.name, self.type))
 
     def __repr__(self):
-        return "TypeDeclaration({!r}, {!r})".format(self.name, self.type)
+        return "TypeDeclaration({!r}, <...>)".format(self.name)
 
     def copy(self):
         return self._map_over(self.__class__(name=self.name, type=None if self.type is None else self.type.copy()))
@@ -290,9 +291,9 @@ class VariableDefinition(Definition):
 
     def __hash__(self):
         return hash((self.__class__, self.name, self.type))
-
+        
     def __repr__(self):
-        return "VariableDefinition({!r}, {!r})".format(self.name, self.type)
+        return "VariableDefinition({!r}, <...>)".format(self.name)
 
     def copy(self):
         return self._map_over(self.__class__(name=self.name, type=None if self.type is None else self.type.copy()))

@@ -136,7 +136,7 @@ class TypePointer(TypeTypeComplex):
         return hash((self.__class__, self.type))
 
     def __repr__(self):
-        return "TypePointer({!r})".format(self.type)
+        return "TypePointer({})".format("<...>" if isinstance(self.type, TypeTypeComplex) else repr(self.type))
 
     def copy(self):
         return self._map_over(self.__class__(type=None if self.type is None else self.type.copy()))
@@ -185,7 +185,9 @@ class TypeArray(TypeTypeComplex):
         return hash((self.__class__, self.type, self.length))
 
     def __repr__(self):
-        return "TypeArray({!r}, {!r})".format(self.type, self.length)
+        return "TypeArray({}, {!r})".format(
+            ("<...>" if isinstance(self.type, TypeTypeComplex) else repr(self.type)),
+            self.length)
 
     def copy(self):
         return self._map_over(self.__class__(length=self.length, type=None if self.type is None else self.type.copy()))
@@ -238,7 +240,9 @@ class TypeStructElement(TypeTypeComplex):
         return hash((self.__class__, self.name, self.type))
 
     def __repr__(self):
-        return "TypeStructMember({!r}, {!r})".format(self.name, self.type)
+        return "TypeStructElement({!r}, {})".format(
+            self.name, 
+            ("<...>" if isinstance(self.type, TypeTypeComplex) else repr(self.type)))
 
     def copy(self):
         return self._map_over(self.__class__(name=self.name, type=None if self.type is None else self.type.copy()))
@@ -292,7 +296,7 @@ class TypeStruct(TypeTypeComplex):
         return hash((self.__class__, self._elements_hash))
 
     def __repr__(self):
-        return "TypeStruct({!r})".format(self.elements)
+        return "<TypeStruct: elementcount {!r}>".format(len(self.elements))
 
     def get_complex_list(self):
         return self.elements
@@ -311,11 +315,13 @@ class TypeStruct(TypeTypeComplex):
             validation.add_error("Structs must contain elements.")
             return
         for element in self.elements:
-            with validation.error_boundry("Struct element not valid:"):
+            with validation.error_boundry("Struct element {} not valid:".format(element)):
                 if not (isinstance(element, TypeStructElement)):
                     validation.add_error("Not a TypeStructElement.")
                     return
                 element.validate(validation, context)
+                if not validation.valid:
+                    return
 
     def map_over(self, map_func):
         """Applies a map function over this node and its new subnodes.
@@ -351,7 +357,9 @@ class TypeFunctionArgument(TypeTypeComplex):
         return hash((self.__class__, self.name, self.type))
 
     def __repr__(self):
-        return "TypeFunctionArgument({!r}, {!r})".format(self.name, self.type)
+        return "TypeFunctionArgument({!r}, {})".format(
+            self.name,
+            ("<...>" if isinstance(self.type, TypeTypeComplex) else repr(self.type)))
 
     def copy(self):
         return self._map_over(self.__class__(name=self.name, type=None if self.type is None else self.type.copy()))
@@ -364,7 +372,7 @@ class TypeFunctionArgument(TypeTypeComplex):
             context: MdlDescription object
         """
         if not context.is_valid_symbol(self.name):
-            validation.add_error("StructElement name '{}' is not valid.".format(self.name))
+            validation.add_error("FunctionArgument name '{}' is not valid.".format(self.name))
 
         TypeType.type_validate(validation, self.type, context)
 
@@ -403,7 +411,9 @@ class TypeFunction(TypeTypeComplex):
         return hash((self.__class__, self._ret_args_hash))
 
     def __repr__(self):
-        return "TypeFunction({!r}, {!r})".format(self.return_type, self.args)
+        return "<TypeFunction: {}, argcount {!r}>".format(
+            ("<...>" if isinstance(self.type, TypeTypeComplex) else repr(self.type)),
+            len(self.args))
 
     def type():
         doc = "The type property."
@@ -427,10 +437,11 @@ class TypeFunction(TypeTypeComplex):
             validation: ValidationState object
             context: MdlDescription object
         """
-        TypeType.type_validate(validation, self.return_type, context)
+        with validation.error_boundry("Function return type {} not valid:".format(self.return_type)):
+            TypeType.type_validate(validation, self.return_type, context)
 
         for arg in self.args:
-            with validation.error_boundry("Function argument not valid:"):
+            with validation.error_boundry("Function argument {} not valid:".format(arg)):
                 if not (isinstance(arg, TypeFunctionArgument)):
                     validation.add_error("Not a TypeFunctionArgument.")
                     return

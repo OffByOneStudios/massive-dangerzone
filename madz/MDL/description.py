@@ -30,19 +30,32 @@ class ValidationState(object):
         indent: String representing the indentation level for output.
     """
     def __init__(self):
+        self.pending = []
         self.errors = []
         self.warnings = []
         self.valid = True
-        self.indent = ""
+        self.indent = 0
+        self._pend_indent = 0
         self.valid_cache = {}
 
+    def _calc_error_string(self, msg, indent):
+        return "{}{}\n".format(' ' * indent, msg)
+
+    def write_pending(self):
+        for pend in self.pending:
+            self.errors.append(self._calc_error_string(pend, self._pend_indent))
+            self._pend_indent += 1
+        
+        self.pending = []
+    
     def add_error(self, msg):
         """Adds an error message to ValidationState's list of errors.
         
         Args:
             msg: An error string.
         """
-        self.errors.append(self.indent + str(msg) + "\n")
+        self.write_pending()
+        self.errors.append(self._calc_error_string(msg, self.indent))
         self.set_valid(False)
 
     def add_warning(self, msg):
@@ -51,7 +64,7 @@ class ValidationState(object):
         Args:
             msg: An warning string.
         """
-        self.warnings.append(self.indent + str(msg) + "\n")
+        self.warnings.append(self._calc_error_string(msg, 0))
 
     def set_valid(self, state):
         """Sets the validity of the ValidationState.
@@ -68,10 +81,10 @@ class ValidationState(object):
         Args:
             msg: An error message string.
         """
-        old_valid = self.valid      # (1) Store old valid state
-        self.add_error(msg)         # (2) Add the error boundary message preemptively
-        self.indent += "\t"         # (3) Indent
-        self.set_valid(True)        # Set valid True so we can test it later.
+        old_valid = self.valid                              # (1) Store old valid state
+        self.pending.append(msg)                            # (2) Add the error boundary message preemptively
+        self.indent += 1                                    # (3) Indent
+        self.set_valid(True)                                # Set valid True so we can test it later.
         try:
             yield
         except Exception as e:
@@ -80,12 +93,14 @@ class ValidationState(object):
         finally:
             # If no errors are found, revoke the error message from earlier (2)
             if self.valid:
-                self.errors = self.errors[:-1]
+                self.pending = self.pending[:-1]
 
             # Restore valid state and index (1, 3)
             self.set_valid(old_valid)
-            self.indent = self.indent[:-1]
-
+            self.indent -= 1
+            self._pend_indent -= 1
+            if self._pend_indent < 0:
+                self._pend_indent = 0
 
 class MDLDescription(object):
     """An object holding an MDLDescription.
@@ -110,6 +125,7 @@ class MDLDescription(object):
     ast = property(**ast())
 
     def __init__(self, ast_loader, dependencies, dir=""):
+        self._validate_state = None
         self._ast = None
         self.dir = dir
         self.ast_loader = ast_loader
@@ -120,7 +136,9 @@ class MDLDescription(object):
             ast_loader = MdlRawLoader(list(self.ast))
         else:
             ast_loader = self.ast_loader
-        return MDLDescription(ast_loader, dict(self.dependencies))
+        mdlDes = MDLDescription(ast_loader, dict(self.dependencies))
+        mdlDes._validate_state = self._validate_state
+        return mdlDes
 
     @staticmethod
     def keyfunc(node):
@@ -271,6 +289,8 @@ class MDLDescription(object):
         Returns:
             The validation state of the current object after checking for validation.
         """
+        if not (self._validate_state is None):
+            return self._validate_state.valid
         validate_state = ValidationState()
 
         # Do validation
@@ -286,6 +306,7 @@ class MDLDescription(object):
             logger.error("Validation Errors:\n{}".format("".join(validate_state.errors)))
 
         # Return
+        self._validate_state = validate_state
         return validate_state.valid
 
     @classmethod
