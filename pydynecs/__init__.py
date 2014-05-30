@@ -7,6 +7,12 @@ To eventually be merged into a madz based, performent, ECS.
 
 from .abstract import *
 from .core import *
-from .syntax import *
 
-#from . import entity_class, entity_graph, component_type, serilization
+from .managers import *
+
+from .entityclass import *
+#from .entitygraph import *
+from .serialization import *
+from .synchronization import *
+
+from .syntax import *

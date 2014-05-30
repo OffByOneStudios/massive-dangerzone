@@ -1,16 +1,16 @@
 from .exceptions import *
 from .EntityFacade import EntityFacade
 
-def syntax_for(system):
+def system_syntax(system):
     import inspect
     import pyext
     
     from .. import abstract as abstract
     
-    system.current = system
+    system.current = system()
     
-    if not isinstance(system, abstract.ISystem):
-        raise Exception("System argument '{}' is not an instance of ISystem.".format(system))
+    if not issubclass(system, abstract.ISystem):
+        raise Exception("System argument '{}' is not a subclass of ISystem.".format(system))
 
     def get_current_system(cls, __system=system):
         return __system.current
@@ -27,33 +27,36 @@ def syntax_for(system):
     for attr, value in syntax_vars:
         value.__module__ = module.__name__
         setattr(module, attr, value)
+    
+    return system.current
 
-def manager_for(system):
+def manager_decorator_for(system):
     from .. import abstract as abstract
 
     system = system.current
 
     def dec(cls, _system=system):
-        if not issubclass(cls, abstract.IComponentManager):
-            raise Exception("Decorated class '{}' is not a subclass of IComponentManager.".format(cls))
+        if not issubclass(cls, abstract.IEntityManager):
+            raise Exception("Decorated class '{}' is not a subclass of IEntityManager.".format(cls))
+            
+        cls.pydynecs_key = lambda cls=cls: "{}/{}".format(cls.__module__, cls.__qualname__)
+        abstract.IManagerKey.register(cls)
+        
+        instance = cls()
+        _system.add_manager(cls, instance)
 
-        _system.add_manager(cls, cls())
-
-        return cls
-    return dec
-
-def index_for(system, manager_key):
-    from .. import abstract as abstract
-
-    system = system.current
-    manager = system.get_manager(manager_key)
-
-    def dec(cls, _system=system, _manager=manager):
-        if not issubclass(cls, abstract.IIndexManager):
-            raise Exception("Decorated class '{}' is not a subclass of IIndexManager.".format(cls))
-
-        index = cls(_manager)
-        _system.add_index(cls, index)
+        for name in dir(cls):
+            if name.startswith("_"):
+                continue
+            actual = getattr(cls, name)
+            if issubclass(actual, abstract.IEntityManager):
+                if issubclass(actual, abstract.IIndexManager):
+                    actual_instance = actual(instance)
+                else:
+                    actual_instance = actual()
+                actual.pydynecs_key = lambda cls=actual: "{}/{}".format(cls.__module__, cls.__qualname__)
+                abstract.IManagerKey.register(actual)
+                _system.add_manager(actual, actual_instance)
         
         return cls
     return dec

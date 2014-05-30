@@ -1,3 +1,7 @@
+"""pydynecs/abstract/ISystem.py
+@OffbyOne Studios 2014
+Description of classes which represent systems of managers and entities.
+"""
 import abc
 
 from .IEntityAllocator import *
@@ -16,28 +20,11 @@ class ISystem(IEntityAllocator, metaclass=abc.ABCMeta):
         """Returns key-value-pairs of (key, IComponentManager instance)."""
         pass
     
-    @abc.abstractmethod
-    def get_index(self, key):
-        pass
-    
-    @abc.abstractmethod
-    def add_index(self, key, index):
-        pass
-    
-    @abc.abstractmethod
-    def indicies(self):
-        """Returns key-value-pairs of (key, IComponentIndex instance)."""
-        pass
-    
     def __getitem__(self, key):
-        try:
-            return self.get_manager(key)
-        except KeyError:
-            pass
-        return self.get_index(key)
+        return self.get_manager(key)
 
     def __repr__(self):
-        return "<ISystem: {} managers, {} indicies>".format(len(self.managers()), len(self.indicies()))
+        return "<ISystem: {} managers>".format(len(self.managers()))
     
     def managers_of(self, entity):
         return [(key, m) for key, m in self.managers() if entity in m]

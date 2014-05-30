@@ -1,16 +1,17 @@
 import sys
 
+import pydynecs
+
 import madz.bootstrap
 from .ITool import *
 
 @madz.bootstrap.manager
-class Tool(madz.bootstrap.BootstrapPluginImplementationComponentManager):
+class Tool(pydynecs.ObservableComponentManager, madz.bootstrap.BootstrapPluginImplementationComponentManager):
     interface = ITool
     
-    class identity(madz.bootstrap.LookupComponentIndex):
+    class identity(madz.bootstrap.LookupIndexManager):
         def key(self, plugin):
-            return plugin.identity()
-madz.bootstrap.index(Tool)(Tool.identity)
+            return madz.bootstrap.EcsBootstrap[Tool][plugin].identity()
 
 from PyQt4 import QtGui
 qtApp = None

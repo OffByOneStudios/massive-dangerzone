@@ -4,25 +4,23 @@ A bootstrapped plugin system for madz
 """
 from pydynecs import *
 
-class EcsBootstrapSystem(System): pass
-EcsBootstrap = EcsBootstrapSystem()
-syntax_for(EcsBootstrap)
+@system_syntax
+class EcsBootstrap(System): pass
 
-manager = manager_for(EcsBootstrap)
-index = lambda m: index_for(EcsBootstrap, m)
+manager = manager_decorator_for(EcsBootstrap)
 
 @manager
-class Name(CoercingComponentManager):
+class Name(CoercingComponentManager, BasicComponentManager):
     coerce = str
 
 @manager
 class Object(BasicComponentManager): pass
 
 @manager
-class Dependencies(CoercingComponentManager):
+class Dependencies(CoercingComponentManager, BasicComponentManager):
     coerce = list
 
-class BootstrapPluginImplementationComponentManager(CheckedComponentManager):
+class BootstrapPluginImplementationComponentManager(CheckedComponentManager, BasicComponentManager):
     interface = type
     def check(self, value):
         return issubclass(value, self.interface)
@@ -31,11 +29,6 @@ class BootstrapPluginImplementationComponentManager(CheckedComponentManager):
         for implementation in self.values():
             #TODO(Mason): Some way of dealing with erros in construction?
             yield implementation(*args, **kwargs)
-
-class BootstrapPluginInstanceComponentManager(CheckedComponentManager):
-    interface = type
-    def check(self, value):
-        return isinstance(value, self.interface)
 
 def add_bootstrap_plugin(name, plugin):
     sys = EcsBootstrap.current

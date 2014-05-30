@@ -13,13 +13,13 @@ class BasicComponentManager(abstract.IComponentManager):
         return list()
     
     def get(self, key):
-        return self._dict[key]
+        return self._dict[abstract.entity(key)]
     
     def set(self, key, value):
         self._dict[abstract.entity(key)] = value
     
     def des(self, key):
-        del self._dict[key]
+        del self._dict[abstract.entity(key)]
     
     def has_entity(self, key):
         return key in self._dict

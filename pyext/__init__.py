@@ -8,3 +8,13 @@ from .event import *
 from .imposter import *
 from .tasks import *
 from .multimethod import *
+
+_has_zmq = False
+try:
+    import zmq
+    _has_zmq = True
+except:
+    pass
+
+if _has_zmq:
+    from .zmq import *

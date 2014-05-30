@@ -1,13 +1,7 @@
 from .. import abstract
 
 class SimplePyAllocator(abstract.IEntityAllocator):
-    class SimpleEntity(abstract.IEntity):
-        def __init__(self, tup):
-            self._v = tup
-        def entity_id(self):
-            return self._v
-
-    def __init__(self):
+    def __init__(self, prefix):
         self._last_entity = 0
         self._last_hinted = 0
         self._hints = {}
@@ -16,13 +10,9 @@ class SimplePyAllocator(abstract.IEntityAllocator):
         self._save_last = None
         
         self._reclaimed = []
+        self._prefix = prefix
     
     def new_entity(self, hint=None):
-        if hint is None:
-            self._last_entity += 1
-            self._save_last = self._last_entity
-            return SimplePyAllocator.SimpleEntity(self._save_last)
-        
         if not (hint in self._hints):
             self._last_hinted += 1
             self._hints[hint] = self._last_hinted
@@ -30,21 +20,20 @@ class SimplePyAllocator(abstract.IEntityAllocator):
         
         hinter = self._hints[hint]
         self._hints_last_entity[hinter] += 1
-        self._save_last = (hinter, self._hints_last_entity[hinter])
-        return SimplePyAllocator.SimpleEntity(self._save_last)
+        self._save_last = (self._prefix, hinter, self._hints_last_entity[hinter])
+        return self._save_last
     
     def last_entity(self):
-        return SimplePyAllocator.SimpleEntity(self._save_last)
+        return self._save_last
 
     def valid_entity(self, potential_e):
         tup = abstract.entity(potential_e)
         
-        if isinstance(tup, int) and tup <= self._last_entity:
-            return True
-        elif (isinstance(tup, tuple)
-            and len(tup) == 2
-            and tup[0] <= self._last_hinted
-            and tup[1] <= self._hints_last_entity[tup[0]]):
+        if (isinstance(tup, tuple)
+            and (len(tup) == 3
+                and tup[0] == self._prefix 
+                and tup[1] <= self._last_hinted
+                and tup[2] <= self._hints_last_entity[tup[1]])):
             return True
         else:
             return False

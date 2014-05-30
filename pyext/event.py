@@ -33,19 +33,25 @@ class Event(object):
         self._sort = sort
         self._fails = fails
     
-    def __iadd__(self, other):
-        if not callable(other):
-            raise UncallableEventHandler("The event handler '{}' is not callable.".format(other))
-        self._calls.append(other)
+    def attach(self, handler):
+        if not callable(handler):
+            raise UncallableEventHandler("The event handler '{}' is not callable.".format(handler))
+        self._calls.append(handler)
         if not (self._sort is None):
             self._calls = self._sort(self._calls)
+    
+    def detach(self, handler):
+        if handler in self._calls:
+            self._calls.remove(handler)
+        else:
+            raise MissingEventHandler("The event handler '{}' is missing, cannot remove.")
+    
+    def __iadd__(self, other):
+        self.attach(other)
         return self
     
     def __isub__(self, other):
-        if other in self._calls:
-            self._calls.remove(other)
-        else:
-            raise MissingEventHandler("The event handler '{}' is missing, cannot remove.")
+        self.detach(other)
         return self
     
     def __call__(self, *args, **kwargs):
