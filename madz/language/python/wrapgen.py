@@ -895,7 +895,7 @@ class InternalMadzMeta(type):
             
             
     def __new__(meta, name, parents, attrs):
-        InternalMadzMeta.override_attrs(InternalMadzMeta.get_attr("__madz_real_type__", parents, attrs)(), attrs)
+        InternalMadzMeta.override_attrs(InternalMadzMeta.get_attr("__madz_real_type__", parents, attrs), attrs)
         
         ret = type.__new__(meta, name, parents, attrs)
         
@@ -977,9 +977,7 @@ def internal_madz_type(c_type):
             """Implementing class for Madz_Types, the middle layer of abstraction for python plugins"""
             __madz_ctype__ = c_type
             
-            @classmethod
-            def __madz_real_type__(cls):
-                return c_type._type_ if hasattr(c_type, "_type_") else c_type
+            __madz_real_type__ = c_type._type_ if hasattr(c_type, "_type_") else c_type
             
             @classmethod
             def __madz_copy_construct__(cls, to_copy):
@@ -1029,7 +1027,7 @@ def internal_madz_type(c_type):
                     
                 self.__madz_gc__ = set()
                 
-                for field_name, _ in self.__madz_real_type__()._fields_:
+                for field_name, _ in self.__madz_real_type__._fields_:
                     setattr(self, field_name, getattr(self, field_name))
                 
             def __getattr__(self, name):
