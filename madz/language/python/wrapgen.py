@@ -887,7 +887,7 @@ class InternalMadzMeta(type):
                 else:
                     # An actual Python object.
                     # Check if it's callable
-                    if callable(value):
+                    if callable(value) and (not type(value) is self._c_type):
                         # Assume they are attempting to assign a function with a valid sig for this slot
                         value = self._c_type(value)
                         
@@ -976,6 +976,7 @@ def internal_madz_type(c_type):
         class Actual(metaclass=InternalMadzMeta):
             """Implementing class for Madz_Types, the middle layer of abstraction for python plugins"""
             __madz_ctype__ = c_type
+            __madz_ctype_is_pointer__ = hasattr(c_type, "_type_")
             
             __madz_real_type__ = c_type._type_ if hasattr(c_type, "_type_") else c_type
             
@@ -1017,11 +1018,12 @@ def internal_madz_type(c_type):
                 
             def __init__(self, actual = None):
                 #todo if ctypes is reftype set madzobject to contents, save copy of ref
-                # Pointer test isinstance(self.__madz_object__, _ctypes._Pointer)
                 self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer)
-                    
+                
                 if actual is None:
                     self.__madz_object__ = Actual.__madz_allocate__()
+                elif self.__madz_ctype_is_pointer__:
+                    self.__madz_object__ = ctypes.cast(actual, self.__madz_ctype__)
                 else:
                     self.__madz_object__ = actual
                     
