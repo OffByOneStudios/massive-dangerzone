@@ -37,8 +37,6 @@ def simple_io_thread(pipe, queue, tag, stop_event):
         if stop_event.isSet() or len(line) == 0:
             break
 
-bind_fmt = "tcp://127.0.0.1:{port}"
-
 def start(argv, system, user_config):
     res = client.invoke_minion("execute", (argv[1:], user_config))
 
@@ -46,70 +44,17 @@ def start(argv, system, user_config):
         print(res)
         exit(1)
 
-    (in_port, out_port, err_port) = res
-
-    print("Setting up connections: {}, {}, {}".format(in_port, out_port, err_port))
-
-    stdin_thread = threading.Thread(
-        target=simple_io_thread,
-        args=(stdin, commqueue, "STDIN", stop_event)
-    )
-    stdin_thread.daemon = True
-    stdin_thread.start()
-
-    context = zmq.Context()
-    pstdin = context.socket(zmq.PUB)
-    pstdout = context.socket(zmq.SUB)
-    pstderr = context.socket(zmq.SUB)
-
-    pstdout.setsockopt(zmq.SUBSCRIBE, b'')
-    pstderr.setsockopt(zmq.SUBSCRIBE, b'')
-
-    bind_fmt = "tcp://127.0.0.1:{port}"
-    pstdin.connect(bind_fmt.format(port=in_port))
-    pstdout.connect(bind_fmt.format(port=out_port))
-    pstderr.connect(bind_fmt.format(port=err_port))
-
-    joined = False
-    finished_out = False
-    finished_err = False
-    while True:
-        try:
-            tag, line = commqueue.get(False)
-            if tag == "STDIN":
-                pstdin.send_pyobj(line)
-        except queue.Empty:
-            pass
-
-        if not finished_out:
-            try:
-                out = pstdout.recv_pyobj(zmq.NOBLOCK)
-                if len(out) == 0:
-                    finished_out = True
-                    continue
-                stdout.write(out)
-                stdout.flush()
-            except zmq.ZMQError:
-                pass
-
-        if not finished_err:
-            try:
-                err = pstderr.recv_pyobj(zmq.NOBLOCK)
-                if len(err) == 0:
-                    finished_err = True
-                    continue
-                stderr.write(err)
-                stderr.flush()
-            except zmq.ZMQError:
-                pass
-
-        if finished_out and finished_err:
-            break;
+    (bootstrap_port,) = res
     
-    stop_event.set()
-    pstdin.close()
+    bootstrapper = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "executer_bootstrap.py"))
+    connecting = "tcp://127.0.0.1:{port}".format(port=bootstrap_port)
+    
+    print("Bootstrapping on {}.".format(connecting))
 
-    pstdout.close()
-    pstderr.close()
-
-    context.term()
+    argv = [sys.executable, bootstrapper, os.path.dirname(bootstrapper), connecting]
+    if os.name == "nt":
+        # Windows's execv does not behave as it should for our purposes, call script directly:
+        from ..executer_bootstrap import main
+        main(argv[1:])
+    else:
+        os.execv(argv[0], argv)

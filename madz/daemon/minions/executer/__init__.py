@@ -16,31 +16,13 @@ from madz.config import *
 from ...IMinion import IMinion
 from ...Daemon import Daemon
 
-from .ExecuterStreamSplitter import ExecuteStreamSpitterThread
-
 class ExecuterMinionSubprocess(object):
-    class ControlThread(threading.Thread):
-        def __init__(self, control):
-            super().__init__()
-            self._control = control
-
-        def run(self):
-            while True:
-                if hasattr(self._control, "subproc") and not (self._control.subproc.poll() is None):
-                    break;
-                if self._control._minion.banished:
-                    self._control.subproc.kill()
-                    break;
-            # clean up
 
     def __init__(self, minion):
         self._minion = minion._minion
 
         self.bootstrap_port = Daemon.next_minion_port()
         self.control_port = Daemon.next_minion_port()
-        self.stdin_port = Daemon.next_minion_port()
-        self.stdout_port = Daemon.next_minion_port()
-        self.stderr_port = Daemon.next_minion_port()
 
         self._bind_str = "tcp://127.0.0.1:{port}".format(port=self.bootstrap_port)
         self._proc_bootstrapper = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "executer_bootstrap.py"))
@@ -49,39 +31,11 @@ class ExecuterMinionSubprocess(object):
         self.socket = self.context.socket(zmq.PAIR)
         self.socket.bind(self._bind_str)
 
-        self._spitter = ExecuteStreamSpitterThread(self)
-        self._thread = ExecuterMinionSubprocess.ControlThread(self)
-        self._thread.start()
-
-
     def banish(self):
-        self._thread.join()
-        if self._spitter.isAlive():
-            self._spitter.join()
-
+        pass
 
     def execute(self, argv, userconfig):
         system = Daemon.current.system
-
-        subproc_sys_args = {
-            "stdin": subprocess.PIPE,
-            "stdout": subprocess.PIPE,
-            "stderr": subprocess.PIPE
-        }
-        if os.name == "nt":
-           subproc_sys_args["creationflags"] = subprocess.CREATE_NEW_CONSOLE
-           del subproc_sys_args["stdin"]
-           del subproc_sys_args["stdout"]
-           del subproc_sys_args["stderr"]
-
-        # Start subprocess
-        self.subproc = subprocess.Popen(
-            [sys.executable, self._proc_bootstrapper, os.path.dirname(self._proc_bootstrapper), self._bind_str],
-            cwd=os.getcwd(),
-            bufsize=1,
-            **subproc_sys_args)
-
-        self._spitter.start()
 
         with config.and_merge(system.config):
             with config.and_merge(userconfig):
@@ -188,48 +142,48 @@ class ExecuterMinionSubprocess(object):
         self.socket.close()
         self.context.term()
 
+class ExecuteControlThread(threading.Thread):
+    def __init__(self, minion):
+        super().__init__()
+        self._minion = minion
+
+    def run(self):
+        context = zmq.Context()
+        socket = context.socket(zmq.REP)
+        socket.bind("tcp://127.0.0.1:{port}".format(port=self._minion.port))
+        
+        while not self._minion.banished:
+            try:
+                command = socket.recv_pyobj(zmq.NOBLOCK)
+            except zmq.ZMQError:
+                time.sleep(0.1)
+                continue
+            report = None
+            try:
+                #TODO: set up logging report
+                logger.info("DAEMON[{}] Starting execute of '{}'.".format(self._minion.identity(), " ".join(command[0])))
+                
+                subproc = ExecuterMinionSubprocess(self)
+                self._minion.subprocs.append(subproc)
+
+                socket.send_pyobj((subproc.bootstrap_port,))
+
+                time.sleep(0.01)
+
+                subproc.execute(*command)
+            except Exception as e:
+                tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+                logger.error("DAEMON[{}] Failed on execute of '{}':\n\t{}".format(self._minion.identity(), " ".join(command[0]), tb_string))
+        
 @bootstrap_plugin("madz.minion.Executer")
 class ExecuterMinion(IMinion):
     current = None
-
-    class ExecuteControlThread(threading.Thread):
-        def __init__(self, minion):
-            super().__init__()
-            self._minion = minion
-
-        def run(self):
-            context = zmq.Context()
-            socket = context.socket(zmq.REP)
-            socket.bind("tcp://127.0.0.1:{port}".format(port=self._minion.port))
-            while not self._minion.banished:
-                try:
-                    command = socket.recv_pyobj(zmq.NOBLOCK)
-                except zmq.ZMQError:
-                    time.sleep(0.1)
-                    continue
-                report = None
-                try:
-                    #TODO: set up logging report
-                    logger.info("DAEMON[{}] Starting execute of '{}'.".format(self._minion.identity(), " ".join(command[0])))
-                    
-                    subproc = ExecuterMinionSubprocess(self)
-                    self._minion.subprocs.append(subproc)
-
-                    report = (subproc.stdin_port, subproc.stdout_port, subproc.stderr_port)
-                    socket.send_pyobj(report)
-
-                    time.sleep(0.01)
-
-                    subproc.execute(*command)
-                except Exception as e:
-                    tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
-                    logger.error("DAEMON[{}] Failed on execute of '{}':\n\t{}".format(self._minion.identity(), " ".join(command[0]), tb_string))
 
     def __init__(self):
         self.banished = False
         self.spawned = False
         self.subprocs = []
-        self._thread = ExecuterMinion.ExecuteControlThread(self)
+        self._thread = ExecuteControlThread(self)
         self.port = Daemon.next_minion_port()
 
     @classmethod
