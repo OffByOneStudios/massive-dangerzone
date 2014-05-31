@@ -895,7 +895,8 @@ class InternalMadzMeta(type):
             
             
     def __new__(meta, name, parents, attrs):
-        InternalMadzMeta.override_attrs(InternalMadzMeta.get_attr("__madz_real_type__", parents, attrs), attrs)
+        if (not InternalMadzMeta.get_attr("__madz_ctype_is_extra_pointer__", parents, attrs)):
+            InternalMadzMeta.override_attrs(InternalMadzMeta.get_attr("__madz_real_type__", parents, attrs), attrs)
         
         ret = type.__new__(meta, name, parents, attrs)
         
@@ -971,7 +972,8 @@ def internal_madz_type(c_type):
     # Skip remaining types which arn't structures or pointers to structures
     if not (_ct_is_structure_type(c_type) 
             or (_ct_is_pointer_type(c_type)
-                and _ct_is_structure_type(_ct_typeof_pointer(c_type)))):
+                and (_ct_is_structure_type(_ct_typeof_pointer(c_type))
+                    or _ct_is_pointer_type(_ct_typeof_pointer(c_type))))):
         return None
                  
     if not _HashMe(c_type) in _internal_madz_type_cache:
@@ -979,6 +981,7 @@ def internal_madz_type(c_type):
             """Implementing class for Madz_Types, the middle layer of abstraction for python plugins"""
             __madz_ctype__ = c_type
             __madz_ctype_is_pointer__ = hasattr(c_type, "_type_")
+            __madz_ctype_is_extra_pointer__ = hasattr(c_type, "_type_") and hasattr(c_type._type_, "_type_")
             
             __madz_real_type__ = c_type._type_ if hasattr(c_type, "_type_") else c_type
             __qualname__ = c_type.__qualname__
@@ -1002,6 +1005,15 @@ def internal_madz_type(c_type):
                 if isinstance(instance, _ctypes._Pointer):
                     instance.contents = cls.__madz_ctype__._type_()
                 return instance
+            
+            @classmethod
+            def __madz_pointer_type__(cls):
+                return internal_madz_type(ctypes.POINTER(cls.__madz_ctype__))
+                
+            def __madz_pointer_to__(self):
+                _res = ctypes.pointer(self.__madz_object__)
+                _type = self.__madz_pointer_type__()
+                return _type(_res)
             
             def __madz_castable_to__(self, ctype):
                 try:
@@ -1031,6 +1043,16 @@ def internal_madz_type(c_type):
                 if isinstance(actual, int):
                     actual = ctypes.c_void_p(actual)
                 
+                if (self.__madz_ctype_is_extra_pointer__):
+                    self.__madz_is_pointer__ = True
+                    if actual is None:
+                        self.__madz_object__ = cls.__madz_ctype__()
+                    elif (isinstance(actual, _ctypes._Pointer) and isinstance(actual.contents, _ctypes._Pointer)) or isinstance(actual, ctypes.c_void_p):
+                        self.__madz_object__ = ctypes.cast(actual, self.__madz_ctype__)
+                    else:
+                        raise Exception("Cannot turn {} into deep pointer type {}".format(actual, self))
+                    return
+                
                 if actual is None:
                     self.__madz_object__ = Actual.__madz_allocate__()
                     self.__madz_is_pointer__ = self.__madz_ctype_is_pointer__
@@ -1055,6 +1077,9 @@ def internal_madz_type(c_type):
             def __getattr__(self, name):
                 if name.startswith("_"):
                     raise AttributeError("{} Attribute Error".format(name))
+                elif self.__madz_ctype_is_extra_pointer__:
+                    raise AttributeError("Is Deep Pointer")
+                    
                 from_object = self.__madz_object__
                 if self.__madz_is_pointer__:
                     if not(bool(from_object)):
@@ -1114,6 +1139,21 @@ def unpack(pointer):
         return ctypes.cast(pointer, ctypes.py_object).value
     else:
         return None
+
+def pointer(actual):
+    try:
+        if hasattr(actual, "__madz_pointer_to__"):
+            return actual.__madz_pointer_to__()
+        else:
+            return ctypes.pointer(actual)
+    except Excpetion as e:
+        raise TypeError("Can only use this pointer method on actuals or ctypes.") from e
+
+def from_str(c_thing):
+    return (ctypes.cast(c_thing, ctypes.c_char_p).value).decode('utf-8')
+
+def to_str(python_str):
+    return ctypes.cast(ctypes.create_string_buffer(str.encode(python_str)), ctypes.POINTER(ctypes.c_ubyte))
 
 imports = {{}}
 depends = {{}}
