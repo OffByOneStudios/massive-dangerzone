@@ -1031,7 +1031,7 @@ def internal_madz_type(c_type):
                 if actual is None:
                     self.__madz_object__ = Actual.__madz_allocate__()
                 else:
-                    self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer)
+                    self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer) or isinstance(actual, _ctypes.c_void_p)
                     if self.__madz_ctype_is_pointer__ and self.__madz_is_pointer__:
                         self.__madz_object__ = ctypes.cast(actual, self.__madz_ctype__)
                     elif self.__madz_ctype_is_pointer__: # and not self.__madz_is_pointer__
