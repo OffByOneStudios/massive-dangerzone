@@ -1012,9 +1012,14 @@ def internal_madz_type(c_type):
             def __madz_cast_to__(self, ctype):
                 if (ctype == self.__madz_ctype__):
                     return self.__madz_object__
+                elif ctype is ctypes.c_void_p:
+                    obj = self.__madz_object__
+                    if not (self.__madz_is_pointer__):
+                        obj = ctypes.pointer(self.__madz_object__)
+                    return ctypes.cast(obj, ctypes.c_void_p)
                 elif (hasattr(ctype, "_type_") and ctype._type_ == self.__madz_ctype__):
                     return ctype(self.__madz_object__)
-                elif (hasattr(__madz_ctype__, "_type_") and __madz_ctype__._type_ == ctype):
+                elif (hasattr(self.__madz_ctype__, "_type_") and self.__madz_ctype__._type_ == ctype):
                     return self.__madz_object__.contents
                 return None
                 
