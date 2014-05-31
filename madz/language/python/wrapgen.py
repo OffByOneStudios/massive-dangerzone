@@ -944,6 +944,8 @@ class _HashMe(object):
         return type(self) == type(obj) and self._id == obj._id
 
 
+class _ActualBase(object): pass
+        
 _internal_madz_type_cache = dict()
 def internal_madz_type(c_type):
     """Construct a Madz wrapper type from a ctype
@@ -973,7 +975,7 @@ def internal_madz_type(c_type):
         return None
                  
     if not _HashMe(c_type) in _internal_madz_type_cache:
-        class Actual(metaclass=InternalMadzMeta):
+        class Actual(_ActualBase, metaclass=InternalMadzMeta):
             """Implementing class for Madz_Types, the middle layer of abstraction for python plugins"""
             __madz_ctype__ = c_type
             __madz_ctype_is_pointer__ = hasattr(c_type, "_type_")
@@ -1018,14 +1020,23 @@ def internal_madz_type(c_type):
                 
             def __init__(self, actual = None):
                 #todo if ctypes is reftype set madzobject to contents, save copy of ref
-                self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer)
+                if isinstance(actual, _ActualBase):
+                    actual = actual.__madz_object__
                 
                 if actual is None:
                     self.__madz_object__ = Actual.__madz_allocate__()
-                elif self.__madz_ctype_is_pointer__:
-                    self.__madz_object__ = ctypes.cast(actual, self.__madz_ctype__)
                 else:
-                    self.__madz_object__ = actual
+                    self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer)
+                    if self.__madz_ctype_is_pointer__ and self.__madz_is_pointer__:
+                        self.__madz_object__ = ctypes.cast(actual, self.__madz_ctype__)
+                    elif self.__madz_ctype_is_pointer__: # and not self.__madz_is_pointer__
+                        self.__madz_is_pointer__ = True
+                        self.__madz_object__ = ctypes.pointer(actual)
+                    elif self.__madz_is_pointer__: # and not self.__madz_ctype_is_pointer__
+                        self.__madz_is_pointer__ = False
+                        self.__madz_object__ = actual.contents
+                    else:
+                        self.__madz_object__ = actual
                     
                 self.__madz_gc__ = set()
                 
