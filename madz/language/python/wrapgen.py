@@ -1027,11 +1027,14 @@ def internal_madz_type(c_type):
                 #todo if ctypes is reftype set madzobject to contents, save copy of ref
                 if isinstance(actual, _ActualBase):
                     actual = actual.__madz_object__
+                if isinstance(actual, int):
+                    actual = ctypes.c_void_p(actual)
                 
                 if actual is None:
                     self.__madz_object__ = Actual.__madz_allocate__()
+                    self.__madz_is_pointer__ = self.__madz_ctype_is_pointer__
                 else:
-                    self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer) or isinstance(actual, _ctypes.c_void_p)
+                    self.__madz_is_pointer__ = isinstance(actual, _ctypes._Pointer) or isinstance(actual, ctypes.c_void_p)
                     if self.__madz_ctype_is_pointer__ and self.__madz_is_pointer__:
                         self.__madz_object__ = ctypes.cast(actual, self.__madz_ctype__)
                     elif self.__madz_ctype_is_pointer__: # and not self.__madz_is_pointer__
