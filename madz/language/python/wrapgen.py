@@ -981,6 +981,7 @@ def internal_madz_type(c_type):
             __madz_ctype_is_pointer__ = hasattr(c_type, "_type_")
             
             __madz_real_type__ = c_type._type_ if hasattr(c_type, "_type_") else c_type
+            __qualname__ = c_type.__qualname__
             
             @classmethod
             def __madz_copy_construct__(cls, to_copy):
@@ -1064,7 +1065,10 @@ def internal_madz_type(c_type):
             
             def __call__(self, *args, **kwargs):
                 return self.__madz_object__(*args, **kwargs)
-                
+            
+            def __nonzero__(self):
+                return bool(self.__madz_object__)
+            
         _internal_madz_type_cache[_HashMe(c_type)] = Actual
         
     return _internal_madz_type_cache[_HashMe(c_type)]
