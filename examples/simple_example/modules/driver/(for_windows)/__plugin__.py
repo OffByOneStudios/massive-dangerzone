@@ -7,6 +7,9 @@ plugin = Plugin(
     depends=[
         "task"
     ],
+    imports=[
+        "task.cpp"
+    ],
     
     description=MdlFileLoader("driver.mdl"),
 )

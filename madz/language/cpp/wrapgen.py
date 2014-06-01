@@ -94,12 +94,12 @@ class CppCodeGenerator(object):
     def gen_name(self, name):
         return self._sanitize_symbol(name)
 
-    def gen_ns_name(self, name, is_type=False, is_func=False):
+    def gen_ns_name(self, name, is_type=False, is_func=False, force_full=False):
         ns_list = name.split(".")
         name = self.gen_name(ns_list[-1])
         target_namespace_list = list(map(self._sanitize_symbol, ns_list[:-1]))
 
-        if len(ns_list) == 1 :
+        if len(ns_list) == 1 and not force_full:
             return "::".join(
                 ([self.type_namespace] if (is_type and (not self._in_type)) else []) +
                 [name])
@@ -319,7 +319,7 @@ class WrapperGenerator(object):
             "depends_declares_vars" : "",
             "imports_declares_vars" : "",
             "current_declares_vars" : "",
-            "cpp_current_namespace" : cpp_gen.gen_ns_name(self.plugin_stub.id.namespace),
+            "cpp_current_namespace" : cpp_gen.gen_ns_name(self.plugin_stub.id.namespace, force_full=True),
         }
 
         def make_in_struct(gen, is_dep):

@@ -78,8 +78,6 @@ class ExecuterMinionSubprocess(object):
 
     @staticmethod
     def _gen_load_pattern(plugin_stub, until="final", memo=[], skip=[]):
-        if plugin_stub in skip:
-            return []
         # base:
         res = []
 
@@ -90,14 +88,16 @@ class ExecuterMinionSubprocess(object):
 
         # init:
         depends = plugin_stub.gen_recursive_loaded_depends()
-        res += [load_pattern for require in depends for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "inited", list(memo + depends), memo)]
+        res += [load_pattern for require in depends for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "inited")]
         res += [("inited", plugin_stub, depends)]
         if until == "inited":
             return res
 
         # final
+        if plugin_stub in skip:
+            return res
         imports = list(filter(lambda p: p not in depends, plugin_stub.gen_required_loaded_imports()))
-        res += [load_pattern for require in imports for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "final", list(memo + imports), memo)]
+        res += [load_pattern for require in imports for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "final", memo + imports, memo)]
         res += [("final", plugin_stub, imports)]
         if until == "final":
             return res

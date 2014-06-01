@@ -1,0 +1,2 @@
+
+var do_task (task *void) -> void;
