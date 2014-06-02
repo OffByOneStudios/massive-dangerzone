@@ -14,9 +14,10 @@ class IEntityManager(metaclass=abc.ABCMeta):
         depends on.
         
         Each tuple is of the form:
-        `(collection, meta)`
-        Collection is the concrete IEntityManager; where meta may contain:
-            * key (the key this manager was found with)
+        `(manager, meta)`
+        `manager` is the concrete IEntityManager; where `meta` is a dictionary which may contain:
+            * `key` (the key this manager was found with)
+            * `property_name` (the property name to use for this manager's values, specifically for EntityClass)
         In addition to other data about how this manager uses the other.
         """
         pass

@@ -5,6 +5,8 @@ from .IEntityManager import *
 from .IComponentManager import *
 from .IIndexManager import *
 
+from .IEntityClass import *
+
 from .IObservableEntityManager import *
 
 from .IManagerKey import *
