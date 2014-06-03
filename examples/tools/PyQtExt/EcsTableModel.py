@@ -3,7 +3,7 @@ from PyQt4 import QtCore, QtGui
 import pydynecs
 
 #TODO use pydynecs casting methods
-class EcsTable(QtCore.QAbstractTableModel):
+class EcsTableModel(QtCore.QAbstractTableModel):
     def __init__(self, system, entity_manager, parent=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         
@@ -42,9 +42,9 @@ class EcsTable(QtCore.QAbstractTableModel):
         return len(self._cache_entities)
     
     def data(self, index, role):
-        if not index.isValid(): 
+        if not index.isValid():
             return None
-        elif role != QtCore.Qt.DisplayRole: 
+        elif role != QtCore.Qt.DisplayRole:
             return None
         
         entity = self._cache_entities[index.row()]
