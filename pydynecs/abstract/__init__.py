@@ -1,7 +1,13 @@
+"""pydynecs/abstract/__init__.py
+@OffbyOne Studios 2014
+Abstract interfaces used within pydynecs.
+"""
+
 from .IEntity import *
 from .IEntityAllocator import *
 
 from .IEntityManager import *
+from .IReadableComponentManager import *
 from .IComponentManager import *
 from .IIndexManager import *
 

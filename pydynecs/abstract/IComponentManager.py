@@ -6,11 +6,7 @@ import abc
 
 from . import *
 
-class IComponentManager(IEntityManager, metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def get(self, entity):
-        pass
-    
+class IComponentManager(IReadableComponentManager, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def set(self, entity, value):
         pass
@@ -18,20 +14,6 @@ class IComponentManager(IEntityManager, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def des(self, entity):
         pass
-    
-    def has(self, entity):
-        return self.has_entity(entity)
-    
-    @abc.abstractmethod
-    def values(self):
-        pass
-    
-    @abc.abstractmethod
-    def items(self):
-        pass
-    
-    def __getitem__(self, key):
-        return self.get(key)
     
     def __setitem__(self, key, item):
         return self.set(key, item)
