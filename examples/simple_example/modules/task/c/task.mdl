@@ -1,0 +1,11 @@
+type Gizmo *void
+    +doc:"A Handle to an internal Gizmo Structure";
+    
+var Gizmo_create(biz int32)-> Gizmo
+   +doc:"Heap allocate a Gizmo";
+   
+var Gizmo_destroy(gizmo Gizmo)-> void
+    +doc:"Deallocate a Gizmo";
+    
+var Gizmo_add(gizmo Gizmo, foo int32)-> int32
+    +doc:"Add the result of foo and Gizmo's biz internal variable";

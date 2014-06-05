@@ -3,7 +3,7 @@ from madz.plugin_stub import *
 plugin = Plugin(
     namespace="driver",
     
-    platform_check=PlatformCheckWindows,
+    platform_check=PlatformCheckUnix,
     
     language="cpp",
     depends=[
