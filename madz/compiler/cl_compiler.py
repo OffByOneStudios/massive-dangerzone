@@ -129,7 +129,7 @@ class ClCompiler(BuildBase):
 
     def linker_flags_files(self, plugin_stub, language, source_files):
         return ["/OUT:"+language.get_output_file().path] + \
-            list(map(str, self.sourcefiles_to_objectfiles(language, source_files)))
+            list(map(lambda f: f.path, self.sourcefiles_to_objectfiles(language, source_files)))
 
     def linker_flags_libraries(self, plugin_stub, language):
         return (list(map(lambda m: "{}.lib".format(m), list(self._gen_link_library_dynamics()) + list(self._gen_link_library_statics())))) 
@@ -158,5 +158,6 @@ class ClCompiler(BuildBase):
     def build_plugin(self, plugin_stub, language):
         BuildBase.build_plugin(self, plugin_stub, language)
         for debug in language.get_debug_files():
-            shutil.copyfile(str(debug),
-                str(language.output_directory.file(debug.fullname())))
+            if debug.exists():
+                shutil.copyfile(debug.path,
+                    language.output_directory.file(debug.fullname()).path)

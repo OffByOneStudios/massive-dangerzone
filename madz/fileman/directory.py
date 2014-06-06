@@ -24,7 +24,8 @@ class Directory(EntityToComponentManager, EntityClass):
     def contents(s, e):
         if not Path.exists(s, e):
             return list()
-        return list(map(lambda p: s[Path_lookup][p], os.listdir(s[Path][e])))
+        to_file = Directory.file
+        return list(map(lambda p: to_file(s, e, p), os.listdir(s[Path][e])))
         
     @entity_property
     def file(s, e, *args):
@@ -43,7 +44,6 @@ class Directory(EntityToComponentManager, EntityClass):
             if Path.extension(s, f) in exts:
                 if (wdirs and isdir[f]) or (wfiles and isfile[f]):
                     files.append(f)
-        
         return files
     
     @entity_property
