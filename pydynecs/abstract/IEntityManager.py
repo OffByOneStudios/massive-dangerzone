@@ -7,7 +7,19 @@ and managing basic features of collections in refrence to entities.
 """
 import abc
 
-class IEntityManager(metaclass=abc.ABCMeta):
+class IEntityManager():
+    @abc.abstractmethod
+    def get_system(self):
+        pass
+    
+    @abc.abstractmethod
+    def meta(self):
+        """Returns a dictionary of metadata for this entity manager.
+        
+        * `component_name`: the name of this component
+        """
+        pass
+    
     @abc.abstractmethod
     def dependencies(self):
         """Returns a list of tuples containg data on the collections this one
@@ -16,8 +28,7 @@ class IEntityManager(metaclass=abc.ABCMeta):
         Each tuple is of the form:
         `(manager, meta)`
         `manager` is the concrete IEntityManager; where `meta` is a dictionary which may contain:
-            * `key` (the key this manager was found with)
-            * `property_name` (the property name to use for this manager's values, specifically for EntityClass)
+            * `key`: the key this manager was found with
         In addition to other data about how this manager uses the other.
         """
         pass
@@ -29,6 +40,10 @@ class IEntityManager(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def entities(self):
         pass
+    
+    @property
+    def s(self):
+        return self.get_system()
     
     def __contains__(self, entity):
         return self.has_entity(entity)

@@ -8,6 +8,7 @@ from .event import *
 from .imposter import *
 from .tasks import *
 from .multimethod import *
+from .latebind import *
 
 _has_zmq = False
 try:

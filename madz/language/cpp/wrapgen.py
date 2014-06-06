@@ -351,10 +351,10 @@ class WrapperGenerator(object):
 
         code_fragments = self._filter_code_fragments(code_fragments)
 
-        with self.language.get_cpp_header_filename().open("w") as f:
+        with self.language.get_cpp_header_filename().pyopen("w") as f:
             f.write(self.header_file_template.format(**code_fragments))
 
-        with self.language.get_cpp_code_filename().open("w") as f:
+        with self.language.get_cpp_code_filename().pyopen("w") as f:
             f.write(self.code_file_template.format(**code_fragments))
 
     do = generate

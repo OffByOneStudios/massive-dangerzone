@@ -67,8 +67,8 @@ class ClCompiler(BuildBase):
         
     def sourcefiles_to_objectfiles(self, language, compile_files):
         """Convert sourcefiles in compile_files File objects into their corresponding object files."""
-        # use basename to get filename, ask build directory for that file, change extension
-        return [language.build_directory.file(f.with_extension("obj").basename) for f in compile_files]
+        # use fullname to get filename, ask build directory for that file, change extension
+        return [language.build_directory.file(f.with_extension("obj").fullname()) for f in compile_files]
         
         
     @classmethod
@@ -102,13 +102,13 @@ class ClCompiler(BuildBase):
             #Use LINK Seperately
             (["/c"]) +
             # Include Directories
-            ["/I"+str(language.wrap_directory)] + list(self._gen_header_include_dirs()) +
+            ["/I"+str(language.wrap_directory.path)] + list(self._gen_header_include_dirs()) +
             # Warnings            
            (["/Zi", "/W4"] if config.get(OptionCompilerDebug, False) else [])
         )
 
     def compiler_flags_file(self, plugin_stub, language, compile_file):
-        return [str(compile_file)]
+        return [compile_file.path]
         
     def binaryname_linker(self, plugin_stub, language):
         return {
@@ -128,7 +128,7 @@ class ClCompiler(BuildBase):
             )
 
     def linker_flags_files(self, plugin_stub, language, source_files):
-        return ["/OUT:"+str(language.get_output_file())] + \
+        return ["/OUT:"+language.get_output_file().path] + \
             list(map(str, self.sourcefiles_to_objectfiles(language, source_files)))
 
     def linker_flags_libraries(self, plugin_stub, language):
@@ -159,4 +159,4 @@ class ClCompiler(BuildBase):
         BuildBase.build_plugin(self, plugin_stub, language)
         for debug in language.get_debug_files():
             shutil.copyfile(str(debug),
-                str(language.output_directory.file(debug.basename)))
+                str(language.output_directory.file(debug.fullname())))

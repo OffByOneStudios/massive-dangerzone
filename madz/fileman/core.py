@@ -1,94 +1,64 @@
+"""madz/fileman/core.py
+@OffbyOne Studios 2014
+Core features of the filemanager system.
+"""
 
 import abc
 import os
 import os.path as path
 import hashlib
 from datetime import datetime
+import warnings
 
-class IPathable(object):
-    @property
-    @abc.abstractmethod
-    def path(self):
-        """The path of the file object this is representing."""
-        pass
+from pydynecs import *
 
-class FileManager(object):
-    """Represents the state of all current files.
+@system_syntax
+class EcsFiles(System): pass
+manager = manager_decorator_for(EcsFiles)
 
-    This is replaced by a fake object during planning."""
-    current = None
+@manager
+class Path(ObservableComponentManager, CoercingComponentManager, BasicComponentManager, EntityClass):
+    component_name = "path"
+    def coerce(self, value): return os.path.abspath(value)
 
-    def __init__(self):
-        self._directories = {}
+    @entity_property
+    def exists(s, e):
+        return os.path.exists(s[Path][e])
+    
+    @entity_property
+    def extension(s, e):
+        parts = os.path.basename(s[Path][e]).split(".")
+        return "" if len(parts) < 1 else parts[-1]
+    
+    @entity_property
+    def with_extension(s, e, ext):
+        path = s[Path][e][:-len(Path.extension(s, e))] + ext
+        return s[Path_lookup][path]
+    
+    @entity_property
+    def fullname(s, e):
+        return os.path.basename(s[Path][e])
+    
+@manager
+class Path_lookup(CoercingIndexManager, CreateOnFailureIndexManager, LookupIndexManager):
+    source=Path
+    def coerce(self, key): return os.path.abspath(key)
+    
+    def create(self, key):
+        e = self.s.new_entity()
+        
+        self.s[Path][e] = key
+        return e
 
-        self._hashes = {}
-        self._modified = {}
-        self._times = {}
+    def key(self, entity):
+        return self.s[Path][entity]
 
-    @staticmethod
-    def _to_path(path):
-        if isinstance(path, str):
-            return path
-        if isinstance(path, IPathable):
-            return path.path
-        raise Exception("Can't canonicalize path.")
+@manager
+class ParentDirectory(ComputedComponentManager):
+    component_name = "parent"
+    depends = [Path, Path_lookup]
+    def compute(self, entity):
+        return self.s[Path_lookup][os.path.dirname(self.s[Path][entity])]
 
-    def _add_file_to_directories(self, path):
-        (base, file) = os.path.split(path)
-        if not file: # is directory
-            return
-        self._directories[base] = file
-
-    def _cache_file(self, path):
-        time = path.getmtime(path)
-        if (path in self._times 
-            and self._times[path] == time
-            and path in self._hashes):
-            # We've already cached this file's hash, no need to do that again
-            return
-
-        self._times[path] = time
-
-        m = hashlib.sha256()
-        with open(path, "r") as o:
-            m.update(o.read().encode('utf-8'))
-        self._hashes[path] = m.digest()
-
-    def modify(self, path):
-        path = FileManager._to_path(path)
-
-        self._add_file_to_directories(path)
-        self._modified[path] = datetime.now()
-
-    def exists(self, path):
-        path = FileManager._to_path(path)
-
-        res = os.path.exists(path)
-        if res: self._add_file_to_directories(path)
-        return res
-
-    def ensureDirectory(self, path):
-        path = FileManager._to_path(path)
-
-        dir_path = os.path.dirname(path)
-        if not self.exists(dir_path):
-            os.makedirs(dir_path)
-
-    def filesInDirectory(self, path):
-        path = FileManager._to_path(path)
-
-        if not (self.exists(path)):
-            return []
-        return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-
-    def openFile_Python(self, path, file_mode):
-        path = FileManager._to_path(path)
-
-        self._add_file_to_directories(path)
-        if not (file_mode.startswith("r")):
-            self.modify(path)
-
-        return open(path, file_mode)
-
-if (FileManager.current is None):
-    FileManager.current = FileManager()
+def new(path):
+    return EcsFiles.current[Path_lookup][path]

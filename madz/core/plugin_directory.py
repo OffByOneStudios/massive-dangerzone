@@ -8,7 +8,7 @@ import traceback
 import logging
 
 from ..config import *
-from ..fileman import *
+from .. import fileman
 
 from .plugin_id import *
 from .plugin_stub import PluginStub
@@ -28,7 +28,7 @@ class PluginDirectory(object):
         Args:
             directory: Pathname of the directory.
         """
-        self.directory = ContentsDirectory(directory)
+        self.directory = fileman.new(directory)
         self._plugin_stubs = {}
 
     def _add_plugin_stub(self, system, plugin_stub):
@@ -48,8 +48,8 @@ class PluginDirectory(object):
             system: The system to add the indexed plugins to.
             partial_root: String prepended to plugin id strings before construction of PluginStubs. Used to place plugins in a specific subnamespace area.
         """
-        for root, dirs, files in os.walk(self.directory._directory):
-            relroot = os.path.relpath(root, self.directory._directory)
+        for root, dirs, files in os.walk(self.directory.path):
+            relroot = os.path.relpath(root, self.directory.path)
             splitrelroot = relroot.split(os.sep)
 
             # Skips hidden directories
@@ -60,7 +60,7 @@ class PluginDirectory(object):
             if hiddendir:
                 continue
 
-            if PythonPluginStubFile.can_load_directory(ContentsDirectory(root)):
+            if PythonPluginStubFile.can_load_directory(fileman.new(root)):
                 file_pid = None
                 try:
                     # Generate PluginID for directory
@@ -69,7 +69,7 @@ class PluginDirectory(object):
                     logger.debug("Indexing plugin with file_pid '{}'".format(file_pid))
 
                     # Generate description object
-                    plugin_description = PythonPluginStubFile(ModuleContentsDirectory(root))
+                    plugin_description = PythonPluginStubFile(fileman.new(root))
 
                     # Make the stub
                     stub = PluginStub(system, plugin_description, file_pid)
@@ -86,7 +86,7 @@ class PluginDirectory(object):
                     logger.error("Plugin failed to load, ID per directory is '{}':\n\t{}".format(file_pid, tb_string))
 
     def __str__(self):
-        return str(self.directory)
+        return str(self.directory.path)
 
 """
 #Example Usage of PluginDirectory

@@ -29,7 +29,7 @@ class MingwCompiler(GnuCompilerBase):
         return libname
 
     def sourcefile_to_objectfile(self, compile_file):
-        return compile_file.with_extension("obj").basename
+        return compile_file.with_extension("obj").fullname()
 
     def binaryname_compiler(self, plugin_stub, language):
         return {
@@ -58,7 +58,7 @@ class MingwCompiler(GnuCompilerBase):
             ["-Wall"])
 
     def compiler_flags_file(self, plugin_stub, language, compile_file):
-        return ["-c", str(compile_file), "-o", self.sourcefile_to_objectfile(compile_file)]
+        return ["-c", compile_file.path, "-o", self.sourcefile_to_objectfile(compile_file)]
 
     def binaryname_linker(self, plugin_stub, language):
         return self.binaryname_compiler(plugin_stub, language)

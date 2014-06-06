@@ -33,6 +33,7 @@ def manager(s, m):
     return s[m]
 
 def manager_key(k):
-    while not (isinstance(k, str)) and (issubclass(k, IManagerKey) or isinstance(k, IManagerKey)):
+    if k is None: return None
+    while not (isinstance(k, str)) and (isinstance(k, IManagerKey) or issubclass(k, IManagerKey)):
         k = k.pydynecs_key()
     return k

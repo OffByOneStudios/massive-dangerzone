@@ -20,14 +20,14 @@ class PythonPluginStubFile(object):
     @classmethod
     def can_load_directory(cls, directory):
         """Returns true if the directory contains a potential python plugin description."""
-        return directory.file_exists("__plugin__.py")
+        return directory.file("__plugin__.py").exists()
 
     def _init_module(self):
-        with self._py_module_file.open("r") as module_file:
+        with self._py_module_file.pyopen("r") as module_file:
             # TODO(Mason): Exception for failure to load
             # TODO(Mason): Exception for missing plugin
             # TODO(Mason): Figure out name variable
-            self._module = imp.load_module("test", module_file, self._py_module_file._path, ('.py', 'r', imp.PY_SOURCE))
+            self._module = imp.load_module("test", module_file, self._py_module_file.path, ('.py', 'r', imp.PY_SOURCE))
             self._plugin = getattr(self._module, "plugin")
 
     @property

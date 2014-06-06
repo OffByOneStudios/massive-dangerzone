@@ -3,7 +3,7 @@
 Code to Build C plugins
 """
 
-import os, sys, shutil
+import sys, shutil
 import logging
 import subprocess
 
@@ -33,16 +33,16 @@ class Cleaner(object):
         Args:
             dir: fileman.Directory object
         """
-        if os.path.exists(dir._directory):
-            logger.debug("Found and cleaning directory: {}".format(dir))
-            shutil.rmtree(dir._directory)
+        if dir.exists():
+            logger.debug("Found and cleaning directory: {}".format(dir.path))
+            shutil.rmtree(dir.path)
 
     def clean(self):
         """Cleans a plugin."""
         self.clean_dir(self.language.wrap_directory)
         self.clean_dir(self.language.build_directory)
         self.clean_dir(self.language.output_directory)
-        self.clean_dir(self.plugin_stub.directory.madz)
+        self.clean_dir(self.plugin_stub.directory.madz())
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""

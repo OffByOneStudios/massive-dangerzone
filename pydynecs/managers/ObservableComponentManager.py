@@ -22,7 +22,7 @@ class ObservableComponentManager(abstract.IObservableEntityManager, abstract.ICo
     def set(self, key, value):
         isnew = True
         expired = None
-        if self.has(key):
+        if self.has_entity(key):
             isnew = False
             expired = self.get(key)
         super().set(key, value)

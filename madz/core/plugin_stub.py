@@ -10,11 +10,12 @@ import traceback
 import contextlib
 import warnings
 
-from .plugin_id import *
 from ..config import *
 
 from .. import language
 from .. import fileman
+from .files import *
+from .plugin_id import *
 
 from ..MDL import description as pyMDL
 
@@ -46,7 +47,9 @@ class PluginStub(object):
         """Attempts to load a python description from the directory given."""
         # TODO(Mason): Exception for plugin file not found
         self.system = system
+        
         self._directory = plugin_description_loader.directory
+        self._directory[File_ModuleEntity] = self
         self._plugin = plugin_description_loader.plugin_description
         self._plugin_loader_files = plugin_description_loader.get_plugin_loader_files()
 
@@ -262,5 +265,4 @@ class PluginStub(object):
     def output_file_location(self):
         """Returns the path of this plugin's artifact
         """
-        dir = fileman.contents_directory(self.directory.madz.subdirectory(".output"))
-        return dir.file("{}.madz".format(self.id.namespace))
+        return self.directory.madz().dir(".output").file("{}.madz".format(self.id.namespace))

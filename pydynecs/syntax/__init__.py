@@ -1,5 +1,6 @@
+from ..core import *
+
 from .exceptions import *
-from .EntityFacade import EntityFacade
 
 def system_syntax(system):
     import inspect
@@ -18,17 +19,20 @@ def system_syntax(system):
     frm = inspect.stack()[1]
     module = inspect.getmodule(frm[0])
 
-    syntax_vars = map(lambda c: (c[0], type(c[0], (c[1], ), {
+    syntax_vars = list(map(lambda c: (c[0], type(c[0], (c[1], ), {
             "_get_current_system": classmethod(get_current_system)
         })), [
             ("Entity", EntityFacade)
-        ])
+        ]))
 
     for attr, value in syntax_vars:
         value.__module__ = module.__name__
         setattr(module, attr, value)
-    
-    return system.current
+        
+    for attr, value in syntax_vars:
+        setattr(system, attr, value)
+        
+    return system
 
 def manager_decorator_for(system):
     from .. import abstract as abstract
@@ -42,21 +46,8 @@ def manager_decorator_for(system):
         cls.pydynecs_key = lambda cls=cls: "{}/{}".format(cls.__module__, cls.__qualname__)
         abstract.IManagerKey.register(cls)
         
-        instance = cls()
+        instance = cls(system)
         _system.add_manager(cls, instance)
-
-        for name in dir(cls):
-            if name.startswith("_"):
-                continue
-            actual = getattr(cls, name)
-            if issubclass(actual, abstract.IEntityManager):
-                if issubclass(actual, abstract.IIndexManager):
-                    actual_instance = actual(instance)
-                else:
-                    actual_instance = actual()
-                actual.pydynecs_key = lambda cls=actual: "{}/{}".format(cls.__module__, cls.__qualname__)
-                abstract.IManagerKey.register(actual)
-                _system.add_manager(actual, actual_instance)
         
         return cls
     return dec

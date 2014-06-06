@@ -4,13 +4,12 @@ A dictionary based dynamic component manager.
 """
 
 from .. import abstract
+from . import *
 
-class BasicComponentManager(abstract.IComponentManager):
-    def __init__(self):
+class BasicComponentManager(BaseManager, abstract.IComponentManager):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._dict = {}
-    
-    def dependencies(self):
-        return list()
     
     def get(self, key):
         return self._dict[abstract.entity(key)]
@@ -25,10 +24,10 @@ class BasicComponentManager(abstract.IComponentManager):
         return key in self._dict
     
     def entities(self):
-        return self._dict.keys()
+        return list(self._dict.keys())
     
     def values(self):
-        return self._dict.values()
+        return list(self._dict.values())
     
     def items(self):
-        return self._dict.items()
+        return list(self._dict.items())

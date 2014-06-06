@@ -8,7 +8,7 @@ import abc
 
 from .IEntityManager import IEntityManager
 
-class IEntityClass(IEntityManager, metaclass=abc.ABCMeta):
+class IEntityClass(IEntityManager):
     @abc.abstractmethod
     def properties(self):
         """A list of additional properties provided by this class, of the form:

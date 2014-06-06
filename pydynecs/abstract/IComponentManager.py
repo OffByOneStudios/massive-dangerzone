@@ -6,7 +6,7 @@ import abc
 
 from . import *
 
-class IComponentManager(IReadableComponentManager, metaclass=abc.ABCMeta):
+class IComponentManager(IReadableComponentManager):
     @abc.abstractmethod
     def set(self, entity, value):
         pass

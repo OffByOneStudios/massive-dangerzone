@@ -6,7 +6,7 @@ import abc
 
 from .IEntityManager import IEntityManager
 
-class IObservableEntityManager(IEntityManager, metaclass=abc.ABCMeta):
+class IObservableEntityManager(IEntityManager):
     @abc.abstractmethod
     def on_des(self):
         """An object for attaching a callback for when an entity is removed from the manager.

@@ -60,7 +60,7 @@ class BaseLanguage(metaclass=abc.ABCMeta):
     @property
     def output_directory(self):
         """Returns the path of the output directory."""
-        return contents_directory(self.plugin_stub.directory.madz.subdirectory(".output"))
+        return self.plugin_stub.directory.madz().dir(".output")
 
     def get_output_file(self):
         """Retruns the path of the output file."""

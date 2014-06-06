@@ -56,12 +56,12 @@ class MdlFileLoader(IMdlPickleable):
         return [dir.file(self.handle)]
 
     def load(self, dir):
-        with dir.file(self.handle).open("r") as f:
+        with dir.file(self.handle).pyopen("r") as f:
             self.loader = MDLStringLoader(f.read())
             return self.loader.load()
 
     def source(self, dir):
-        with dir.file(self.handle).open("r") as f:
+        with dir.file(self.handle).pyopen("r") as f:
             return f.read()
     
     
@@ -74,16 +74,16 @@ class MdlCachedLoader(IMdlLoader):
         return self._parse_cached(self.loader.source(dir), dir)
 
     def dependency_files(self, dir):
-        return [dir.madz.file("ast.pickle")]
+        return [dir.madz().file("ast.pickle")]
 
     def _parse_cached(self, ast, dir):
         # Set state flag
         needs_parsing = True
         # Check for cache pickle file
         try:
-            if dir.madz.file_exists("ast.pickle"):
+            if dir.madz().file_exists("ast.pickle"):
                 # Open cache file
-                with dir.madz.file("ast.pickle").open("rb") as pickle_file:
+                with dir.madz().file("ast.pickle").pyopen("rb") as pickle_file:
                     # Unpickle original source
                     ast_str = pickle.load(pickle_file)
                     # Check that the current source and original source match
@@ -105,7 +105,7 @@ class MdlCachedLoader(IMdlLoader):
             # Make the directory for the cache file
             
             # Open the cache file
-            with dir.madz.file("ast.pickle").open("w+b") as pickle_file:
+            with dir.madz().file("ast.pickle").pyopen("w+b") as pickle_file:
                 # Save the original AST
                 ast_str = ast
 

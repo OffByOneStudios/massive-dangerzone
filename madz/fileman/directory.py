@@ -10,186 +10,48 @@ from .core import *
 
 logger = logging.getLogger(__name__)
 
-def contents_directory(obj):
-
-    if isinstance(obj, Directory) or isinstance(obj, ModuleContentsDirectory):
-        return ContentsDirectory(obj._directory)
-
-    raise TypeError("Cannot convert from type :{} to type ContentsDirectory".format(type(obj)))
-
-
-class Directory(IPathable):
-    """Class representing a folder of which madz is aware."""
-
-    def __init__(self, absolute_path):
-        """Constructor
-
-        args:
-            absolute_path : string directory path
-        """
-        
-        # Ensure path is absolute
-        self._directory = path.abspath(absolute_path) + "/"
-
-    @property
-    def path(self):
-        return self._directory
-
-    @property
-    def _files(self):
-        return FileManager.current.filesInDirectory(self)
-
-    @staticmethod
-    def _fullname(o):
-        """Fully qualified typename of object o
-        
-            Ref: http://stackoverflow.com/questions/2020014/get-fully-qualified-class-name-of-an-object-in-python
-        """
-        return o.__module__ + "." + o.__name__
+@manager
+class Directory(EntityToComponentManager, EntityClass):
+    depends = [Path, Path_lookup]
+    component_name = "is_directory"
+    def has_entity(self, entity):
+        e = self.s(entity)
+        if not Path in e: return False
+        p = e[Path]
+        return (not os.path.exists(p)) or os.path.isdir(p)
     
-    def subdirectory(self, *args):
-        return Directory(path.join(self._directory, *args))
-
-    def subdirectory_for_type(self, the_type):
-        return Directory(path.join(self._directory, self._fullname(the_type)))
-
-    def files(self, extension_filter=[]):
-        """Get Files in this directory
-
-        args:
-            extension_filter : List of file extensions without '.'
-        """
-        return [File(path.join(self._directory, f)) for f in self._files if len(extension_filter) == 0 or f.split(".")[1] in extension_filter]
-
-    def file_names(self, extension_filter=[]):
-        """Get Files in this directory
-
-        args:
-            extension_filter : List of file extensions without '.'
-        """
-        return [f for f in self._files if len(extension_filter) == 0 or f.split(".")[1] in extension_filter]
-
-    def require(self):
-        FileManager.current.ensureDirectory(self)
-
-    def hashes_changed(self, hash_table):
-        """ Returns a list of file objects whose hashes differ from the provided hash table.
-
-        This hash table would have been generated using file_hashes.
+    @entity_property
+    def contents(s, e):
+        if not Path.exists(s, e):
+            return list()
+        return list(map(lambda p: s[Path_lookup][p], os.listdir(s[Path][e])))
         
-        Args:
-            hash_table : dictionary of filename hash pairs.
-        """
-        res = []
-        current_hashes = self.file_hashes()
-        for key, value in hash_table.items():
-            if current_hashes.get(key) != value:
-                res.append(File(path.join(self._directory, key)))
-            
-        return res if len(res) > 0 else None
+    @entity_property
+    def file(s, e, *args):
+        return s[Path_lookup][os.path.join(s[Path][e], *args)]
 
-    def datetimes_changed(self, target_file):
-        """ Returns a list of file objects whose datetimes differ from the provided datetime table.
-
-        This hashdatetime_table would have been generated using files_modified.
+    @entity_property
+    def list(s, e, exts=[], wdirs=False, wfiles=True):
+        e = s(e)
+        dir = e[Path]
         
-        args:
-            target_file : Relative path to target file.
-
-        Returns:
-            List of files whose modified dates are greater than 
-        """
-        time = path.getmtime(path.join(self._directory, f))
-
-        res = []
-        current_times = self.files_modified()
-        for key, value in current_times.items():
-            if value > time:
-                res.append(File(path.join(self._directory, key)))
-            
-        return res if len(res) > 0 else None
-
-    def as_string(self):
-        """Returns the absolute path to directory referenced by this object."""
-        return self._directory
-
-    def __str__(self):
-        return self._directory
-
-    def _key(self):
-        return (self._directory,)
-
-    def __hash__(self):
-        return hash(self._key())
-
-    def __eq__(self, other):
-        return isinstance(other, Directory) and self._key() == other._key()
-
-class ContentsDirectory(Directory):
-    """Class representing the directory contents of a Madz plugin."""
-
-    def __init__(self, absolute_path):
-        """Constructor
-
-        args:
-            absolute_path : string directory path
-        """
-        Directory.__init__(self, absolute_path)
-
-    def file(self, file_name):
-        """Retrieve file
-
-        args:
-            file_name : "String relative path of file"
-        """
-        return File(path.join(self._directory, file_name))
-
-    def file_exists(self, file_name):
-        """Returns True if file_name exists, false otherwise"""
-        return  path.exists(path.join(self._directory, file_name))
-
-    @classmethod
-    def from_Directory(cls, the_directory):
-        """Coerce a directory into a contents directory
+        isdir = s[Directory]
+        isfile = s[File]
         
-        By default calls to subdirectory constructs Directory objects, which prohibit individual file access.
-        For code which needs to access a specific file, one should use this class method to build a contents directory
-
-        """ 
-        return ContentsDirectory(the_directory._directory)
-
-class ModuleContentsDirectory(ContentsDirectory):
-    """Class Representing the top level folder of a madz module
+        files = []
+        for f in e.contents():
+            if Path.extension(s, f) in exts:
+                if (wdirs and isdir[f]) or (wfiles and isfile[f]):
+                    files.append(f)
+        
+        return files
     
-    Members:
-        madz : The ".madz" hidden folder. Madz machinery lives here. Not for prying eyes.
-    """
-
-    def __init__(self, absolute_path):
-        """Constructor
-
-        args:
-            absolute_path : string directory path
-        """
-        ContentsDirectory.__init__(self, absolute_path)
-
-        self._madz = ContentsDirectory(path.join(absolute_path, ".madz"))
-        if os.name == "nt":
-            try:
-                #Hide the .madz folder on windows logger
-                ret = windll.kernel32.SetFileAttributesW(str(self._madz), 0x02)
-                if ret == 0:
-                    logger.warn("Unable to mark .madz directory as hidden in plugin folder:{}.".format(absolute_path))
-            except Exception as e:
-                logger.warn("Unable to mark .madz directory as hidden in plugin folder:{}.".format(absolute_path))
-
-    @property
-    def madz(self):
-        """Retrieve the MADZ hidden directory"""
-        return self._madz
-
-    def subdirectory(self, *args):
-        if(args[0] == ".madz"):
-            return self.madz
-        else:
-            return super().subdirectory(*args)
+    @entity_property
+    def dir(s, e, *args):
+        return s[Path_lookup][os.path.join(s[Path][e], *args)]
+    
+    @entity_property
+    def ensure(s, e):
+        p = s[Path][e]
+        if not os.path.exists(p):
+            os.makedirs(p)

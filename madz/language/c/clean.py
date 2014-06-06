@@ -32,16 +32,16 @@ class Cleaner(object):
         Args:
             dir: Path to directory to be cleaned.
         """
-        if os.path.exists(str(dir)):
+        if dir.exists():
             logger.debug("Found and cleaning directory: {}".format(dir))
-            shutil.rmtree(str(dir))
+            shutil.rmtree(dir.path)
 
     def clean(self):
         """Cleans a plugin."""
         self.clean_dir(self.language.wrap_directory)
         self.clean_dir(self.language.build_directory)
         self.clean_dir(self.language.output_directory)
-        self.clean_dir(self.plugin_stub.directory.madz)
+        self.clean_dir(self.plugin_stub.directory.madz())
 
     def get_dependency(self):
         """Returns a dependency object for this operation."""

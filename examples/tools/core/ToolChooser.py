@@ -39,7 +39,7 @@ class ToolChooser(ITool):
             
             layout = QtGui.QVBoxLayout()
             
-            tableData = PyQtExt.EcsTable(madz.bootstrap.EcsBootstrap, Tool)
+            tableData = PyQtExt.EcsTableModel(madz.bootstrap.EcsBootstrap, Tool)
             tableData.setManagers([
                 madz.bootstrap.Name,
                 Tool,

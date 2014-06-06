@@ -50,12 +50,12 @@ class LanguageC(language.BaseLanguage):
     @property
     def wrap_directory(self):
         """Returns the directory of the wrapper."""
-        return contents_directory(self.plugin_stub.directory.madz.subdirectory("c", ".wrap-c"))
+        return self.plugin_stub.directory.madz().dir("c", ".wrap-c")
 
     @property
     def build_directory(self):
         """Returns the directory of the builder."""
-        return contents_directory(self.plugin_stub.directory.madz.subdirectory("c", ".build-c"))
+        return self.plugin_stub.directory.madz().dir("c", ".build-c")
 
     def get_c_header_filename(self):
         """Returns the path to the filename of the madz header."""
@@ -71,7 +71,7 @@ class LanguageC(language.BaseLanguage):
 
     def get_debug_files(self):
         """Returns a list of debug data files"""
-        return self.build_directory.files(["pdb"])
+        return self.build_directory.list(["pdb"])
         
     def get_source_files(self):
-        return self.plugin_stub.directory.files(["c"])
+        return self.plugin_stub.directory.list(["c"])

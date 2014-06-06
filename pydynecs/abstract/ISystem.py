@@ -27,7 +27,7 @@ class ISystem(IEntityAllocator, metaclass=abc.ABCMeta):
         return "<ISystem: {} managers>".format(len(self.managers()))
     
     def managers_of(self, entity):
-        return [(key, m) for key, m in self.managers() if entity in m]
+        return [(key, m) for key, m in self.managers() if m.has_entity(entity)]
     
     def components_of(self, entity):
         return {key: m.get(entity) for key, m in self.managers_of(entity)}

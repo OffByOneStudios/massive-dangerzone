@@ -65,12 +65,12 @@ class LanguagePy(language.BaseLanguage):
     @property
     def wrap_directory(self):
         """Returns the directory of the wrapper."""
-        return contents_directory(self.plugin_stub.directory.madz.subdirectory("c", ".wrap-c"))
+        return self.plugin_stub.directory.madz().dir("c", ".wrap-c")
 
     @property
     def build_directory(self):
         """Returns the directory of the builder."""
-        return contents_directory(self.plugin_stub.directory.madz.subdirectory("c", ".build-c"))
+        return self.plugin_stub.directory.madz().dir("c", ".build-c")
 
     def get_c_header_filename(self):
         """Returns the path to the filename of the madz header."""
@@ -101,7 +101,7 @@ class LanguagePy(language.BaseLanguage):
         return self.wrap_directory.file("ctypes_wrapper.py")
 
     def get_source_files(self):
-        return self.plugin_stub.directory.files(["c"])
+        return self.plugin_stub.directory.list(["c"])
 
     def get_debug_files(self):
         return []

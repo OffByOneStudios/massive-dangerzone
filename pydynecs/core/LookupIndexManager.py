@@ -5,24 +5,30 @@ A dictionary based dynamic index manager.
 import abc
 
 from .. import abstract
+from . import *
 
-class LookupIndexManager(abstract.IIndexManager):
-    def __init__(self, manager):
-        if not(isinstance(manager, abstract.IObservableEntityManager)):
-            raise Exception("Can only provide a lookup entity manager for observable managers.")
-        self.manager = manager
+class LookupIndexManager(BaseManager, abstract.IIndexManager):
+    source = None
+    def __init__(self, *args, **kwargs):
+        if self.source is None:
+            raise Exception("Must have a source to build lookup on.")
+            
+        super().__init__(*args, **kwargs)
+        
+        self._source_manager = abstract.manager(self.get_system(), self.source)
+        if not(isinstance(self._source_manager, abstract.IObservableEntityManager)):
+            raise Exception("Can only provide a lookup index manager for observable source managers.")
         
         self._dict = {}
-        self._dependencies = [manager]
         
-        manager.on_mod().attach(self._on_mod)
-        manager.on_des().attach(self._on_des)
-        items = manager.items()
+        self._source_manager.on_mod().attach(self._on_mod)
+        self._source_manager.on_des().attach(self._on_des)
+        items = self._source_manager.items()
         for entity, value in items:
             self._update_index(entity, value)
     
-    def dependencies(self):
-        return list(map(lambda t: (t, {}), self._dependencies))
+    def get_dependencies(self):
+        return super().get_dependencies() + [self.source]
     
     @abc.abstractmethod
     def key(self, entity):

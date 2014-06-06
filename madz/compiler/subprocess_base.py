@@ -30,10 +30,10 @@ class SubprocessBase(CompilerBase):
         pass
     
     def invoke_simple(self, args, dir):
-        dir.require()
+        dir.ensure()
         compile_process = subprocess.Popen(
             args,
-            cwd=dir._directory,
+            cwd=dir.path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
