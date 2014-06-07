@@ -50,7 +50,7 @@ class MingwCompiler(GnuCompilerBase):
                 "cpp": ["-std=c++11", "-xc++"],
             }[language.name]) +
             # Include Directories
-            ["-I"+str(language.wrap_directory)] + list(self._gen_header_include_dirs()) +
+            ["-I"+language.wrap_directory.path] + list(self._gen_header_include_dirs()) +
             # Linker Prep (position independant code and visibility)
             ["-fvisibility=hidden"] +
             #["-fpic"] + # Not needed for some MinGW compilers?
@@ -79,7 +79,7 @@ class MingwCompiler(GnuCompilerBase):
             ["-Wl,--warn-unresolved-symbols"])
 
     def linker_flags_files(self, plugin_stub, language, source_files):
-        return ["-o", str(language.get_output_file())] + \
+        return ["-o", language.get_output_file().path] + \
             list(map(self.sourcefile_to_objectfile, source_files))
 
     def linker_flags_libraries(self, plugin_stub, language):
