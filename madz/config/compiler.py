@@ -24,6 +24,7 @@ class OptionCompilerPreference(BaseOption): pass
 class OptionLibrarySearchPaths(BaseAppendOption): pass
 class OptionLibraryStaticLinks(BaseAppendOption): pass
 class OptionLibraryDynamicLinks(BaseAppendOption): pass
+class OptionLibraryFrameworks(BaseAppendOption): pass
 
 # Source Headers
 

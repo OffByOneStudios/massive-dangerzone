@@ -24,29 +24,29 @@ class Path(ObservableComponentManager, CoercingComponentManager, BasicComponentM
     @entity_property
     def exists(s, e):
         return os.path.exists(s[Path][e])
-    
+
     @entity_property
     def extension(s, e):
         parts = os.path.basename(s[Path][e]).split(".")
         return "" if len(parts) < 1 else parts[-1]
-    
+
     @entity_property
     def with_extension(s, e, ext):
         path = s[Path][e][:-len(Path.extension(s, e))] + ext
         return s[Path_lookup][path]
-    
+
     @entity_property
     def fullname(s, e):
         return os.path.basename(s[Path][e])
-    
+
 @manager
 class Path_lookup(CoercingIndexManager, CreateOnFailureIndexManager, LookupIndexManager):
     source=Path
     def coerce(self, key): return os.path.abspath(key)
-    
+
     def create(self, key):
         e = self.s.new_entity()
-        
+
         self.s[Path][e] = key
         return e
 

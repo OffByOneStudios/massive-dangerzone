@@ -7,8 +7,7 @@ import os
 import glob
 import re
 
-from ...compiler import mingw_compiler
-from ...compiler import cl_compiler
+from ...compiler import mingw_compiler, cl_compiler, clang_compiler
 from ...config import *
 from ...fileman import *
 
@@ -26,7 +25,7 @@ class LanguageC(language.BaseLanguage):
         """List of compatible compilers with C and MADZ."""
         "gcc": compiler_gcc.GCCCompiler,
         "mingw": NewCompilerWrapper(mingw_compiler.MingwCompiler),
-        "clang": compiler_clang.ClangCompiler,
+        "clang": NewCompilerWrapper(clang_compiler.ClangCompiler),
         "cl": NewCompilerWrapper(cl_compiler.ClCompiler),
     }
     default_compiler = "gcc"
@@ -72,6 +71,6 @@ class LanguageC(language.BaseLanguage):
     def get_debug_files(self):
         """Returns a list of debug data files"""
         return self.build_directory.list(["pdb"])
-        
+
     def get_source_files(self):
         return self.plugin_stub.directory.list(["c"])

@@ -7,8 +7,7 @@ The language object pulling togeather all of the pieces needed for a plugin of t
 import os
 import glob
 
-from ...compiler import mingw_compiler
-from ...compiler import cl_compiler
+from ...compiler import mingw_compiler, cl_compiler, clang_compiler
 from ...config import *
 from ...fileman import *
 
@@ -25,7 +24,7 @@ class LanguagePy(language.BaseLanguage):
     compilers = {
         "gcc": compiler_gcc.GCCCompiler,
         "mingw": NewCompilerWrapper(mingw_compiler.MingwCompiler),
-        "clang": compiler_clang.ClangCompiler,
+        "clang": NewCompilerWrapper(clang_compiler.ClangCompiler),
         "cl": NewCompilerWrapper(cl_compiler.ClCompiler),
     }
     default_compiler = "gcc"

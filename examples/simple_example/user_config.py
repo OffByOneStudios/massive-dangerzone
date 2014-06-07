@@ -4,12 +4,12 @@ from madz.user_config import *
 # machine specific information to madz.
 
 # Choose operating system
-user_os_choice = { "windows" : 0, "linux" : 1, "macosx" : 2}["windows"]
+user_os_choice = { "windows" : 0, "linux" : 1, "macosx" : 2}["macosx"]
 # Prefered compiler. Options cl, mingw, gcc, clang
-user_compiler_preference = "mingw"
+user_compiler_preference = "clang"
 
 # The Python3 installation used to run madz
-user_runtime_python = ["C:\\Python33", "/usr/bin/python34"][user_os_choice]
+user_runtime_python = ["C:\\Python33", "/usr/bin/python34", "/usr/local/Cellar/python3/3.4.1/Frameworks/Python.framework/Versions/3.4/"][user_os_choice]
 
 config = UserConfig([
     # Choose a C compiler, "gcc" and "clang" for unix.
@@ -17,15 +17,16 @@ config = UserConfig([
     # For windows/cl this means running vcvarsall before starting the daemon.
     OptionCompilerPreference(user_compiler_preference),
     OptionCompilerDebug(1.0),
-    
+
     LanguageConfig("python", [
         # Path locations only required for windows
         OptionHeaderSearchPaths([
-            os.path.join(user_runtime_python, "include"),
+            os.path.join(user_runtime_python, "include/python3.4m"),
         ]),
         OptionLibrarySearchPaths([
-            os.path.join(user_runtime_python, "libs"),
+            os.path.join(user_runtime_python, "lib"),
         ]),
-        OptionLibraryStaticLinks(["python33"])
+        OptionLibraryStaticLinks(["python3.4"]),
+        #OptionLibraryFrameworks(["Python"]),
     ]),
 ])

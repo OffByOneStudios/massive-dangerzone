@@ -105,9 +105,9 @@ class ExecuterMinionSubprocess(object):
     def load(self, plugin_stub):
         for p in ExecuterMinionSubprocess._unique(
             map(lambda e: (
-                    "load-artifact", 
-                    e[0], 
-                    e[1].output_file_location().path, 
+                    "load-artifact",
+                    e[0],
+                    e[1].output_file_location().path,
                     tuple(map(lambda p: p.output_file_location().path, e[2]))),
                 ExecuterMinionSubprocess._gen_load_pattern(plugin_stub))):
             # Cleanup object for sending:
@@ -153,7 +153,7 @@ class ExecuteControlThread(threading.Thread):
         context = zmq.Context()
         socket = context.socket(zmq.REP)
         socket.bind("tcp://127.0.0.1:{port}".format(port=self._minion.port))
-        
+
         while not self._minion.banished:
             try:
                 command = socket.recv_pyobj(zmq.NOBLOCK)
@@ -164,7 +164,7 @@ class ExecuteControlThread(threading.Thread):
             try:
                 #TODO: set up logging report
                 logger.info("DAEMON[{}] Starting execute of '{}'.".format(self._minion.identity(), " ".join(command[0])))
-                
+
                 subproc = ExecuterMinionSubprocess(self)
                 self._minion.subprocs.append(subproc)
 
@@ -176,7 +176,7 @@ class ExecuteControlThread(threading.Thread):
             except Exception as e:
                 tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
                 logger.error("DAEMON[{}] Failed on execute of '{}':\n\t{}".format(self._minion.identity(), " ".join(command[0]), tb_string))
-        
+
 @bootstrap_plugin("madz.minion.Executer")
 class ExecuterMinion(IMinion):
     current = None
