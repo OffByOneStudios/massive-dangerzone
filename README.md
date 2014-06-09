@@ -11,3 +11,7 @@ Massive-Dangerzone, abbreviated madz, is an extensible module management system 
 To achieve this cross platform goal, madz provides a framework for compilers, debuggers, languages, runtimes, etc. In addition madz provides a variety of other features, or frameworks for features, including a build system using 'AI' planning (as opposed to simple dependency tress), project file generation, executable launching, debugging, and deployment, a powerful report system (logs with interactive 'live' objects), among other potential features.
 
 **This codebase is still a work in progress, indeed this project is as much research as it is development.**
+
+
+## Installation 
+See https://github.com/OffByOneStudios/massive-dangerzone/blob/master/INSTALL.md

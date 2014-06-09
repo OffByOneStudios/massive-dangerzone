@@ -14,6 +14,7 @@ __pycache__
 .wrap-*/
 .output
 *.log
+.madz-daemon
 
 # Gitver
 .gitver
