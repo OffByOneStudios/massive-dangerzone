@@ -3,9 +3,9 @@ import sys
 import os
 import traceback
 
+context = None
 ## Set up environment:
-def main(argv):
-
+def _main(argv):
     print("Starting Bootstrap")
     sys.stdout.flush()
 
@@ -21,11 +21,13 @@ def main(argv):
 
     # ZMQ setup:
     import zmq
+    global context
     context = zmq.Context()
 
     ## Set up listener:
 
     socket = context.socket(zmq.PAIR)
+    socket.RCVTIMEO = 200
     socket.connect(bind)
 
     # The goal of this is to setup an environment where we can call to_execute
@@ -35,7 +37,13 @@ def main(argv):
     sys.stdout.flush()
     error_artifacts = []
     while to_execute is None:
-        request = socket.recv_pyobj()
+        # busy recieve loop
+        while True:
+            try:
+                request = socket.recv_pyobj()
+                break
+            except zmq.ZMQError:
+                pass
 
         command_count += 1
         if (command_count % 100 == 0):
@@ -85,5 +93,12 @@ def main(argv):
     # End of script, bootstrap done!
     to_execute()
 
+def main(argv):
+    try:
+        _main(argv)
+    finally:
+        print("Bootstrap execution canceled.")
+        context.destroy(0)
+    
 if __name__ == "__main__":
     main(sys.argv)
