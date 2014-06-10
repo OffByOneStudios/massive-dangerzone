@@ -29,6 +29,8 @@ class ExecuterMinionSubprocess(object):
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
+        self.socket.RCVTIMEO = 200
+        self.socket.SNDTIMEO = 200
         self.socket.bind(self._bind_str)
 
     def banish(self):
@@ -77,39 +79,56 @@ class ExecuterMinionSubprocess(object):
             yield x
 
     @staticmethod
-    def _gen_load_pattern(plugin_stub, until="final", memo=[], skip=[]):
+    def _gen_load_pattern(plugin_stub):
         # base:
-        res = []
-
-        # get into memory:
-        res += [("in-mem", plugin_stub, [])]
-        if until == "in-mem":
-            return res
-
-        # init:
-        depends = plugin_stub.gen_recursive_loaded_depends()
-        res += [load_pattern for require in depends for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "inited")]
-        res += [("inited", plugin_stub, depends)]
-        if until == "inited":
-            return res
-
-        # final
-        if plugin_stub in skip:
-            return res
-        imports = list(filter(lambda p: p not in depends, plugin_stub.gen_required_loaded_imports()))
-        res += [load_pattern for require in imports for load_pattern in ExecuterMinionSubprocess._gen_load_pattern(require, "final", memo + imports, memo)]
-        res += [("final", plugin_stub, imports)]
-        if until == "final":
-            return res
+        depends_set = set()
+        imports_set = set()
+        
+        pattern_list = list()
+        
+        def add_depend(dep):
+            depends_list.append(dep)
+            depends_set.add(dep)
+        
+        def add_pattern(command, stub, dependent_stubs):
+            pattern_list.append(
+                ("load-artifact",
+                command,
+                stub.output_file_location().path,
+                list(map(lambda s: s.output_file_location().path, dependent_stubs))
+            ))
+        
+        def add_depends_for(stub):
+            if stub in depends_set:
+                return
+            add_pattern("in-mem", stub, [])
+            for depend in stub.gen_recursive_loaded_depends():
+                if depend in depends_set:
+                    continue
+                add_pattern("in-mem", depend, [])
+                add_pattern("inited", depend, depend.loaded_depends)
+                depends_set.add(depend)
+            add_pattern("inited", stub, stub.loaded_depends)
+            depends_set.add(stub)
+        
+        def add_stub(stub):
+            if stub in imports_set:
+                return
+            add_depends_for(stub)
+            imports_set.add(stub)
+            for import_ in stub.loaded_imports:
+                if import_ in imports_set:
+                    continue
+                add_stub(import_)
+            add_pattern("final", stub, stub.loaded_imports)
+                
+        add_stub(plugin_stub)
+        
+        return pattern_list
 
     def load(self, plugin_stub):
-        for p in ExecuterMinionSubprocess._unique(
-            map(lambda e: (
-                    "load-artifact",
-                    e[0],
-                    e[1].output_file_location().path,
-                    tuple(map(lambda p: p.output_file_location().path, e[2]))),
-                ExecuterMinionSubprocess._gen_load_pattern(plugin_stub))):
+        load_pattern = ExecuterMinionSubprocess._gen_load_pattern(plugin_stub)
+        for p in load_pattern:
             # Cleanup object for sending:
             sending = p
 
