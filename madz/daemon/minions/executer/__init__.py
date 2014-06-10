@@ -105,10 +105,11 @@ class ExecuterMinionSubprocess(object):
                 if depend in depends_set:
                     continue
                 add_pattern("in-mem", depend, [])
-                add_pattern("inited", depend, depend.loaded_depends)
-                recur_depends[depend] = set(depend.gen_recursive_loaded_depends())
+                drd = depend.gen_recursive_loaded_depends()
+                recur_depends[depend] = set(drd)
+                add_pattern("inited", depend, drd)
                 depends_set.add(depend)
-            add_pattern("inited", stub, stub.loaded_depends)
+            add_pattern("inited", stub, rd)
             depends_set.add(stub)
         
         def add_stub(stub):
@@ -129,8 +130,6 @@ class ExecuterMinionSubprocess(object):
 
     def load(self, plugin_stub):
         load_pattern = ExecuterMinionSubprocess._gen_load_pattern(plugin_stub)
-        import pprint
-        pprint.pprint(load_pattern)
         for p in load_pattern:
             # Cleanup object for sending:
             sending = p
