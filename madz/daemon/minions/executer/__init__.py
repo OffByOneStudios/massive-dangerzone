@@ -83,12 +83,9 @@ class ExecuterMinionSubprocess(object):
         # base:
         depends_set = set()
         imports_set = set()
+        recur_depends = dict()
         
         pattern_list = list()
-        
-        def add_depend(dep):
-            depends_list.append(dep)
-            depends_set.add(dep)
         
         def add_pattern(command, stub, dependent_stubs):
             pattern_list.append(
@@ -102,11 +99,14 @@ class ExecuterMinionSubprocess(object):
             if stub in depends_set:
                 return
             add_pattern("in-mem", stub, [])
-            for depend in stub.gen_recursive_loaded_depends():
+            rd = stub.gen_recursive_loaded_depends()
+            recur_depends[stub] = set(rd)
+            for depend in rd:
                 if depend in depends_set:
                     continue
                 add_pattern("in-mem", depend, [])
                 add_pattern("inited", depend, depend.loaded_depends)
+                recur_depends[depend] = set(depend.gen_recursive_loaded_depends())
                 depends_set.add(depend)
             add_pattern("inited", stub, stub.loaded_depends)
             depends_set.add(stub)
@@ -120,7 +120,8 @@ class ExecuterMinionSubprocess(object):
                 if import_ in imports_set:
                     continue
                 add_stub(import_)
-            add_pattern("final", stub, stub.loaded_imports)
+            rd = recur_depends[stub]
+            add_pattern("final", stub, list(filter(lambda p: p not in rd, stub.gen_required_loaded_imports())))
                 
         add_stub(plugin_stub)
         
@@ -128,6 +129,8 @@ class ExecuterMinionSubprocess(object):
 
     def load(self, plugin_stub):
         load_pattern = ExecuterMinionSubprocess._gen_load_pattern(plugin_stub)
+        import pprint
+        pprint.pprint(load_pattern)
         for p in load_pattern:
             # Cleanup object for sending:
             sending = p
