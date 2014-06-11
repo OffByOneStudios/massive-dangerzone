@@ -125,6 +125,9 @@ class ExecuterMinionSubprocess(object):
             add_pattern("final", stub, list(filter(lambda p: p not in rd, stub.gen_required_loaded_imports())))
                 
         add_stub(plugin_stub)
+
+        for stub in (depends_set - imports_set):
+            add_stub(stub)
         
         return pattern_list
 
