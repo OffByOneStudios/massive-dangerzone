@@ -81,7 +81,7 @@ class MdlCachedLoader(IMdlLoader):
         needs_parsing = True
         # Check for cache pickle file
         try:
-            if dir.madz().file_exists("ast.pickle"):
+            if dir.madz().file("ast.pickle").exists():
                 # Open cache file
                 with dir.madz().file("ast.pickle").pyopen("rb") as pickle_file:
                     # Unpickle original source
