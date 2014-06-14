@@ -1,3 +1,8 @@
+"""madz/compiler/mingw_compiler.py
+@OffbyOne Studios 2014
+Compiler implementation for mingw, gcc port for windows.
+"""
+
 import os
 
 from .gnu_compiler_base import GnuCompilerBase

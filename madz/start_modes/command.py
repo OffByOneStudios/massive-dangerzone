@@ -1,3 +1,7 @@
+"""madz/start_mode/command.py
+@OffbyOne Studios 2014
+Srtartmode for executing a build command across the plugin system.
+"""
 
 from ..daemon import client
 

@@ -1,3 +1,7 @@
+"""madz/start_mode/visual_studio.py
+@OffbyOne Studios 2014
+Startmode for integrating with visual studio.
+"""
 
 from ..daemon import client
 

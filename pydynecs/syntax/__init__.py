@@ -8,8 +8,6 @@ def system_syntax(system):
     
     from .. import abstract as abstract
     
-    system.current = system()
-    
     if not issubclass(system, abstract.ISystem):
         raise Exception("System argument '{}' is not a subclass of ISystem.".format(system))
 
@@ -37,7 +35,7 @@ def system_syntax(system):
 def manager_decorator_for(system):
     from .. import abstract as abstract
 
-    system = system.current
+    system
 
     def dec(cls, _system=system):
         if not issubclass(cls, abstract.IEntityManager):
@@ -45,9 +43,8 @@ def manager_decorator_for(system):
             
         cls.pydynecs_key = lambda cls=cls: "{}/{}".format(cls.__module__, cls.__qualname__)
         abstract.IManagerKey.register(cls)
-        
-        instance = cls(system)
-        _system.add_manager(cls, instance)
+
+        _system.add_manager(cls, cls)
         
         return cls
     return dec

@@ -1,3 +1,8 @@
+"""madz/start_mode/kill.py
+@OffbyOne Studios 2014
+Startmode for killing an active daemon.
+"""
+
 import sys, os
 
 from ..daemon import client

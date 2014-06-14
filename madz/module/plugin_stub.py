@@ -10,16 +10,20 @@ import traceback
 import contextlib
 import warnings
 
+from pydynecs import *
+
 from ..config import *
 
 from .. import language
 from .. import fileman
-from .files import *
 from .plugin_id import *
 
 from ..MDL import description as pyMDL
 
 logger = logging.getLogger(__name__)
+
+from .core import *
+from .files import *
 
 class PluginError(Exception): pass
 
@@ -48,8 +52,11 @@ class PluginStub(object):
         # TODO(Mason): Exception for plugin file not found
         self.system = system
         
+        self.entity = EcsModules.current.new_entity()
+        
         self._directory = plugin_description_loader.directory
-        self._directory[File_ModuleEntity] = self
+        FileModuleRelationshipModuleDirectory(self._directory, self.entity).build()
+        
         self._plugin = plugin_description_loader.plugin_description
         self._plugin_loader_files = plugin_description_loader.get_plugin_loader_files()
 

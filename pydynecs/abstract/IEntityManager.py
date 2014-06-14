@@ -8,16 +8,17 @@ and managing basic features of collections in refrence to entities.
 import abc
 
 class IEntityManager():
-    @abc.abstractmethod
-    def get_system(self):
-        pass
-    
+    @classmethod
     @abc.abstractmethod
     def meta(self):
         """Returns a dictionary of metadata for this entity manager.
         
         * `component_name`: the name of this component
         """
+        pass
+    
+    @abc.abstractmethod
+    def get_system(self):
         pass
     
     @abc.abstractmethod

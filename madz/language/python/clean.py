@@ -8,7 +8,7 @@ import logging
 import subprocess
 
 from ..c import clean as c_clean
-from ...core.dependency import Dependency
+from ...module.dependency import Dependency
 
 logger = logging.getLogger(__name__)
 

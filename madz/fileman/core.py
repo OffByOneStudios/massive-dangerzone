@@ -14,6 +14,7 @@ from pydynecs import *
 
 @system_syntax
 class EcsFiles(System): pass
+EcsFiles.current = EcsFiles()
 manager = manager_decorator_for(EcsFiles)
 
 @manager

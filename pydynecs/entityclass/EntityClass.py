@@ -14,16 +14,17 @@ def entity_property(func):
 class EntityClass(core.BaseManager, abstract.IEntityClass):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._properties = list(map(self.expand_property, filter(lambda p: hasattr(getattr(self, p), "__ecs_property__"), dir(self))))
     
-    def expand_property(self, property):
-        property_actual = getattr(self, property)
+    @classmethod
+    def expand_property(cls, property):
+        property_actual = getattr(cls, property)
         return (property_actual,
             {
                 "property_name": property
             })
     
-    def properties(self):
+    @classmethod
+    def properties(cls):
         """A list of additional properties provided by this class, of the form:
         
         Each tuple is of the form:
@@ -31,7 +32,9 @@ class EntityClass(core.BaseManager, abstract.IEntityClass):
         `property` is a provider for a property. A function that when called with an entity returns a descriptor (which may be assignable, and even deleatable). Where meta is a dictionary which may contain:
             * `property_name`: The name of the property.
         """
-        return list(self._properties)
+        return list(map(cls.expand_property, 
+            filter(lambda p: hasattr(getattr(cls, p), "__ecs_property__"), 
+                dir(cls))))
     
     def has_entity(self, entity):
         return self.dependencies_has_entity(entity)

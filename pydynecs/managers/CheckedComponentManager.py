@@ -15,5 +15,5 @@ class CheckedComponentManager(abstract.IComponentManager):
 
     def set(self, key, value):
         if not self.check(value):
-            raise CheckedComponentManager.CheckError()
+            raise CheckError()
         super().set(key, value)

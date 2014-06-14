@@ -3,6 +3,8 @@
 Abstract interfaces used within pydynecs.
 """
 
+from .Entity import *
+
 from .IEntity import *
 from .IEntityAllocator import *
 
@@ -20,12 +22,19 @@ from .IManagerKey import *
 from .ISystem import *
 
 def entity(e):
-    while isinstance(e, IEntity):
-        e = e.entity_id()
-    return e
+    _e = e
+    while isinstance(_e, IEntity):
+        _e = _e.entity_id()
+    if isinstance(_e, Entity):
+        return _e
+    raise TypeError("Not coercable to entity: {}".format(e))
 
 def system(s):
-    return s.current
+    if isinstance(s, ISystem):
+        return s
+    elif issubclass(s, ISystem):
+        return s.current
+    raise TypeError("Not coercable to system: {}".format(e))
 
 def manager(s, m):
     if isinstance(m, IEntityManager):

@@ -8,15 +8,16 @@ from .. import abstract
 class BaseManager(object):
     depends = []
     
+    @classmethod
+    def meta(cls):
+        m = {}
+        if hasattr(cls, "component_name") and issubclass(cls, abstract.IReadableComponentManager):
+            m["component_name"] = cls.component_name
+        return m
+    
     def __init__(self, system):
         self._system = abstract.system(system)
         self._dependencies = list(map(lambda d: self.expand_dependency(d), self.get_dependencies()))
-    
-    def meta(self):
-        m = {}
-        if hasattr(self, "component_name") and isinstance(self, abstract.IReadableComponentManager):
-            m["component_name"] = self.component_name
-        return m
     
     def get_system(self):
         return self._system

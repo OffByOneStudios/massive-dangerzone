@@ -1,7 +1,7 @@
 import abc
 
 from ...config import *
-from ...core.dependency import Dependency
+from ...module.dependency import Dependency
 
 class BaseCompiler(object):
     """The base compiler object.

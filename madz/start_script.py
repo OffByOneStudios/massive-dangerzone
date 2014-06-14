@@ -21,8 +21,8 @@ class config(object):
 
 # core namespace
 class core(object):
-    from .core.system import PluginSystem
-    from .core.plugin_directory import PluginDirectory
+    from .module.system import PluginSystem
+    from .module.plugin_directory import PluginDirectory
     def make_system(system_config):
         return core.PluginSystem(system_config)
 

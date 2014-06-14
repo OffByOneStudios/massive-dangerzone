@@ -9,6 +9,7 @@ import abc
 from .IEntityManager import IEntityManager
 
 class IEntityClass(IEntityManager):
+    @classmethod
     @abc.abstractmethod
     def properties(self):
         """A list of additional properties provided by this class, of the form:

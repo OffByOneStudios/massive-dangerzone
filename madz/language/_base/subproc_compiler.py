@@ -4,7 +4,7 @@ import subprocess
 import logging
 
 from . import compiler
-from ...core.dependency import Dependency
+from ...module.dependency import Dependency
 
 logger = logging.getLogger(__name__)
 

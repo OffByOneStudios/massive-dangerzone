@@ -1,3 +1,6 @@
+"""madz/start_mode/search.py
+Startmode for searching available information with in the module system.
+"""
 
 from ..daemon import client
 

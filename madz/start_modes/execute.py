@@ -1,3 +1,8 @@
+"""madz/start_mode/execute.py
+@OffbyOne Studios 2014
+Startmode for executing a module system.
+"""
+
 import os
 import sys
 import queue

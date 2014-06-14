@@ -5,7 +5,7 @@ Action to clean temporary files in plugins.
 import logging
 
 from ..config import *
-from ..core import *
+from ..module import *
 from .base import *
 
 logger = logging.getLogger(__name__)

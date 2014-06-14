@@ -1,9 +1,11 @@
+"""madz/start_mode/ipython.py
+@OffbyOne Studios 2014
+Startmode for embedding ipython within a running daemon.
+"""
 
 import IPython
 import threading
 from .daemon import IHandler, Server, IFork
-
-from .. import daemon_tools
 
 
 class IPythonThread(threading.Thread):

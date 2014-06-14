@@ -5,7 +5,7 @@ Code To generated C Headers from Madz Plugin Descriptions.
 import os
 
 from ... import MDL as pdl
-from ...core.dependency import Dependency
+from ...module.dependency import Dependency
 
 class CGenerator(object):
     """Class to Generate C Headers from PyMDL

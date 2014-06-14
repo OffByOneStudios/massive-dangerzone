@@ -8,7 +8,7 @@ from ..c import wrapgen as c_wrapgen
 # TODO(Any) Fix importing
 
 from ... import MDL as pdl
-from ...core.dependency import Dependency
+from ...module.dependency import Dependency
 from ...config import *
 
 # Box dict elements into a named tuple so that one function can be used to construct conversions.

@@ -6,7 +6,7 @@ from pydynecs import *
 
 @system_syntax
 class EcsBootstrap(System): pass
-
+EcsBootstrap.current = EcsBootstrap()
 manager = manager_decorator_for(EcsBootstrap)
 
 @manager

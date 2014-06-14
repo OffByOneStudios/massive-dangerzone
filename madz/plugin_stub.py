@@ -11,6 +11,6 @@ from .config.platform import *
 from .config.language import *
 from .config.library import *
 
-from .core.plugin_description._base.plugin import PluginDescription as Plugin
+from .module.plugin_description._base.plugin import PluginDescription as Plugin
 
 from .MDL import *

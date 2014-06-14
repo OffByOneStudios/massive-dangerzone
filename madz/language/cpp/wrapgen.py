@@ -7,7 +7,7 @@ import logging
 import contextlib
 
 from ... import MDL as pdl
-from ...core.dependency import Dependency
+from ...module.dependency import Dependency
 
 logger = logging.getLogger(__name__)
 

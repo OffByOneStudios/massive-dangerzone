@@ -1,3 +1,8 @@
+"""madz/compiler/cl_compiler.py
+@OffbyOne Studios 2014
+Compiler implementation for cl, microsoft's compiler.
+"""
+
 import os
 import shutil
 
