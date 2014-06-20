@@ -73,6 +73,7 @@ def _main(argv):
                 raise Exception("Unknown command: '{}'!".format(command))
         except:
             tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
+            tb_string = "ARTIFACT '{}'\n  {}".format(artifact, tb_string)
             print(tb_string)
             sys.stdout.flush()
             error_artifacts.append(artifact)
