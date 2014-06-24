@@ -4,6 +4,7 @@ Compiler implementation for mingw, gcc port for windows.
 """
 
 import os
+from itertools import chain, repeat
 
 from .gnu_compiler_base import GnuCompilerBase
 
@@ -87,8 +88,16 @@ class MingwCompiler(GnuCompilerBase):
         return ["-o", language.get_output_file().path] + \
             list(map(self.sourcefile_to_objectfile, source_files))
 
+    @staticmethod
+    def prefix_each(prefix, seq):
+        return chain.from_iterable(zip(repeat(prefix), seq))
+            
+    #http://stackoverflow.com/questions/15852677/static-and-dynamic-shared-linking-with-mingw
     def linker_flags_libraries(self, plugin_stub, language):
-        return (list(map(lambda m: "{}".format(m), self._gen_link_library_statics())) * 2)
+        return (
+                (list(self.prefix_each("-Wl,-Bstatic", self._gen_link_library_statics())) 
+                +list(self.prefix_each("-Wl,-Bdynamic", self._gen_link_library_dynamics())))
+            * 2)
 
     def process_output(self, name, retcode, output, errput, foutput, ferrput):
         if retcode != 0:

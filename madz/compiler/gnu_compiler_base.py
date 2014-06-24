@@ -26,11 +26,22 @@ class GnuCompilerBase(BuildBase):
         return libname
 
     @classmethod
+    def _format_dynamic_library(cls, libname):
+        return libname
+    
+    @classmethod
     def _gen_link_library_statics(cls, formatstring="-l{}"):
         """Returns a list of the linked library statics."""
         return map(
             lambda d: formatstring.format(cls._format_static_library(d)),
             config.get(OptionLibraryStaticLinks, []))
+
+    @classmethod
+    def _gen_link_library_dynamics(cls, formatstring="-l{}"):
+        """Returns a list of the linked library dynamics."""
+        return map(
+            lambda d: formatstring.format(cls._format_dynamic_library(d)),
+            config.get(OptionLibraryDynamicLinks, []))
 
     @abstractmethod
     def binaryname_compiler(self, plugin_stub, language):
