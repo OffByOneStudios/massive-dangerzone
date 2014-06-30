@@ -53,6 +53,7 @@ class PluginStub(object):
         self.system = system
         
         self.entity = EcsModules.current.new_entity()
+        self.entity[Old] = self
         
         self._directory = plugin_description_loader.directory
         FileModuleRelationshipModuleDirectory(self._directory, self.entity).build()
@@ -115,6 +116,8 @@ class PluginStub(object):
         # Save the merged plugin id
         self.id = desc_pid.merge(file_pid)
 
+        self.entity[Id] = self.id
+        
         # Get language stuff:
         self.language_name = self._get("language")
         self.language_module = language.get_language(self.language_name)
@@ -127,6 +130,7 @@ class PluginStub(object):
         # * System config contains the correct order for: Default -> User -> System
         # * Plugin config is the config from the plugin descriptions
         self.config = self._try_get("config")
+        self.entity[Config] = self.config
 
         # Build and save the language object for the plugin
         with config.and_merge(self.config):
@@ -169,9 +173,14 @@ class PluginStub(object):
 
         # Lookup loaded depends and imports
         for dep in self.depends:
-            self.loaded_depends.append(lookup_func(dep))
+            m = lookup_func(dep)
+            self.loaded_depends.append(m)
+            DependsRelationship(self, m).build()
+            
         for imp in self.imports:
-            self.loaded_imports.append(lookup_func(imp))
+            m = lookup_func(dep)
+            self.loaded_imports.append(m)
+            ImportsRelationship(self, m).build()
 
         # Construct loaded requires
         self.loaded_requires = self.loaded_depends + self.loaded_imports
@@ -273,3 +282,8 @@ class PluginStub(object):
         """Returns the path of this plugin's artifact
         """
         return self.directory.madz().dir(".output").file("{}.madz".format(self.id.namespace))
+        
+@manager
+class Old(CheckedComponentManager, BasicComponentManager):
+    component_name="old"
+    def check(self, value): return isinstance(value, PluginStub)

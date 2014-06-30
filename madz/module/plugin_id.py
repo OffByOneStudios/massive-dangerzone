@@ -18,6 +18,13 @@ class PluginId(object):
         self.namespace = namespace
         self.version = version
         self.implementation = implementation
+    
+    @classmethod
+    def coerce(self, value, *, complete=True):
+        if isinstance(value, PluginId):
+            return self
+        else:
+            raise ArgumentException()
 
     class PluginIdParseError(Exception): pass
 

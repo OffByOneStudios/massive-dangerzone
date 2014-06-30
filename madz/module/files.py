@@ -15,11 +15,26 @@ class FileModuleRelationship(object):
     
     def build(self):
         fileman.EcsFiles.current[FileModuleRelationModuleEntity][self.file] = self
-        EcsModules.current[FileModuleRelationFileEntity][self.module] = self
+        module_relation = EcsModules.current[FileModuleRelationFileEntity]
+        if not self.module in module_relation:
+            module_relation[self.module] = {}
+        module_relation[self.module][self.file] = self
     
 class FileModuleRelationshipModuleDirectory(FileModuleRelationship):
     pass
-    
+
+class FileModuleRelationshipDescriptionFile(FileModuleRelationship):
+    pass
+
+class FileModuleRelationshipSourceFile(FileModuleRelationship):
+    pass
+
+class FileModuleRelationshipGeneratedFile(FileModuleRelationship):
+    pass
+
+class FileModuleRelationshipGeneratedCacheFile(FileModuleRelationship):
+    pass
+
 ## Files
 
 @fileman.manager
@@ -27,11 +42,16 @@ class FileModuleRelationModuleEntity(fileman.BasicComponentManager, fileman.Enti
     depends=[fileman.Path]
     component_name="madz_module"
 
-@fileman.manager
-class FileModuleRelationModuleDirectory(fileman.EntityClass):
+class FileModuleRelationModuleBase(fileman.IEntityManager):
+    relationship_class=FileModuleRelationship
+    
     def has_entity(self, entity):
         return (self.s[FileModuleRelationModuleEntity].has_entity(entity)
-            and isinstance(self.s[FileModuleRelationModuleEntity][entity], FileModuleRelationshipModuleDirectory))
+            and isinstance(self.s[FileModuleRelationModuleEntity][entity], self.relationship_class))
+            
+@fileman.manager
+class FileModuleRelationModuleDirectory(fileman.EntityClass, FileModuleRelationModuleBase):
+    relationship_class=FileModuleRelationshipModuleDirectory
 
     @fileman.entity_property
     def madz(s, e):
@@ -43,3 +63,9 @@ class FileModuleRelationModuleDirectory(fileman.EntityClass):
 class FileModuleRelationFileEntity(BasicComponentManager, EntityClass):
     component_name="files"
 
+class FileModuleRelationModuleBase(IEntityManager):
+    relationship_class=FileModuleRelationship
+    
+    def has_entity(self, entity):
+        return (self.s[FileModuleRelationFileEntity].has_entity(entity)
+            and isinstance(self.s[FileModuleRelationFileEntity][entity], self.relationship_class))
