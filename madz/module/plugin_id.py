@@ -26,7 +26,7 @@ class PluginId(object):
         else:
             raise ArgumentException()
 
-    class PluginIdParseError(Exception): pass
+    class ParseError(Exception): pass
 
     @classmethod
     def parse(cls, relative):
@@ -44,8 +44,8 @@ class PluginId(object):
         version_string = None
         version_start = relativestring.find('[')
         version_end = relativestring.find(']')
-        if (version_start == -1) ^ (version_start == -1):
-            raise PluginIdParseError("Cannot contain ']' or '[' except as version delimiters.")
+        if (version_start == -1) != (version_end == -1):
+            raise PluginId.ParseError("Cannot contain ']' or '[' except as version delimiters.")
         elif version_start != -1:
             version_string = relativestring[version_start+1:version_end]
             relativestring = relativestring[:version_start] + relativestring[version_end+1:]
@@ -54,8 +54,8 @@ class PluginId(object):
         implname_string = None
         implname_start = relativestring.find('(')
         implname_end = relativestring.find(')')
-        if (implname_start == -1) ^ (implname_start == -1):
-            raise PluginIdParseError("Cannot contain ')' or '(' except as version delimiters.")
+        if (implname_start == -1) != (implname_start == -1):
+            raise PluginId.ParseError("Cannot contain ')' or '(' except as version delimiters.")
         elif implname_start != -1:
             implname_string = relativestring[implname_start+1:implname_end]
             relativestring = relativestring[:implname_start] + relativestring[implname_end+1:]

@@ -12,7 +12,7 @@ from .latebind import *
 
 _has_zmq = False
 try:
-    import zmq
+    import zmq as _zmq
     _has_zmq = True
 except:
     pass

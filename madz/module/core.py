@@ -47,9 +47,8 @@ class DependsRelationship(RequiresRelationship): pass
 class ImportsRelationship(RequiresRelationship): pass
 
 @manager
-class Modules(CheckedComponentManager, BasicComponentManager, EntityClass):
+class Modules(BasicComponentManager, EntityClass):
     component_name="modules"
-    def check(self, value): return EcsModules.current.valid_entity(value)
     
     @entity_property
     def source_of_relations(s, e, relation_class):

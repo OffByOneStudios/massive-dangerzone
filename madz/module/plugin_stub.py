@@ -27,7 +27,7 @@ from .files import *
 
 class PluginError(Exception): pass
 
-class PluginStub(object):
+class PluginStub(IEntity):
     """An object representing a python plugin description.
 
     Python plugin descriptions are represented as a '__plugin__.py' file in the plugin directory.
@@ -65,6 +65,9 @@ class PluginStub(object):
 
         self.inited = False
 
+    def entity_id(self):
+        return self.entity
+        
     @property
     def directory(self):
         return self._directory
@@ -178,7 +181,7 @@ class PluginStub(object):
             DependsRelationship(self, m).build()
             
         for imp in self.imports:
-            m = lookup_func(dep)
+            m = lookup_func(imp)
             self.loaded_imports.append(m)
             ImportsRelationship(self, m).build()
 

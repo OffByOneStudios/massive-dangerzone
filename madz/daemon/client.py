@@ -1,6 +1,7 @@
 import os
 
 import zmq
+import pyext
 
 from .Daemon import daemon_filename
 
@@ -34,8 +35,8 @@ def invoke_daemon(command, sub_command=""):
     control_socket.connect(binding())
 
     control_socket.send_multipart(list(map(lambda c: str(c).encode("utf-8"), [command, sub_command])))
-
-    res = control_socket.recv_pyobj()
+    
+    res = pyext.zmq_busy(lambda: control_socket.recv_pyobj(zmq.NOBLOCK))
 
     control_socket.close(-1)
     context.term()
@@ -55,7 +56,7 @@ def invoke_minion(minion, py_obj, between=lambda: None):
 
     control_socket.send_pyobj(py_obj)
     between()
-    res = control_socket.recv_pyobj()
+    res = pyext.zmq_busy(lambda: control_socket.recv_pyobj(zmq.NOBLOCK))
 
     control_socket.close(-1)
     context.term()
