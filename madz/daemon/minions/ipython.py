@@ -27,7 +27,7 @@ class InteractivePythonMinion(IMinion):
         self.port = Daemon.next_minion_port()
 
     @classmethod
-    def spawn(cls):
+    def minion_spawn(cls):
         if (cls.current == None):
             cls.current = CommandMinion()
         cls.current._spawn()
@@ -38,10 +38,14 @@ class InteractivePythonMinion(IMinion):
         self.spawned = True
         self._thread.start()
 
-    def banish(self):
+    def minion_banish(self):
         banished = True
         self._thread.join()
 
     @classmethod
-    def identity(cls):
+    def minion_identity(cls):
         return "ipython"
+        
+    @classmethod
+    def minion_index(cls):
+        return None

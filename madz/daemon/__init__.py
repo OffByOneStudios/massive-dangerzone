@@ -11,7 +11,7 @@ class Minion(pydynecs.ObservableComponentManager, madz.bootstrap.BootstrapPlugin
 class Minion_identity(pydynecs.LookupIndexManager):
     source = Minion
     def key(self, plugin):
-        return self.s[Minion][plugin].identity()
+        return self.s[Minion][plugin].minion_identity()
 
 from .Daemon import *
 from .minions import *

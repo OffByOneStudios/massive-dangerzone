@@ -32,11 +32,11 @@ class CommandMinion(IMinion):
                 report = None
                 try:
                     #TODO: set up logging report
-                    logger.info("DAEMON[{}] Doing command '{}'.".format(self._minion.identity(), " ".join(command[0])))
+                    logger.info("DAEMON[{}] Doing command '{}'.".format(self._minion.minion_identity(), " ".join(command[0])))
                     execute_args_across(command[0], Daemon.current.system, command[1])
                 except Exception as e:
                     tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
-                    logger.error("DAEMON[{}] Failed on command '{}':\n\t{}".format(self._minion.identity(), " ".join(command[0]), tb_string))
+                    logger.error("DAEMON[{}] Failed on command '{}':\n\t{}".format(self._minion.minion_identity(), " ".join(command[0]), tb_string))
                     pass #TODO: Create exception report, combine and send
                     report = tb_string
                 socket.send_pyobj(report)
@@ -48,7 +48,7 @@ class CommandMinion(IMinion):
         self.port = Daemon.next_minion_port()
 
     @classmethod
-    def spawn(cls):
+    def minion_spawn(cls):
         if (cls.current is None):
             cls.current = CommandMinion()
         return cls.current._spawn()
@@ -59,13 +59,17 @@ class CommandMinion(IMinion):
             self._thread.start()
         return (self, [self.port])
 
-    def banish(self):
+    def minion_banish(self):
         self.banished = True
         self._thread.join()
 
     @classmethod
-    def identity(cls):
+    def minion_identity(cls):
         return "command"
+    
+    @classmethod
+    def minion_index(cls):
+        return None
 
 from ...config import *
 from ...helper import logging_setup

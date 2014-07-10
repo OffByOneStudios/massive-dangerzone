@@ -53,8 +53,8 @@ class Daemon(object):
         exit(0)
 
     def spawn_minion(self, plugin):
-        minion, report = plugin[Minion].spawn()
-        i = minion.identity()
+        minion, report = plugin[Minion].minion_spawn()
+        i = minion.minion_identity()
         
         if not i in self.minions:
             self.minions[i] = set()
@@ -72,15 +72,14 @@ class Daemon(object):
     def banish_minion_type(self, name):
         res = []
         for minion in self.minions[name]:
-            res.append(minion.banish())
+            res.append(minion.minion_banish())
         del self.minions[name]
         return res
         
     def banish_minions(self):
         res = []
-        for minion_t in self.minions.values():
-            for minion in minion_t:
-                res += [minion.banish()]
+        for minion_name in list(self.minions.keys()):
+            res += self.banish_minion_type(minion_name)
         return res
         
     def banish_daemon(self):

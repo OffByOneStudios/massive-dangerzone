@@ -47,26 +47,26 @@ class ExecuterMinionSubprocess(object):
                 execute_function_name = argv[1] if len(argv) > 1 else config.get(OptionSystemExecuteFunctionName)
 
                 if execute_plugin_name is None:
-                    logger.error("DAEMON[{}] cannot execute. OptionSystemExecutePlugin is not defined.".format(self._minion.identity()))
+                    logger.error("DAEMON[{}] cannot execute. OptionSystemExecutePlugin is not defined.".format(self._minion.minion_identity()))
                     return
 
                 plugin_stub = system.resolve_plugin(execute_plugin_name)
 
                 if(plugin_stub.executable == False):
-                    logger.error("DAEMON[{}] cannot execute {}. executable flag not set to True.".format(self._minion.identity(), plugin_stub.id.namespace))
+                    logger.error("DAEMON[{}] cannot execute {}. executable flag not set to True.".format(self._minion.minion_identity(), plugin_stub.id.namespace))
                     return
 
                 logger.debug("DAEMON[{}] Loading plugins for '{}' targeting function '{}'.".format(
-                        self._minion.identity(),
+                        self._minion.minion_identity(),
                         execute_plugin_name,
                         execute_function_name
                     ))
                 self.load(plugin_stub)
 
-                logger.info("DAEMON[{}] Calling function '{}' from plugin '{}'.".format(self._minion.identity(), execute_function_name, execute_plugin_name))
+                logger.info("DAEMON[{}] Calling function '{}' from plugin '{}'.".format(self._minion.minion_identity(), execute_function_name, execute_plugin_name))
                 self.call_func(plugin_stub, execute_function_name)
 
-                logger.info("DAEMON[{}] Completed, new instance started!".format(self._minion.identity()))
+                logger.info("DAEMON[{}] Completed, new instance started!".format(self._minion.minion_identity()))
 
 
     @staticmethod
@@ -157,7 +157,7 @@ class ExecuterMinionSubprocess(object):
 
             # Executer responded with traceback
             if (isinstance(res, str)):
-                logger.error("DAEMON[{}] Encountered problem loading {}:\n\t{}".format(self.identity(), plugin_stub, res))
+                logger.error("DAEMON[{}] Encountered problem loading {}:\n\t{}".format(self.minion_identity(), plugin_stub, res))
                 raise Exception("Encountered problem loading {}!".format(plugin_stub))
 
 
@@ -187,7 +187,7 @@ class ExecuteControlThread(threading.Thread):
             report = None
             try:
                 #TODO: set up logging report
-                logger.info("DAEMON[{}] Starting execute of '{}'.".format(self._minion.identity(), " ".join(command[0])))
+                logger.info("DAEMON[{}] Starting execute of '{}'.".format(self._minion.minion_identity(), " ".join(command[0])))
 
                 subproc = ExecuterMinionSubprocess(self)
                 self._minion.subprocs.append(subproc)
@@ -199,7 +199,7 @@ class ExecuteControlThread(threading.Thread):
                 subproc.execute(*command)
             except Exception as e:
                 tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
-                logger.error("DAEMON[{}] Failed on execute of '{}':\n\t{}".format(self._minion.identity(), " ".join(command[0]), tb_string))
+                logger.error("DAEMON[{}] Failed on execute of '{}':\n\t{}".format(self._minion.minion_identity(), " ".join(command[0]), tb_string))
 
 @bootstrap_plugin("madz.minion.Executer")
 class ExecuterMinion(IMinion):
@@ -213,7 +213,7 @@ class ExecuterMinion(IMinion):
         self.port = Daemon.next_minion_port()
 
     @classmethod
-    def spawn(cls):
+    def minion_spawn(cls):
         if (cls.current is None):
             cls.current = ExecuterMinion()
         return cls.current._spawn()
@@ -224,13 +224,16 @@ class ExecuterMinion(IMinion):
             self._thread.start()
         return (self, [self.port])
 
-    def banish(self):
+    def minion_banish(self):
         self.banished = True
         for subproc in self.subprocs:
             subproc.banish()
         self._thread.join()
 
     @classmethod
-    def identity(cls):
+    def minion_identity(cls):
         return "execute"
 
+    @classmethod
+    def minion_index(cls):
+        return None

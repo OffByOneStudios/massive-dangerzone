@@ -3,14 +3,19 @@ import abc
 class IMinion(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
-    def spawn(self):
+    def minion_spawn(self):
         pass
 
     @abc.abstractmethod
-    def banish(self):
+    def minion_banish(self):
         pass
 
     @classmethod
     @abc.abstractmethod
-    def identity(cls):
+    def minion_identity(cls):
         pass
+
+    @classmethod
+    @abc.abstractmethod
+    def minion_index(cls):
+        """Returns helper objects and an index of of features for a minion (or None)"""

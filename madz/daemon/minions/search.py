@@ -60,7 +60,7 @@ class SearchMinion(IMinion):
         self.port = Daemon.next_minion_port()
 
     @classmethod
-    def spawn(cls):
+    def minion_spawn(cls):
         if (cls.current is None):
             cls.current = SearchMinion()
         return cls.current._spawn()
@@ -71,13 +71,17 @@ class SearchMinion(IMinion):
             self._thread.start()
         return (self, [self.port])
 
-    def banish(self):
+    def minion_banish(self):
         self.banished = True
         self._thread.join()
 
     @classmethod
-    def identity(cls):
+    def minion_identity(cls):
         return "search"
+        
+    @classmethod
+    def minion_index(cls):
+        return None
 
 from ...config import *
 from ...helper import logging_setup

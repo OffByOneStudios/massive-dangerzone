@@ -62,3 +62,6 @@ def invoke_minion(minion, py_obj, between=lambda: None):
     context.term()
 
     return res
+
+def MinionClientProxy(object):
+    """Pretends to be a minion on the client side, an RPC object."""
