@@ -9,4 +9,4 @@ from . import core
 def start(target=None):
     if target is None:
         target = core.ToolChooser.identity()
-    core.launch(madz.bootstrap.EcsBootstrap[core.Tool.identity][target])
+    core.launch(madz.bootstrap.EcsBootstrap.current[core.Tool_identity][target])

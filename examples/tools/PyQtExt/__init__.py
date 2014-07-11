@@ -1,2 +1,2 @@
 from .FlowLayout import *
-from .EcsTable import *
+from .EcsTableModel import *

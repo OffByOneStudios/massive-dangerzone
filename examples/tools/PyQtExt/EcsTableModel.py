@@ -6,6 +6,7 @@ import pydynecs
 class EcsTableModel(QtCore.QAbstractTableModel):
     def __init__(self, system, entity_manager, parent=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        system = system.current
         
         self._system = system
         self._entity_manager = system[entity_manager]

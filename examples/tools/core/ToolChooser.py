@@ -84,5 +84,5 @@ class ToolChooser(ITool):
         self._toplevel = None
     
     def spawn(self, to_spawn):
-        launch(madz.bootstrap.EcsBootstrap[Tool.identity][to_spawn.identity()])
+        launch(madz.bootstrap.EcsBootstrap.current[Tool_identity][to_spawn.identity()])
         

@@ -9,6 +9,7 @@ from .ITool import *
 class Tool(pydynecs.ObservableComponentManager, madz.bootstrap.BootstrapPluginImplementationComponentManager):
     interface = ITool
 
+@madz.bootstrap.manager
 class Tool_identity(pydynecs.LookupIndexManager):
     source=Tool
     def key(self, plugin):
