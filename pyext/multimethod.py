@@ -2,6 +2,8 @@
 @OffbyOne Studios 2014
 A library for provding multi methods.
 """
+# TODO: resolve to next function
+
 import abc
 import collections
 import functools
@@ -71,7 +73,7 @@ def methodof(_multi, *args, **kwargs):
     def _dec(f, multi=_multi):
         _multi.register(f, *args, **kwargs)
         return f
-    return _dec
+    return _dec 
 
 class ArgMatchStrategy(IMultiMethodStrategy):
     """A very simple matching multimethod strategy
@@ -122,3 +124,75 @@ class ArgMatchStrategy(IMultiMethodStrategy):
                 break;
         
         return last_valid
+
+class ClassResolutionStrategy(IMultiMethodStrategy):
+    """The common multimethod strategy, based of mro of arguments.
+    
+    Methods are bound by class arguments, the more specific classes are preffered.
+    """
+    def __init__(self, onclass=False):
+        """If onclass is true, assumes this is on a class and method calls will be invoked."""
+        self._methods = onclass
+        
+    def args_to_key(self, *args, **kwargs):
+        if self._methods:
+            args = args[1:]
+        return tuple(map(type, args))
+    
+    def binding_to_key(self, *args, **kwargs):
+        return tuple(args)
+    
+    class Store(object):
+        class _sentinal: pass
+        class _lookup_failure: pass
+        
+        def __init__(self):
+            self._cache = {}
+            self._lookup = {}
+        
+        def add(self, bind, value):
+            self._cache = {}
+            current = self._lookup
+            for t in bind:
+                if not (t in current):
+                    current[t] = {}
+                current = current[t]
+            current[ClassResolutionStrategy.Store._sentinal] = value
+        
+        @staticmethod
+        def _lookup(current, key):
+            if not key:
+                return current[ClassResolutionStrategy.Store._sentinal]
+            
+            for mro in key[0].__mro__:
+                if not (mro in current):
+                    continue
+                    
+                v = ClassResolutionStrategy.Store._lookup(current[mro], key[1:])
+                
+                if v is ClassResolutionStrategy.Store._lookup_failure:
+                    continue
+                
+                return v
+            
+            return ClassResolutionStrategy.Store._lookup_failure
+        
+        def lookup(self, key):
+            if key in self._cache:
+                return self._cache[key]
+            else:
+                v = ClassResolutionStrategy.Store._lookup(self._lookup, key)
+                self._cache[key] = v
+                return v
+    
+    def new_store(self):
+        return self.Store()
+    
+    def add_entry(self, store, key, entry):
+        store.add(key, entry)
+    
+    def choose_entry(self, store, key, default):
+        v = store.lookup(key)
+        if v is ClassResolutionStrategy.Store._lookup_failure:
+            return default
+        return v
