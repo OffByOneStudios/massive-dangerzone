@@ -17,6 +17,8 @@ class Tool_identity(pydynecs.LookupIndexManager):
 
 from PyQt4 import QtGui
 qtApp = None
+qtWindows = []
+    
 def launch(tool_plugin):
     global qtApp
     
@@ -27,11 +29,18 @@ def launch(tool_plugin):
     
     tool = madz.bootstrap.Entity(tool_plugin)[Tool]()
 
-    window = tool.qtWidgetClass()()
+    class ActualWindow(tool.qtWidgetClass()):
+        def closeEvent(self, *args):
+            qtWindows.remove(self)
+            super().closeEvent(*args)
     
+    window = ActualWindow()
     window.show()
+    qtWindows.append(window)
     
+    print(qtWindows)
     if do_main:
         sys.exit(qtApp.exec_())
 
 from .ToolChooser import *
+from .Connector import *

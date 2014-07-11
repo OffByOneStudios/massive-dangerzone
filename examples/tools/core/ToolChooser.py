@@ -78,7 +78,7 @@ class ToolChooser(ITool):
     ### END ITool
     
     def __init__(self):
-        class Widget(ToolChooser.Widget):
+        class Widget(self.Widget):
             _controller = self
         self.Widget = Widget
         self._toplevel = None

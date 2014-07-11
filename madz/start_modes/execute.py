@@ -10,7 +10,7 @@ import threading
 
 import zmq
 
-from ..daemon import client
+from ..daemon import Client
 
 stdin = sys.stdin.buffer
 stdout = sys.stdout.buffer
@@ -43,7 +43,7 @@ def simple_io_thread(pipe, queue, tag, stop_event):
             break
 
 def start(argv, system, user_config):
-    res = client.invoke_minion("execute", (argv[1:], user_config))
+    res = Client().invoke_minion("execute", (argv[1:], user_config))
 
     if isinstance(res, str):
         print(res)

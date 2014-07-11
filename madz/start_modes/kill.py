@@ -5,11 +5,11 @@ Startmode for killing an active daemon.
 
 import sys, os
 
-from ..daemon import client
+from ..daemon import Client
 
 def start(argv, system, user_config):
     # TODO: Replace
-    res = client.invoke_daemon("banish")
+    res = Client().invoke_daemon("banish")
 
     print(res)
 

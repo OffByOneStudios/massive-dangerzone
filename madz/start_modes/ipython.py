@@ -42,6 +42,6 @@ class InteractivePythonHandler(IHandler):
 Server.handlers[InteractivePythonHandler.handler_name] = InteractivePythonHandler()
 
 def start(argv, system, user_config):
-    res = client.invoke_minion("ipython", (argv, user_config))
+    res = Client.invoke_minion("ipython", (argv, user_config))
 
     print(res)

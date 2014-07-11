@@ -42,7 +42,7 @@ class FileModuleRelationModuleEntity(fileman.BasicComponentManager, fileman.Enti
     depends=[fileman.Path]
     component_name="madz_module"
 
-class FileModuleRelationModuleBase(fileman.IEntityManager):
+class FileModuleRelationFileBase(fileman.IEntityManager):
     relationship_class=FileModuleRelationship
     
     def has_entity(self, entity):
@@ -50,7 +50,7 @@ class FileModuleRelationModuleBase(fileman.IEntityManager):
             and isinstance(self.s[FileModuleRelationModuleEntity][entity], self.relationship_class))
             
 @fileman.manager
-class FileModuleRelationModuleDirectory(fileman.EntityClass, FileModuleRelationModuleBase):
+class FileModuleRelationFileModuleDirectory(fileman.EntityClass, FileModuleRelationFileBase):
     relationship_class=FileModuleRelationshipModuleDirectory
 
     @fileman.entity_property
@@ -69,3 +69,10 @@ class FileModuleRelationModuleBase(IEntityManager):
     def has_entity(self, entity):
         return (self.s[FileModuleRelationFileEntity].has_entity(entity)
             and isinstance(self.s[FileModuleRelationFileEntity][entity], self.relationship_class))
+
+@manager
+class FileModuleRelationModuleModuleDirectory(fileman.EntityClass, FileModuleRelationModuleBase):
+    relationship_class=FileModuleRelationshipModuleDirectory
+
+    def directory(s, e):
+        return fileman.EcsFiles.current[fileman.Path][s[FileModuleRelationFileEntity][e]]

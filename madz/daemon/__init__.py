@@ -3,6 +3,8 @@ import pydynecs
 import madz.bootstrap
 from .IMinion import *
 
+daemon_filename = ".madz-daemon"
+
 @madz.bootstrap.manager
 class Minion(pydynecs.ObservableComponentManager, madz.bootstrap.BootstrapPluginImplementationComponentManager):
     interface = IMinion
@@ -16,4 +18,4 @@ class Minion_identity(pydynecs.LookupIndexManager):
 from .Daemon import *
 from .minions import *
 
-from . import client
+from .Client import *
