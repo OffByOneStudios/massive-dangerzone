@@ -947,6 +947,13 @@ class _HashMe(object):
 
 class _ActualBase(object): pass
 
+def _cast_python_callback(func, type):
+    v = type(func)
+    if not hasattr(func, "__madz_callback_cache__"):
+        func.__madz_callback_cache__ = list()
+    func.__madz_callback_cache__.append(v)
+    return v
+    
 _internal_madz_type_cache = dict()
 def internal_madz_type(c_type):
     """Construct a Madz wrapper type from a ctype
@@ -959,7 +966,7 @@ def internal_madz_type(c_type):
     if inspect.isclass(c_type) and issubclass(c_type, _ctypes.CFuncPtr):
         def wrap_type_this(func):
             def type_this(*args):
-                args = list(map(lambda a, t : a.__madz_cast_to__(t) if hasattr(a, "__madz_cast_to__") else a, args, func._argtypes_))
+                args = list(map(lambda a, t : a.__madz_cast_to__(t) if hasattr(a, "__madz_cast_to__") else (_cast_python_callback(a, t) if callable(a) and not isinstance(c_type, _ctypes.CFuncPtr) else a), args, func._argtypes_))
                 _res = func(*args)
                 _type = internal_madz_type(type(_res))
                 if not(_type is None):
