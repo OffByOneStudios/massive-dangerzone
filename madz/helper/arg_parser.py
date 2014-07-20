@@ -6,15 +6,18 @@ Helper function for interpreting command line.
 import argparse
 import logging
 import os
+from madz.bootstrap import *
 
-from ..start_modes import start_modes
+from madz.start_mode.core import *
 
 logger = logging.getLogger(__name__)
 
 def error_mode(name):
-    def actual(argv, system, user_config, name=name):
-        print("Error: mode {} not found.".format(name))
-    return actual
+    class Actual:
+        _name=name
+        def startmode_start(self, argv, system, user_config):
+            print("Error: mode '{}' not found:\n\tArgs: {}\n\tSystem: {}\n====Config====\n{}".format(self._name, argv, system, user_config))
+    return Actual
 
 def execute_args_across(argv, system, user_config):
     """Executes the commands from a list of plugin configurations across a provided system from the command line.
@@ -28,6 +31,14 @@ def execute_args_across(argv, system, user_config):
     mode_name = argv[1]
     argv = [argv[0]] + argv[2:]
 
-    start_mode = start_modes.get(mode_name, error_mode(mode_name))
+    #try:
+    start_mode = get_start_mode(mode_name)
+    #except:
+    #    start_mode = None
+        
+    if start_mode is None:
+        start_mode = error_mode(mode_name)
 
-    start_mode(argv, system, user_config)
+    start_mode = start_mode()
+        
+    start_mode.startmode_start(argv, system, user_config)

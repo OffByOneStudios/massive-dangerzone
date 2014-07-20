@@ -55,7 +55,11 @@ class System(abstract.ISystem, metaclass=SystemMeta):
         if not (cls.current is None):
             cls.current._managers[key] = manager_class(cls.current)
         return manager_class
-
+        
+    @classmethod
+    def get_manager_class(cls, key):
+        return cls._meta_manager_classes[key]
+        
     def get_manager(self, key):
         return self._managers[abstract.manager_key(key)]
     

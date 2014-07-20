@@ -32,8 +32,14 @@ class EntityClass(core.BaseManager, abstract.IEntityClass):
         `property` is a provider for a property. A function that when called with an entity returns a descriptor (which may be assignable, and even deleatable). Where meta is a dictionary which may contain:
             * `property_name`: The name of the property.
         """
+        def ecsprop_filter(prop):
+            try:
+                return hasattr(getattr(cls, prop), "__ecs_property__")
+            except:
+                return False
+            
         return list(map(cls.expand_property, 
-            filter(lambda p: hasattr(getattr(cls, p), "__ecs_property__"), 
+            filter(ecsprop_filter, 
                 dir(cls))))
     
     def has_entity(self, entity):

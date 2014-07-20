@@ -64,16 +64,16 @@ class MultiMethod(object):
     def __call__(self, *args, **kwargs):
         return self._strategy.choose_entry(self._store, self._strategy.args_to_key(*args, **kwargs), self.default)(*args, **kwargs)
 
+    def method(self, *args, **kwargs):
+        def dec(f, _self=self):
+            _self.register(f, *args, **kwargs)
+            return f
+        return dec
+        
 def multimethod(o):
     if inspect.isclass(o):
         o = o()
     return functools.wraps(o)(MultiMethod(o))
-
-def methodof(_multi, *args, **kwargs):
-    def _dec(f, multi=_multi):
-        _multi.register(f, *args, **kwargs)
-        return f
-    return _dec 
 
 class ArgMatchStrategy(IMultiMethodStrategy):
     """A very simple matching multimethod strategy

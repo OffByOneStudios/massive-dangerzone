@@ -4,3 +4,4 @@ A plugin subsystem for bootstraping madz
 """
 
 from .core import *
+

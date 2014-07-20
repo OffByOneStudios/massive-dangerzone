@@ -8,9 +8,9 @@ import pyext
 
 ## Ecs System
 @system_syntax
-class EcsReport(System): pass
+class EcsReports(System): pass
 EcsReport.current = EcsReport()
-manager = manager_decorator_for(EcsReport)
+manager = manager_decorator_for(EcsReports)
 
 ## Core Components:
 

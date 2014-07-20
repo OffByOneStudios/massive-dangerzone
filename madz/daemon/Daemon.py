@@ -86,12 +86,12 @@ class Daemon(object):
     
     invoke = pyext.multimethod(pyext.ArgMatchStrategy(True))
     
-    @pyext.methodof(invoke)
+    @invoke.method()
     def invoke_error(self, cmd, *invoke):
         logger.error("DAEMON[^]: Bad invocation '{}'".format(cmd))
         self.control_socket.send_pyobj(None)
         
-    @pyext.methodof(invoke, "identity-concepts")
+    @invoke.method("identity-concepts")
     def invoke_identity_concepts(self, cmd, *invoke):
         logger.debug("DAEMON[^]: Listing identity concepts.")
         result = [
@@ -100,7 +100,7 @@ class Daemon(object):
         
         self.control_socket.send_pyobj(result)
     
-    @pyext.methodof(invoke, "minion")
+    @invoke.method("minion")
     def invoke_minion(self, cmd, minion_name, *invoke):
         minion_name = minion_name.decode("utf-8")
         
@@ -114,14 +114,14 @@ class Daemon(object):
         
         self.control_socket.send_pyobj(minion_report)
     
-    @pyext.methodof(invoke, "describe-minions")
+    @invoke.method("describe-minions")
     def invoke_describe_minions(self, cmd, *invoke):
         logger.debug("DAEMON[^]: Describing minions.")
         minion_report = self.describe_minions()
         
         self.control_socket.send_pyobj(minion_report)
     
-    @pyext.methodof(invoke, "banish-minion")
+    @invoke.method("banish-minion")
     def invoke_banish_minion(self, cmd, minion_name, *invoke):
         minion_name = minion_name.decode("utf-8")
         logger.debug("DAEMON[^]: Banishing minion '{}'.".format(minion_name))
@@ -130,7 +130,7 @@ class Daemon(object):
         
         self.control_socket.send_pyobj(None)
                     
-    @pyext.methodof(invoke, "banish")
+    @invoke.method("banish")
     def invoke_banish(self, cmd, *invoke):
         logger.info("DAEMON[^]: Banishing!")
         banish_report = self.banish_minions()
@@ -154,19 +154,12 @@ class Daemon(object):
 
         self.control_socket = self.context.socket(zmq.REP)
         
-        Daemon.protocol = p = "tcp"
-        Daemon.hostname = h = "127.0.0.1"
+        Daemon.binding = pyext.ZmqBind(port=Daemon.port or "*")
         
-        Daemon.random_bindstr = pyext.zmq_bindfmt(protocol=p, hostname=h, port="")[:-1]
+        Daemon.binding.bind(self.control_socket)
+        Daemon.port = int(Daemon.binding.port)
         
-        if (Daemon.port is None):
-            Daemon.port = self.control_socket.bind_to_random_port(Daemon.random_bindstr)
-            bind_str = pyext.zmq_bindfmt(protocol=p, hostname=h, port=Daemon.port)
-        else:
-            Daemon.port = int(Daemon.port)
-            bind_str = pyext.zmq_bindfmt(protocol=p, hostname=h, port=Daemon.port)
-            self.control_socket.bind(bind_str)
-        logger.info("DAEMON[^]: Started and bound to {}.".format(bind_str))
+        logger.info("DAEMON[^]: Started and bound to {}.".format(Daemon.binding))
 
         try:
             with open(daemon_filename, "w") as f:

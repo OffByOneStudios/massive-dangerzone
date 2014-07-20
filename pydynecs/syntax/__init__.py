@@ -35,13 +35,12 @@ def system_syntax(system):
 def manager_decorator_for(system):
     from .. import abstract as abstract
 
-    system
-
     def dec(cls, _system=system):
         if not issubclass(cls, abstract.IEntityManager):
             raise Exception("Decorated class '{}' is not a subclass of IEntityManager.".format(cls))
             
         cls.pydynecs_key = lambda cls=cls: "{}/{}".format(cls.__module__, cls.__qualname__)
+        cls.pydynecs_ecsclass = _system
         abstract.IManagerKey.register(cls)
 
         _system.add_manager(cls, cls)

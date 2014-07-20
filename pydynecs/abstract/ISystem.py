@@ -13,7 +13,12 @@ class ISystem(IEntityAllocator, metaclass=abc.ABCMeta):
     
     @classmethod
     @abc.abstractmethod
-    def add_manager(self, key, manager_class):
+    def get_manager_class(cls, key):
+        pass
+    
+    @classmethod
+    @abc.abstractmethod
+    def add_manager(cls, key, manager_class):
         pass
     
     @abc.abstractmethod

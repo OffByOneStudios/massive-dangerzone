@@ -10,7 +10,7 @@ import abc
 class IEntityManager():
     @classmethod
     @abc.abstractmethod
-    def meta(self):
+    def meta(cls):
         """Returns a dictionary of metadata for this entity manager.
         
         * `component_name`: the name of this component

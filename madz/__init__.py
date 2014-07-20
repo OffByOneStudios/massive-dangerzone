@@ -3,9 +3,9 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logging.getLogger(__name__).setLevel(logging.DEBUG)
 
-# Add htn
-import sys
+# Load extensions
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "htn"))
-
 from . import bootstrap
+
+from .bootstrap import _extensions
+_extensions.load_extensions(os.path.join(os.path.dirname(__file__), "..", "madz_extension"))

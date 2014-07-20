@@ -9,6 +9,7 @@ from .imposter import *
 from .tasks import *
 from .multimethod import *
 from .latebind import *
+from .classproperty import *
 
 _has_zmq = False
 try:
