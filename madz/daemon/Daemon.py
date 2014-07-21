@@ -104,7 +104,7 @@ class Daemon(object):
     def invoke_minion(self, cmd, minion_name, *invoke):
         minion_name = minion_name.decode("utf-8")
         
-        logger.info("DAEMON[^]: Spawning minion {}.".format(minion_name))
+        logger.info("DAEMON[^]: Getting minion {}.".format(minion_name))
         if not (minion_name in bootstrap.EcsBootstrap.current[Minion_identity]):
             self.control_socket.send_pyobj("Minion not found!")
             return

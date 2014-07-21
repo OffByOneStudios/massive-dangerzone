@@ -22,6 +22,8 @@ class SystemMeta(pyext.ContextMetaGen(type(abstract.ISystem))):
 
 class System(abstract.ISystem, metaclass=SystemMeta):
     def __init__(self, allocator=None):
+        self._sysid = abstract.next_instance_id(self)
+    
         if (allocator is None):
             self._allocator = SimplePyAllocator.SimplePyAllocator(self)
         elif (isinstance(allocator, abstract.IEntityAllocator)):
@@ -32,6 +34,9 @@ class System(abstract.ISystem, metaclass=SystemMeta):
         self._managers = {}
         for (k, v) in self._meta_manager_classes.items():
             self._managers[k] = v(self)
+    
+    def pydynecs_system_id(self):
+        return self._sysid
     
     def new_entity(self, *args, **kwargs): return self.Entity(self._allocator.new_entity(*args, **kwargs))
     def last_entity(self, *args, **kwargs): return self.Entity(self._allocator.last_entity(*args, **kwargs))

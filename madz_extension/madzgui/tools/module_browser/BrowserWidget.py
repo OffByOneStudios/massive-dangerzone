@@ -2,7 +2,7 @@ import madz
 import madz.module
 
 from PyQt4 import QtCore, QtGui
-from .. import PyQtExt
+from madzgui import PyQtExt
 
 class BrowserWidget(QtGui.QWidget):
     def __init__(self, *args, **kwargs):
@@ -20,7 +20,8 @@ class BrowserWidget(QtGui.QWidget):
             madz.module.Id,
             madz.module.FileModuleRelationFileEntity,
         ])
-        tableData.setConversion(madz.module.FileModuleRelationFileEntity, lambda d, i: string(d.directory()))
+        tableData.setConversion(madz.module.Id, lambda d, i: str(d))
+        tableData.setConversion(madz.module.FileModuleRelationFileEntity, lambda d, i: repr(d))
         
         self._table = table = QtGui.QTableView()
         

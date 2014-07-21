@@ -26,7 +26,7 @@ class SimplePyAllocator(abstract.IEntityAllocator):
         ent = abstract.entity(potential_e)
         
         return (isinstance(ent, abstract.Entity)
-            and ent.system == self._system
+            and ent.system == self._system.pydynecs_system_id()
             and ent.id <= self._hints_last_entity[ent.group])
     
     def reclaim_entity(self, entity):

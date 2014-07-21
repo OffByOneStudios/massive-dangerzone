@@ -8,6 +8,10 @@ from .IEntityAllocator import *
 
 class ISystem(IEntityAllocator, metaclass=abc.ABCMeta):
     @abc.abstractmethod
+    def pydynecs_system_id(self):
+        pass
+
+    @abc.abstractmethod
     def get_manager(self, key):
         pass
     

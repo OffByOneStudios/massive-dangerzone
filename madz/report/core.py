@@ -9,7 +9,7 @@ import pyext
 ## Ecs System
 @system_syntax
 class EcsReports(System): pass
-EcsReport.current = EcsReport()
+EcsReports.current = EcsReports()
 manager = manager_decorator_for(EcsReports)
 
 ## Core Components:
@@ -25,7 +25,7 @@ class Children(CoercingComponentManager, BasicComponentManager):
 @manager
 class Parent(CheckedComponentManager, BasicComponentManager):
     def check(self, value):
-        return EcsReport.current.valid_entity(value)
+        return EcsReports.current.valid_entity(value)
 
 ## Core Meta Components:
 

@@ -1,4 +1,4 @@
-"""pydynecs/context.py
+"""pydynecs/__init__.py
 @OffbyOne Studios 2014
 A library a dynamic entity component system.
 

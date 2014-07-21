@@ -3,8 +3,12 @@
 Entity datatype.
 """
 
+from .ISystem import *
+
 class Entity(object):
     def __init__(self, system, id, group=None):
+        if isinstance(system, ISystem):
+            system = system.pydynecs_system_id()
         self.system = system
         self.id = id
         self.group = group

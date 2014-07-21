@@ -2,9 +2,8 @@ from PyQt4 import QtCore, QtGui
 
 import madz.bootstrap
 
-from .. import PyQtExt
-from .ITool import *
-from . import *
+from madzgui import PyQtExt
+from madzgui.core import *
 
 # From: http://www.gulon.co.uk/2013/01/30/button-delegate-for-qtableviews/
 class ButtonDelegate(QtGui.QItemDelegate):
@@ -82,6 +81,7 @@ class ToolChooser(ITool):
             _controller = self
         self.Widget = Widget
         self._toplevel = None
+        refresh_tools()
     
     def spawn(self, to_spawn):
         launch(madz.bootstrap.EcsBootstrap.current[Tool_identity][to_spawn.identity()])

@@ -7,33 +7,39 @@ import threading
 import zmq
 import pyext
 
-from ... import abstract
+from ... import abstract, serialization
 from . import *
 
 class SyncOnDemandClientSystem(abstract.ISystem):
-    def __init__(self, sys_class, query_bind_str=None, sub_bind_str=None):
+    def __init__(self, sys_class, query_bind=None, sub_bind=None):
         self._sysclass = sys_class
     
-        self._query_bind_str = query_bind_str
-        self._sub_bind_str = sub_bind_str
+        self._query_bind = query_bind
+        self._sub_bind = sub_bind
         
-        self._serializer = PyObjFakeSerializer(self)
+        self._serializer = serialization.PyObjFakeSerializer(self)
         
+        self._context = None
+        self._stopped = False
         self._manager_cache = {}
+        self._manager_class_cache = {}
         self._component_cache = {}
         self._index_cache = {}
         
     def start(self):
         if not (self._context is None):
-            raise Exception("Server already started")
+            raise Exception("Client already started")
             
         self._context = zmq.Context()
         
         self._socket_query = self._context.socket(zmq.REQ)
-        self._socket_query.connect(self._sub_bind_str)
+        self._socket_query.connect(str(self._query_bind))
         
-        self._query_thread = self.SubscriberThread(self)
+        self._sub_thread = self.SubscriberThread(self)
+        self._sub_thread.start()
         
+        self._sysid = self._query(("meta-id",))
+        abstract.system_instances[self._sysid] = self
         self._network_build_managers(force=True)
     
     def stop(self):
@@ -44,16 +50,19 @@ class SyncOnDemandClientSystem(abstract.ISystem):
             super().__init__()
             self._server = server
 
-        def start(self):
+        def _run_start(self):
             self._context = zmq.Context()
             self._socket_sub = self._context.socket(zmq.SUB)
-            self._socket_sub.connect(self._query_bind_str)
+            self._socket_sub.connect(str(self._server._sub_bind))
             
         def run(self):
+            self._run_start()
             while not self._server._stopped:
                 request = pyext.zmq_busy(
                     lambda: self._socket_sub.recv_pyobj(zmq.NOBLOCK),
                     lambda: self._server._stopped)
+                if request is None: continue
+                
                 result = self._server._sub_invoke(*request)
                 self._server.send_pyobj(result)
     
@@ -64,14 +73,27 @@ class SyncOnDemandClientSystem(abstract.ISystem):
         return self._manager_cache[manager]
         
     def _outbound_entity(self, entity):
-        return entity
+        e = abstract.entity(entity)
+        tup = (e.system, e.id, e.group)
+        return tup
         
     def _inbound_entity(self, entity):
-        return entity
+        return abstract.Entity(*entity)
     
     ### START ISystem
+    def pydynecs_system_id(self):
+        return self._sysid
+        
+    def last_entity(self, *args, **kwargs): raise NotImplementedError()
+    def new_entity(self, *args, **kwargs): raise NotImplementedError()
+    def reclaim_entity(self, *args, **kwargs): raise NotImplementedError()
+    def valid_entity(self, *args, **kwargs): raise NotImplementedError()
+    
+    def get_manager_class(self, key):
+        return self._manager_class_cache[abstract.manager_key(key)]
+        
     def get_manager(self, key):
-        return self._manager_cache[key]
+        return self._manager_cache[abstract.manager_key(key)]
     
     @classmethod
     def add_manager(self, key, manager_class):
@@ -86,25 +108,30 @@ class SyncOnDemandClientSystem(abstract.ISystem):
     def _network_build_manager(self, key, meta):
         manager_class = None
         try:
-            manager_class = self._sysclass.get_manager_class
+            manager_class = self._sysclass.get_manager_class()
         except:
             pass
         
         manager_netclass = {
             "index": SyncOnDemandIndexManager,
             "entity": SyncOnDemandEntityManager,
-            "component": SyncOnDemandComponentManager,
+            "component": SyncOnDemandReadableComponentManager,
         }[meta["manager_classification"].split("-")[0]]
         
+        actualclass = None
         if not (manager_class is None):
             class ActualOverrideNetManager(manager_netclass, manager_class):
-                _meta = meta
-            instance = ActualOverrideNetManager(self, key)
+                _net_meta = meta
+                _key = key
+            actualclass = ActualOverrideNetManager
         else:
             class ActualNetManager(manager_netclass):
-                _meta = meta
-            instance = ActualNetManager(self, key)
-            
+                _net_meta = meta
+                _key = key
+            actualclass = ActualNetManager
+        
+        instance = actualclass(self)
+        self._manager_class_cache[key] = actualclass
         self._manager_cache[key] = instance
     
     def _network_build_managers(self, force=False):
@@ -112,6 +139,7 @@ class SyncOnDemandClientSystem(abstract.ISystem):
             return
         
         self._manager_cache = {}
+        self._entities_cache = {}
         self._component_cache = {}
         self._index_cache = {}
     
@@ -122,10 +150,42 @@ class SyncOnDemandClientSystem(abstract.ISystem):
     _sub_invoke = pyext.multimethod(pyext.ArgMatchStrategy(True))
     
     def _query(self, query):
-        self._query_socket.send_pyobj(query)
-        result = pyext.zmq_busy(lambda: self._query_socket.recv_pyobj(zmq.NOBLOCK))
+        self._socket_query.send_pyobj(query)
+        result = pyext.zmq_busy(lambda: self._socket_query.recv_pyobj(zmq.NOBLOCK))
         return result
-        
+    
+    def _query_entities(self, manager):
+        manager = abstract.manager_key(manager)
+        if not manager in self._entities_cache:
+            entities = self._query(("manager-entities", self._outbound_manager(manager)))
+            self._entities_cache[manager] = set(map(self._inbound_entity, entities))
+        return self._entities_cache[manager]
+    
+    def _query_has(self, manager, entity):
+        return entity in self._query_entities(manager)
+    
+    def _query_component(self, manager, entity):
+        mankey = abstract.manager_key(manager)
+        key = (mankey, entity)
+        if not (key in self._component_cache):
+            self._component_cache[key] = self._serializer.unpack(mankey,
+                self._query((
+                    "manager-component",
+                    self._outbound_manager(manager),
+                    self._outbound_entity(entity))))
+        return self._component_cache[key]
+    
+    def _query_index(self, manager, index):
+        mankey = abstract.manager_key(manager)
+        key = (mankey, entity)
+        if not (key in self._index_cache):
+            self._index_cache[key] = self._inbound_entity(
+                self._query((
+                    "manager-index",
+                    self._outbound_manager(manager),
+                    self._serializer.pack(mankey, index))))
+        return self._index_cache[key]
+    
     @_sub_invoke.method("meta-managers-changed")
     def _sub_invoke_meta_managers_changed(self, cmd):
         self._network_build_managers(force=True)

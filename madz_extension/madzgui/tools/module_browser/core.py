@@ -1,7 +1,7 @@
 
 import madz.bootstrap
 
-from ..core import ITool
+from madzgui.core import *
 from .BrowserWidget import *
 
 @madz.bootstrap.bootstrap_plugin("tools.module_browser.Core")

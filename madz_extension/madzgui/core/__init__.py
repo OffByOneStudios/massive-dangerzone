@@ -1,4 +1,5 @@
 import sys
+import importlib, pkgutil
 
 import pydynecs
 
@@ -18,7 +19,48 @@ class Tool_identity(pydynecs.LookupIndexManager):
 from PyQt4 import QtGui
 qtApp = None
 qtWindows = []
+
+def main_shutdown():
     
+    import madz.module
+    import madz.fileman
+    import madz.report
+    
+    madz.module.EcsModules.current.stop()
+    madz.fileman.EcsFiles.current.stop()
+    madz.report.EcsReports.current.stop()
+
+def connect_replicated_ecs():
+    import pydynecs
+    import madz.daemon
+    
+    client = madz.daemon.Client()
+    
+    import madz.module
+    import madz.fileman
+    import madz.report
+    
+    madz.module.EcsModules.current = pydynecs.SyncOnDemandClientSystem(
+        madz.module.EcsModules,
+        *client.invoke_minion("ecsreplicator", ("start-system", "modules")))
+    madz.module.EcsModules.current.start()
+    madz.fileman.EcsFiles.current = pydynecs.SyncOnDemandClientSystem(
+        madz.fileman.EcsFiles,
+        *client.invoke_minion("ecsreplicator", ("start-system", "files")))
+    madz.fileman.EcsFiles.current.start()
+    madz.report.EcsReports.current = pydynecs.SyncOnDemandClientSystem(
+        madz.report.EcsReports,
+        *client.invoke_minion("ecsreplicator", ("start-system", "reports")))
+    madz.report.EcsReports.current.start()
+
+def refresh_tools():
+    import madzgui.tools
+    for p in pkgutil.walk_packages(madzgui.tools.__path__, madzgui.tools.__name__ + "."):
+        try:
+            importlib.import_module(p[1])
+        except:
+            pass
+
 def launch(tool_plugin):
     global qtApp
     
@@ -38,9 +80,7 @@ def launch(tool_plugin):
     window.show()
     qtWindows.append(window)
     
-    print(qtWindows)
     if do_main:
-        sys.exit(qtApp.exec_())
-
-from .ToolChooser import *
-from .Connector import *
+        r = qtApp.exec_()
+        main_shutdown()
+        sys.exit(r)

@@ -3,9 +3,11 @@ import madz
 import madz.bootstrap
 
 from . import core
-from . import module_browser
+import madzgui.tools
 
 def start(target=None):
+    core.connect_replicated_ecs()
     if target is None:
-        target = core.ToolChooser.identity()
+        from madzgui.tools.ToolChooser import ToolChooser
+        target = ToolChooser.identity()
     core.launch(madz.bootstrap.EcsBootstrap.current[core.Tool_identity][target])

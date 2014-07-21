@@ -20,9 +20,11 @@ class PluginId(object):
         self.implementation = implementation
     
     @classmethod
-    def coerce(self, value, *, complete=True):
+    def coerce(cls, value, *, complete=True):
         if isinstance(value, PluginId):
-            return self
+            return value
+        elif isinstance(value, str):
+            return cls.parse(value)
         else:
             raise ArgumentException()
 

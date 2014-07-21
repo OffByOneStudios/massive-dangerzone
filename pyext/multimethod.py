@@ -122,7 +122,8 @@ class ArgMatchStrategy(IMultiMethodStrategy):
                 current = current[arg]
             else:
                 break;
-        
+        if ArgMatchStrategy._sentinal in current:
+            last_valid = current[ArgMatchStrategy._sentinal]
         return last_valid
 
 class ClassResolutionStrategy(IMultiMethodStrategy):

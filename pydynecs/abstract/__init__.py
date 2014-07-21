@@ -3,8 +3,6 @@
 Abstract interfaces used within pydynecs.
 """
 
-from .Entity import *
-
 from .IEntity import *
 from .IEntityAllocator import *
 
@@ -20,6 +18,10 @@ from .IObservableEntityManager import *
 from .IManagerKey import *
 
 from .ISystem import *
+
+from .Entity import *
+
+from .GlobalSystemInstances import *
 
 def entity(e):
     _e = e
