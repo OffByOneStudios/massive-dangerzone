@@ -61,9 +61,9 @@ class ClCompiler(BuildBase):
     @property
     def available(self):
         try:
-            ret, out, err = self.invoke_simple(["cl", "/help"])
+            ret, out, err = self.invoke_simple(["cl"])
             return ret == 0
-        except:
+        except Exception as e:
             return False
 
     @classmethod

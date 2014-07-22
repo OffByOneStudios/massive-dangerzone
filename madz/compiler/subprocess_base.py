@@ -29,11 +29,16 @@ class SubprocessBase(CompilerBase):
         """
         pass
     
-    def invoke_simple(self, args, dir):
-        dir.ensure()
+    def invoke_simple(self, args, dir=None):
+        if not dir is None:
+            dir.ensure()
+            path = dir.path
+        else:
+            path = "."
+        
         compile_process = subprocess.Popen(
             args,
-            cwd=dir.path,
+            cwd=path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
