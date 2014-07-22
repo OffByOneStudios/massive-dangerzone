@@ -1,10 +1,12 @@
 """subprocess_base.py
 @Offbyone Studios 2014
 """
+import logging
 from abc import *
 
 from .subprocess_base import SubprocessBase
 
+logger = logging.getLogger(__name__)
 
 class BuildBase(SubprocessBase):
     
@@ -24,7 +26,10 @@ class BuildBase(SubprocessBase):
         
     def build_plugin(self, plugin_stub, language):
         successful = True
-        
+        if not self.available:
+            logger.error("Compiler '{}' Not Found".format(self.name))
+            return False
+            
         sourcefiles = self.get_source_files(plugin_stub, language)
         for compile_file in sourcefiles:
             sucsessful = successful and self.invoke("compile",

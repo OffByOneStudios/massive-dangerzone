@@ -59,7 +59,7 @@ class ClCompiler(BuildBase):
         return ["c", "cpp"]
 
     @property
-    def available():
+    def available(self):
         try:
             ret, out, err = self.invoke_simple(["cl", "/help"])
             return ret == 0

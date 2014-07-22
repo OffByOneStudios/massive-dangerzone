@@ -21,7 +21,7 @@ class MingwCompiler(GnuCompilerBase):
         return ["c", "cpp"]
 
     @property
-    def available():
+    def available(self):
         try:
             ret, out, err = self.invoke_simple(["gcc", "--version"])
             return ret == 0
