@@ -52,7 +52,8 @@ class SyncOnDemandServer(object):
             while not self._server._stopped:
                 request = pyext.zmq_busy(
                     lambda: self._socket_query.recv_pyobj(zmq.NOBLOCK),
-                    lambda: self._server._stopped)
+                    lambda: self._server._stopped,
+                    sleep_time=0.001)
                 if request is None: continue
                 
                 result = self._server.invoke(self._server, *request)

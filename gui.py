@@ -4,13 +4,13 @@ import madz
 try:
     import zmq
 except:
-    print("Missing dependency ZMQ")
+    print("Missing dependency 'ZMQ'")
     exit()
 try:
     import PyQt4
     import PyQt4.Qsci
 except:
-    print("Missing dependency PyQt4 (Full Install)")
+    print("Missing dependency 'PyQt4 (Full Install)'")
     exit()
 
 import os, sys

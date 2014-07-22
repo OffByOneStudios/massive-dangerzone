@@ -43,7 +43,9 @@ class EcsReplicatorMinion(IMinion):
             socket = context.socket(zmq.REP)
             self._minion.command_binding.bind(socket)
             while not self._minion.banished:
-                management_command = pyext.zmq_busy(lambda: socket.recv_pyobj(zmq.NOBLOCK), lambda: self._minion.banished)
+                management_command = pyext.zmq_busy(
+                    lambda: socket.recv_pyobj(zmq.NOBLOCK),
+                    lambda: self._minion.banished)
                 if management_command is None:
                     continue
                 

@@ -151,7 +151,7 @@ class SyncOnDemandClientSystem(abstract.ISystem):
     
     def _query(self, query):
         self._socket_query.send_pyobj(query)
-        result = pyext.zmq_busy(lambda: self._socket_query.recv_pyobj(zmq.NOBLOCK))
+        result = self._socket_query.recv_pyobj()
         return result
     
     def _query_entities(self, manager):

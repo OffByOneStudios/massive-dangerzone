@@ -17,5 +17,5 @@ def load_extensions(extension_dir):
             sys.modules["madz"].__path__.append(fulldir)
             extlist += [dir]
     
-    print ("Extensions:", extlist)
+    print ("===> Extensions:", extlist)
     

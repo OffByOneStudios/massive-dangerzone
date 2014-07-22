@@ -42,7 +42,7 @@ class ZmqBind(object):
         sections = str.split(":")
         return ZmqBind(sections[0], sections[1][2:], sections[2])
     
-def zmq_busy(socket_try, socket_end=lambda: False, sleep_time=0.1):
+def zmq_busy(socket_try, socket_end=lambda: False, sleep_time=0.02):
     while not socket_end():
         v = zmq_try(socket_try, sleep_time=sleep_time)
         if not (v is None):
