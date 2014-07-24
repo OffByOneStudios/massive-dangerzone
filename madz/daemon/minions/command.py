@@ -33,7 +33,7 @@ class CommandMinion(IMinion):
                 try:
                     #TODO: set up logging report
                     logger.info("DAEMON[{}] Doing command '{}'.".format(self._minion.minion_identity(), " ".join(command[0])))
-                    execute_args_across(command[0], Daemon.current.system, command[1])
+                    execute_args_across(self._minion, command[0], Daemon.current.system, command[1])
                 except Exception as e:
                     tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
                     logger.error("DAEMON[{}] Failed on command '{}':\n\t{}".format(self._minion.minion_identity(), " ".join(command[0]), tb_string))
@@ -153,7 +153,7 @@ def _plugin_names_from_file(file_path):
         plugin = imp.load_module("__plugin__")
         return plugin.plugin.name
 
-def execute_args_across(argv, system, user_config):
+def execute_args_across(minion, argv, system, user_config):
     """Executes the commands from a list of plugin configurations across a provided system from the command line.
     
     Args:
@@ -206,7 +206,10 @@ def execute_args_across(argv, system, user_config):
                     # Do Actions
                     for action in config.get(OptionCommandActions):
                         logger.debug("Starting action '{}'".format(action))
-                        actions[action](system).do()
+                        action = actions[action](system)
+                        action.do(end_check = lambda m=minion: m.banished)
+                        if minion.banished:
+                            break
 
                     # Remove Modes, safely clean up config.
                     config.set_state(old_config_state)

@@ -21,7 +21,7 @@ class BaseAction(object):
     def __init__(self, system):
         self.system = system
 
-    def do(self, plugins=None):
+    def do(self, plugins=None, end_check=lambda: False):
         """Applies the actions associated with the plugins within the Action's system."""
         #TODO(Mason): Make the plugins variable do something.
         active_plugins = self.system.active_plugins()
@@ -29,6 +29,8 @@ class BaseAction(object):
         logger.info("ACTION[{}] performing across {} plugins.".format(self.action_name, len(active_plugins)))
 
         for plugin in active_plugins:
+            if end_check():
+                break
             self.do_plugin(plugin)
 
     def _check_dependency(self, action_provider):
