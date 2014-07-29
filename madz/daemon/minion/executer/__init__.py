@@ -1,3 +1,8 @@
+"""madz/daemon/minion/executer/__init__.py
+@OffbyOne Studios 2014
+Executer minion.
+"""
+
 import sys
 import os
 import threading
@@ -12,9 +17,10 @@ logger = logging.getLogger(__name__)
 import zmq
 
 from madz.bootstrap import *
+from madz.daemon.minion.core import IMinion
+from madz.daemon import Daemon
+
 from madz.config import *
-from ...IMinion import IMinion
-from ...Daemon import Daemon
 
 class ExecuterMinionSubprocess(object):
 
@@ -201,7 +207,7 @@ class ExecuteControlThread(threading.Thread):
                 tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))
                 logger.error("DAEMON[{}] Failed on execute of '{}':\n\t{}".format(self._minion.minion_identity(), " ".join(command[0]), tb_string))
 
-@bootstrap_plugin("madz.minion.Executer")
+@bootstrap_plugin("madz.daemon.minion.executer")
 class ExecuterMinion(IMinion):
     current = None
 

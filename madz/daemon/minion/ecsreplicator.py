@@ -1,3 +1,8 @@
+"""madz/daemon/minion/ecsreplicator.py
+@OffbyOne Studios 2014
+Ecs Replicating minion.
+"""
+
 
 import sys
 import threading
@@ -10,8 +15,7 @@ import pyext
 import pydynecs
 
 from madz.bootstrap import *
-from ..IMinion import IMinion
-from ..Daemon import Daemon
+from madz.daemon.minion.core import IMinion
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +26,7 @@ from madz.report import EcsReports
 from madz.bootstrap import EcsBootstrap
 ## End ECS Systems
 
-@bootstrap_plugin("madz.minion.ecsreplicator")
+@bootstrap_plugin("madz.daemon.minion.ecsreplicator")
 class EcsReplicatorMinion(IMinion):
     current = None
 

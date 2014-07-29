@@ -1,3 +1,8 @@
+"""madz/daemon/minion/core/IMinion.py
+@OffbyOne Studios 2014
+Abstract minion features.
+"""
+
 import abc
 
 class IMinion(metaclass=abc.ABCMeta):

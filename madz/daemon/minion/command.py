@@ -1,3 +1,7 @@
+"""madz/daemon/minion/command.py
+@OffbyOne Studios 2014
+Depreciated Command minion.
+"""
 
 import sys
 import threading
@@ -7,10 +11,10 @@ import traceback
 import zmq
 
 from madz.bootstrap import *
-from ..IMinion import IMinion
-from ..Daemon import Daemon
+from madz.daemon.minion.core import IMinion
+from madz.daemon import Daemon
 
-@bootstrap_plugin("madz.minion.Command")
+@bootstrap_plugin("madz.daemon.minion.command")
 class CommandMinion(IMinion):
     current = None
 

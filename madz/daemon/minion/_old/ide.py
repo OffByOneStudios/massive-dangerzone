@@ -1,30 +1,49 @@
+
+import argparse
 import sys
 import threading
 import time
 import traceback
-import argparse
+import logging
 
 import zmq
+import pyext
+import pydynecs
 
 from madz.bootstrap import *
 from ..IMinion import IMinion
 from ..Daemon import Daemon
-from ...plugins import editors
-from ...config import *
-from ...helper import logging_setup
-from ...action import *
 
-@bootstrap_plugin("madz.minion.VisualStudio")
-class VisualStudioMinion(IMinion):
+logger = logging.getLogger(__name__)
+
+## ECS Systems:
+from madz.fileman import EcsFiles
+from madz.module import EcsModules
+from madz.report import EcsReports
+from madz.bootstrap import EcsBootstrap
+## End ECS Systems
+
+parser = argparse.ArgumentParser(description='Generate IDE project files.')
+parser.add_argument('ide', type=str, help='IDE for which to generate files.')
+parser.add_argument('ide', type=str, help='Directory in which to generate project files')
+                
+@bootstrap_plugin("madz.minion.ide")
+class IdeMinion(IMinion):
     current = None
     
-    class VisualStudioThread(threading.Thread):
+    EcsMinions = {
+        "files": EcsFiles,
+        "modules": EcsModules,
+        "reports": EcsReports,
+        "bootstrap": EcsBootstrap,
+    }
+    
+    class IdeGeneratorThread(threading.Thread):
         def __init__(self, minion):
             super().__init__()
             Daemon.current.system.index()
             self._minion = minion
-
-
+            
         def run(self):
             context = zmq.Context()
             socket = context.socket(zmq.REP)
@@ -74,7 +93,7 @@ class VisualStudioMinion(IMinion):
 
     @classmethod
     def minion_identity(cls):
-        return "visual_studio"
+        return "ide"
             
     @classmethod
     def minion_index(cls):

@@ -10,7 +10,7 @@ from .. import operating_system
 from ..MDL.py_ctypes_gen import set_ctypes_from_mdl
 
 from ..config import *
-from ..daemon.minions.executer import *
+from madz.daemon.minion.executer import *
 
 from .base import *
 

@@ -15,7 +15,7 @@ import zmq
 import pyext
 import pydynecs
 
-from .. import bootstrap
+import madz.bootstrap
 from . import *
 
 logger = logging.getLogger(__name__)
@@ -105,11 +105,9 @@ class Daemon(object):
         minion_name = minion_name.decode("utf-8")
         
         logger.info("DAEMON[^]: Getting minion {}.".format(minion_name))
-        if not (minion_name in bootstrap.EcsBootstrap.current[Minion_identity]):
-            self.control_socket.send_pyobj("Minion not found!")
-            return
+        get_minion(minion_name) # Ensures minion is loaded
         
-        minion_plugin = bootstrap.EcsBootstrap.current[Minion_identity][minion_name]
+        minion_plugin = madz.bootstrap.EcsBootstrap.current[Minion_identity][minion_name]
         minion_report = self.spawn_minion(minion_plugin)[1]
         
         self.control_socket.send_pyobj(minion_report)
