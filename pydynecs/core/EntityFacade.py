@@ -4,6 +4,7 @@ A useful abstraction to automatically use component managers like they were part
 """
 
 import functools
+import itertools
 
 from .. import abstract
 
@@ -44,7 +45,16 @@ class EntityFacade(abstract.IEntity):
         comp = self.system.get_manager(key)
         comp.des(self)
 
+    def __contains__(self, item):
+        comp = self.system.get_manager(item)
+        if isinstance(comp, abstract.IReadableComponentManager):
+            return comp.has(self)
+        else:
+            return comp.has_entity(self)
+        
     def __getattr__(self, key):
+        if key.startswith("_"):
+            return super().__getattr__(key, value)
         if self.system.has_component(key, self):
             return self.system.get_component(key)[self]
         elif self.system.has_property(key, self):
@@ -59,13 +69,15 @@ class EntityFacade(abstract.IEntity):
             self.system.get_component(key)[self] = value
         else:
             raise AttributeError("Entity does not have valid component for '{}'".format(key))
-    
-    def __contains__(self, item):
-        comp = self.system.get_manager(item)
-        if isinstance(comp, abstract.IReadableComponentManager):
-            return comp.has(self)
-        else:
-            return comp.has_entity(self)
+
+    def __dir__(self):
+        base = super().__dir__()
+        baseset = set(base)
+        base.extend(filter(lambda k: not (k in baseset), 
+            itertools.chain(
+                filter(lambda k: self.system.has_component(k, self), self.system.list_components()),
+                filter(lambda k: self.system.has_property(k, self), self.system.list_properties()))))
+        return base
 
     def __iter__(self):
         return iter(self.system.managers_of(self))

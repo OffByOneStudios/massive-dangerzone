@@ -8,8 +8,16 @@ from .. import abstract
 from .. import core
 
 class EntityToComponentManager(abstract.IReadableComponentManager, abstract.IEntityManager):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._actual_has_entity = self.has_entity
+        self.has_entity = lambda e: True
+    
     def get(self, entity):
-        return self.has_entity(entity)
+        try:
+            return self._actual_has_entity(entity)
+        except:
+            return False
     
     def values(self):
         return list(map(lambda e: True, self.entities))

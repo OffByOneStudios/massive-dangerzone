@@ -82,6 +82,8 @@ class System(abstract.ISystem, metaclass=SystemMeta):
         
     @classmethod
     def _add_component(self, key, manager_class, name):
+        if not issubclass(manager_class, abstract.IReadableComponentManager):
+            return
         self._meta_components.append((name, key))
         self._meta_component_lookup[name] = key
 
@@ -93,6 +95,9 @@ class System(abstract.ISystem, metaclass=SystemMeta):
     def get_component(self, _name):
         return self._managers[self._meta_component_lookup[_name]]
 
+    def list_components(self):
+        return self._meta_component_lookup.keys()
+        
     def has_property(self, _name, _entity):
         return (_name in self._meta_property_lookup
             and any(map(lambda p: self._managers[p[0]].has_entity(_entity),
@@ -102,6 +107,9 @@ class System(abstract.ISystem, metaclass=SystemMeta):
         for (manager_class, prop, meta) in self._meta_property_lookup[_name]:
             if self._managers[manager_class].has_entity(_entity):
                 return prop(self, _entity, *args, **kwargs)
+
+    def list_properties(self):
+        return self._meta_property_lookup.keys()
         
     def __call__(self, entity):
         return self.Entity(entity)
