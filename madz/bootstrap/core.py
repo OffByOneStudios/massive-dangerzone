@@ -66,12 +66,12 @@ def bootstrap_plugin(name):
     return lambda p, n=name: add_bootstrap_plugin(n, p)
 
 def bootstrap_ensure_module(name):
-    if not name in EcsBootstrap.current[PyModule_lookup]:
+    if not name in EcsBootstrap.current[Name_lookup]:
         #try:
         import importlib
         importlib.import_module(name)
-        return EcsBootstrap.current[PyModule_lookup][name]
+        return EcsBootstrap.current[Name_lookup][name]
         #except:
         #    pass
     else:
-        return EcsBootstrap.current[PyModule_lookup][name]
+        return EcsBootstrap.current[Name_lookup][name]

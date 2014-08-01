@@ -32,9 +32,9 @@ def main_shutdown():
 
 def connect_replicated_ecs():
     import pydynecs
-    import madz.daemon
+    import madz.daemon.core as daemon
     
-    client = madz.daemon.Client()
+    client = daemon.Client()
     
     import madz.module
     import madz.fileman

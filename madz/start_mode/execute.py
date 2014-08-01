@@ -11,9 +11,9 @@ import threading
 import zmq
 
 from madz.bootstrap import *
-import madz.start_mode.core as core
+import madz.start_mode.Core as core
 
-from ..daemon import Client
+from madz.daemon.client import Client
 
 @bootstrap_plugin("madz.start_mode.execute")
 class ExecuteStartMode(core.IStartMode):

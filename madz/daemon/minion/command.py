@@ -10,9 +10,11 @@ import traceback
 
 import zmq
 
+import pyext
+
 from madz.bootstrap import *
 from madz.daemon.minion.core import IMinion
-from madz.daemon import Daemon
+from madz.daemon.core import Daemon
 
 @bootstrap_plugin("madz.daemon.minion.command")
 class CommandMinion(IMinion):
@@ -28,11 +30,9 @@ class CommandMinion(IMinion):
             socket = context.socket(zmq.REP)
             socket.bind("tcp://127.0.0.1:{port}".format(port=self._minion.port))
             while not self._minion.banished:
-                try:
-                    command = socket.recv_pyobj(zmq.NOBLOCK)
-                except zmq.ZMQError:
-                    time.sleep(0.1)
-                    continue
+                command = pyext.zmq_busy(lambda: socket.recv_pyobj(zmq.NOBLOCK), 
+                    socket_end=lambda s=self: s._minion.banished)
+                    
                 report = None
                 try:
                     #TODO: set up logging report

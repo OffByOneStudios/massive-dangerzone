@@ -18,7 +18,7 @@ import zmq
 
 from madz.bootstrap import *
 from madz.daemon.minion.core import IMinion
-from madz.daemon import Daemon
+from madz.daemon.core import Daemon
 
 from madz.config import *
 

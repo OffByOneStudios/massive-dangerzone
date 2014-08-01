@@ -71,3 +71,4 @@ class Client(object):
 
 class MinionClientProxy(object):
     """Pretends to be a minion on the client side, an RPC object."""
+    

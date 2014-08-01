@@ -11,7 +11,7 @@ import madz.start_mode.core as core
 class DaemonStartMode(core.IStartMode):
     def startmode_start(self, argv, system, user_config):
         # Import daemon at run time, to avoid unneccessary imports.
-        from ..daemon.Daemon import Daemon, daemon_filename
+        from madz.daemon.core.Daemon import Daemon, daemon_filename
         try:
             Daemon.current = Daemon(system)
             Daemon.current.start()

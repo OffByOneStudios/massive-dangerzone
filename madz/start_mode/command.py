@@ -6,7 +6,7 @@ Srtartmode for executing a build command across the plugin system.
 from madz.bootstrap import *
 import madz.start_mode.core as core
 
-from ..daemon import Client
+from madz.daemon.core.Client import Client
 
 @bootstrap_plugin("madz.start_mode.command")
 class CommandStartMode(core.IStartMode):

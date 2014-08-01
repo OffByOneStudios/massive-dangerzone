@@ -6,7 +6,7 @@ Daemon namespace.
 import pydynecs
 
 import madz.bootstrap
-from .minion.core import *
+from madz.daemon.minion.core import *
 
 daemon_filename = ".madz-daemon"
 
