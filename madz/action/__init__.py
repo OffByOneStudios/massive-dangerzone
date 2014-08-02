@@ -6,7 +6,6 @@ Forwards and indexs all the actions.
 from .clean import *
 from .wrap import *
 from .build import *
-from .execute import *
 
 actions = {
     "build": BuildAction,
