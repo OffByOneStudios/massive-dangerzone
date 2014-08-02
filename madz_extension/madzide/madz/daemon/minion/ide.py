@@ -47,6 +47,9 @@ class IdeMinion(IMinion):
                 command = pyext.zmq_busy(lambda: socket.recv_pyobj(zmq.NOBLOCK),
                     socket_end=lambda s=self: s._minion.banished)
 
+                if command is None:
+                    continue
+
                 report = []
                 try:
                     with config.and_merge(Daemon.current.system.config):
