@@ -14,6 +14,7 @@ import pyext
 import pydynecs
 
 from madz.bootstrap import *
+from madz.config import *
 from madz.daemon.minion.core import IMinion
 from madz.daemon.core import Daemon
 
@@ -48,8 +49,10 @@ class IdeMinion(IMinion):
 
                 report = []
                 try:
-                    generator = get_ide_generator(command["ide"])(command["user_config"])
-                    generator.idegenerator_generate(command["output_directory"], command["client_path"])
+                    with config.and_merge(Daemon.current.system.config):
+                        with config.and_merge(command["user_config"]):
+                            generator = get_ide_generator(command["ide"])(config)
+                            generator.idegenerator_generate(command["output_directory"], command["client_path"])
 
                 except Exception as e:
                     tb_string = "\n\t".join(("".join(traceback.format_exception(*sys.exc_info()))).split("\n"))

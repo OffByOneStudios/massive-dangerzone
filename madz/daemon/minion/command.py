@@ -30,9 +30,9 @@ class CommandMinion(IMinion):
             socket = context.socket(zmq.REP)
             socket.bind("tcp://127.0.0.1:{port}".format(port=self._minion.port))
             while not self._minion.banished:
-                command = pyext.zmq_busy(lambda: socket.recv_pyobj(zmq.NOBLOCK), 
+                command = pyext.zmq_busy(lambda: socket.recv_pyobj(zmq.NOBLOCK),
                     socket_end=lambda s=self: s._minion.banished)
-                    
+
                 report = None
                 try:
                     #TODO: set up logging report
@@ -70,7 +70,7 @@ class CommandMinion(IMinion):
     @classmethod
     def minion_identity(cls):
         return "command"
-    
+
     @classmethod
     def minion_index(cls):
         return None
@@ -82,10 +82,10 @@ import argparse
 
 def generate_parser(valid_commands):
     """Creates a parser for actions on a plugin system.
-    
+
     Args:
         valid_commands: A list of commands which are allowed to be performed on a plugin system.
-        
+
     Returns:
         An argparse.ArgumentParser object
     """
@@ -159,7 +159,7 @@ def _plugin_names_from_file(file_path):
 
 def execute_args_across(minion, argv, system, user_config):
     """Executes the commands from a list of plugin configurations across a provided system from the command line.
-    
+
     Args:
         argv: List of arguments from the command line
         system: A system object which the Configurations will be applied to

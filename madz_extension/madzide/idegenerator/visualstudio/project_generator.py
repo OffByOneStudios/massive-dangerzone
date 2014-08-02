@@ -48,19 +48,22 @@ def generate(user_config, project_name, project_guid):
 
 def gen_external_include(user_config):
     res = ""
-    for conf in user_config.get_options():
-        if isinstance(conf, LanguageConfig):
-            for opt in conf.get_options():
-                print(opt)
-                if isinstance(opt, OptionHeaderSearchPaths):
-                    res += ";".join(opt.get_value())
-                    res += ";"
+    #import code
+    #code.InteractiveConsole(locals=locals()).interact()
 
-        if isinstance(conf, LibraryConfig):
-            for opt in conf.get_options():
-                if isinstance(opt, OptionHeaderSearchPaths):
-                    res += ";".join(opt.get_value())
-                    res += ";"
+    for config in user_config.config_list:
+        for conf in config.get_options():
+            if isinstance(conf, LanguageConfig):
+                for opt in conf.get_options():
+                    if isinstance(opt, OptionHeaderSearchPaths):
+                        res += ";".join(opt.get_value())
+                        res += ";"
+
+            if isinstance(conf, LibraryConfig):
+                for opt in conf.get_options():
+                    if isinstance(opt, OptionHeaderSearchPaths):
+                        res += ";".join(opt.get_value())
+                        res += ";"
 
     return res
 
