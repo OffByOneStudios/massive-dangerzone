@@ -72,7 +72,7 @@ class CopyModuleOperation(IModuleOperation):
 
     @classmethod
     def moduleoperation_identity(self):
-        return "new"
+        return "copy"
 
 
 plugin_template = \
