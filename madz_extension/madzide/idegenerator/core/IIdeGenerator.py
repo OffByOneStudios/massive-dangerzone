@@ -7,10 +7,9 @@ Interface for generating ide project files.
 import abc
 
 class IIdeGenerator(metaclass=abc.ABCMeta):
-    """Class which generates the visual studio solution."""
+    """Abstract class for generating ide project files."""
 
     @abc.abstractmethod
-
     def idegenerator_generate(self, output_dir, client_script):
         """Generate an IDE's project files containing madz modules.
 

@@ -1,4 +1,4 @@
-"""madzide:madz/start_mode/ide.py
+"""madzide:__init__.py
 @OffbyOne Studios 2014
 Module for generating IDE project files.
 """
