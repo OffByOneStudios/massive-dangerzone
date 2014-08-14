@@ -1,10 +1,11 @@
 """pyext/classproperty.py
-class property recipe:
+A class property recipe implementation:
 
 http://stackoverflow.com/questions/5189699/how-can-i-make-a-class-property-in-python
 """
 
 class ClassPropertyDescriptor(object):
+    """Descriptor for the `classproperty` decorator."""
     def __init__(self, fget, fset=None):
         self.fget = fget
         self.fset = fset
@@ -24,7 +25,7 @@ class ClassPropertyDescriptor(object):
         if not isinstance(func, (classmethod, staticmethod)):
             func = classmethod(func)
         self.fset = func
-        return self    
+        return self
 
 def classproperty(func):
     if not isinstance(func, (classmethod, staticmethod)):
