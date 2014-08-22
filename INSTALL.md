@@ -4,7 +4,7 @@
 In all cases, the following are required:
 * Python3.3 or later: https://www.python.org/downloads/
 * pyzmq: https://github.com/zeromq/pyzmq
-
+* watchdog : https://pypi.python.org/pypi/watchdog
 One of the following c/c++ toolchains/runtimes is required
 ### Windows
 Madz supports development on windows using both MinGW and MSVC. A few caveats:
