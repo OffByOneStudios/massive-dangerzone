@@ -5,12 +5,14 @@ In all cases, the following are required:
 * Python3.3 or later: https://www.python.org/downloads/
 * pyzmq: https://github.com/zeromq/pyzmq
 * watchdog : https://pypi.python.org/pypi/watchdog
+
 One of the following c/c++ toolchains/runtimes is required
-### Windows
+
+#### Windows
 Madz supports development on windows using both MinGW and MSVC. A few caveats:
 * OffByOne Studios makes heavy use of C++11 features. Therefore the MSVC runtime in VisualStudio-2010 Express or later is recommended
 
-### Linux
+#### Linux
 Madz supports development on linux using GCC and Clang/LLVM. As with windows Ob1's projects make use of C++11 features, so recent versions of the toolchain are recomended.'
 
 ## Configuring the Example
